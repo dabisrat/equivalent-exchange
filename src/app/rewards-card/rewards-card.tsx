@@ -1,5 +1,9 @@
 "use client";
 import { useState } from "react";
+import { motion } from "framer-motion";
+
+import front from "../assests/front.jpg";
+import back from "../assests/back.jpg";
 
 interface RewardsCardProps {
   points: number;
@@ -7,37 +11,37 @@ interface RewardsCardProps {
 
 const RewardsCard: React.FC<RewardsCardProps> = ({ points }) => {
   const [isFlipped, setIsFlipped] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  const flipCard = () => {
-    setIsFlipped(!isFlipped);
-  };
-
+  function handleFlip() {
+    if (!isAnimating) {
+      setIsFlipped(!isFlipped);
+      setIsAnimating(true);
+    }
+  }
   return (
-    <div
-      onClick={flipCard}
-      className={`relative border border-gray-300 rounded-lg p-6 m-4 text-center bg-gray-800 text-white transform ${
-        isFlipped ? "rotate-y-180" : ""
-      } w-64 h-64`}
-    >
+    <div className="flex items-center justify-center bg-black h-[800px] cursor-pointer">
       <div
-        style={{
-          backfaceVisibility: "hidden",
-          transform: isFlipped ? "rotateY(180deg)" : "none",
-        }}
-        className={`absolute w-full h-full transition-transform duration-700 ease-in-out`}
+        className="flip-card w-[600px] h-[360px] rounded-md"
+        onClick={handleFlip}
       >
-        <h2 className="text-2xl font-bold">Rewards Card</h2>
-        <p className="text-lg">You have {points} points.</p>
-      </div>
-      <div
-        style={{
-          backfaceVisibility: "hidden",
-          transform: isFlipped ? "none" : "rotateY(180deg)",
-        }}
-        className={`absolute w-full h-full transition-transform duration-700 ease-in-out`}
-      >
-        <h2 className="text-2xl font-bold">Back of Card</h2>
-        <p className="text-lg">This is the back of the card.</p>
+        <motion.div
+          className="flip-card-inner w-[100%] h-[100%]"
+          initial={false}
+          animate={{ rotateY: isFlipped ? 180 : 360 }}
+          transition={{ duration: 0.3, animationDirection: "normal" }}
+          onAnimationComplete={() => setIsAnimating(false)}
+        >
+          <div
+            className="flip-card-front w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
+            style={{ backgroundImage: `url(${front.src})` }}
+          ></div>
+
+          <div
+            className="flip-card-back w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
+            style={{ backgroundImage: `url(${back.src})` }}
+          ></div>
+        </motion.div>
       </div>
     </div>
   );

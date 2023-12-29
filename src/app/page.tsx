@@ -2,23 +2,31 @@
 import { supabaseClient } from "@PNN/libs/supabaseClient";
 import RewardsCard from "./rewards-card/rewards-card";
 import { useEffect, useState } from "react";
-import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { Session } from "@supabase/supabase-js";
+import Authentication from "./auth/auth";
+import Loading from "./loading";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>({} as any);
+  const [isLoading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    supabaseClient.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
+    setLoading(true);
+    supabaseClient.auth
+      .getSession()
+      .then(({ data: { session }, error }) => {
+        setSession(session);
+      })
+      .catch((error) => {
+        throw error;
+      })
+      .finally(() => setLoading(false));
 
     const {
       data: { subscription },
     } = supabaseClient.auth.onAuthStateChange((event, session) => {
-      console.log("event", event);
       setSession(session);
+      setLoading(false);
     });
 
     return () => {
@@ -26,25 +34,16 @@ export default function App() {
     };
   }, []);
 
+  if (isLoading) return <Loading />;
+
   if (session?.user) {
-    console.log("session", session);
-    return <RewardsCard points={7} />;
-  } else {
     return (
-      <Auth
-        supabaseClient={supabaseClient}
-        appearance={{
-          theme: ThemeSupa,
-          style: {
-            container: {
-              padding: "1rem",
-            },
-          },
-        }}
-        socialLayout="horizontal"
-        theme="dark"
-        providers={["google", "apple", "facebook"]}
-      />
+      <div>
+        <button onClick={(e) => supabaseClient.auth.signOut()}> logout </button>
+        <RewardsCard points={7} />
+      </div>
     );
+  } else {
+    return <Authentication />;
   }
 }

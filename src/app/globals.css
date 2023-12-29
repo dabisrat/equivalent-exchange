@@ -2,11 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-@layer components {
-  .toggle-button {
-    @apply h-10 w-10 rounded-full border transition hover:scale-105;
-  }
-}
 
 body {
   background-color: #1c1c1c;
@@ -23,3 +18,33 @@ p {
   font-size: 16px;
   color: rgba(255, 255, 255, 0.75);
 }
+
+.flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  transition: transform 0.6s;
+  transform-style: preserve-3d;
+}
+
+.flip-card-front,
+
+.flip-card-back {
+  position: absolute;
+  backface-visibility: hidden;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+@keyframes rotateGradient {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 100%;
+  }
+}
+
