@@ -2,8 +2,8 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 
-import front from "../assests/front.jpg";
-import back from "../assests/back.jpg";
+import front from "@PNN/assests/front.jpg";
+import back from "@PNN/assests/back.jpg";
 
 interface RewardsCardProps {
   points: number;
@@ -40,7 +40,9 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ points }) => {
           <div
             className="flip-card-back w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
             style={{ backgroundImage: `url(${back.src})` }}
-          ></div>
+          >
+            {points}
+          </div>
         </motion.div>
       </div>
     </div>
