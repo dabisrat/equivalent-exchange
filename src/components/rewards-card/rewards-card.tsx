@@ -4,12 +4,15 @@ import { motion } from "framer-motion";
 
 import front from "@PNN/assests/front.jpg";
 import back from "@PNN/assests/back.jpg";
+import { useRouter } from "next/navigation";
 
 interface RewardsCardProps {
   points: number;
+  updatePoints: (points: number) => void;
 }
 
-const RewardsCard: React.FC<RewardsCardProps> = ({ points }) => {
+const RewardsCard: React.FC<RewardsCardProps> = ({ points, updatePoints }) => {
+  const router = useRouter();
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -19,6 +22,12 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ points }) => {
       setIsAnimating(true);
     }
   }
+
+  function handleUpdatePoints(points: number) {
+    updatePoints(points);
+    router.refresh();
+  }
+
   return (
     <div className="flex items-center justify-center bg-black h-[800px] cursor-pointer">
       <div
@@ -45,6 +54,10 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ points }) => {
           </div>
         </motion.div>
       </div>
+      <button className="p-4" onClick={() => handleUpdatePoints(points + 1)}>
+        tickup
+      </button>
+      <button onClick={() => handleUpdatePoints(points - 1)}>tickdown</button>
     </div>
   );
 };

@@ -5,6 +5,14 @@ import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
+const getUrl = () => {
+  if (typeof window !== "undefined") {
+    return window.location.origin;
+  } else {
+    return "http://localhost:3000/";
+  }
+};
+
 export default function Authentication() {
   const client = createClient();
   const router = useRouter();
@@ -34,10 +42,10 @@ export default function Authentication() {
         },
       }}
       socialLayout="horizontal"
-      redirectTo={`${location.origin}/auth/callback`}
+      redirectTo={`${getUrl()}/auth/callback`}
       theme="dark"
       otpType="email"
-      providers={["google" /*"apple", "facebook"*/]}
+      providers={["google"]}
       queryParams={{
         access_type: "offline",
         prompt: "consent",
