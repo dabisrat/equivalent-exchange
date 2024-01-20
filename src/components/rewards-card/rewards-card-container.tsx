@@ -1,31 +1,19 @@
-import { createClient } from "@PNN/utils/supabase/server";
 import RewardsCard from "./rewards-card";
-import { cookies } from "next/headers";
-import { revalidatePath } from "next/cache";
-import { Suspense } from "react";
-import Loading from "@PNN/app/loading";
 
-const updatePoints = async (points: number): Promise<number> => {
-  "use server";
-  const { data, error } = await createClient(cookies())
-    .from("reward_card")
-    .update({ points: points })
-    .eq("id", 1)
-    .select()
-    .single();
-
-  if (error) {
-    throw error;
-  }
-  revalidatePath("");
-  return data?.points;
-};
+import {
+  createRewardCard,
+  getRewardsCard,
+  getUser,
+  updateRewardPoints,
+} from "@PNN/utils/data-access/data-acess";
 
 export default async function RewardsCardContainer() {
-  const client = createClient(cookies());
-  const {
-    data: { points },
-    error,
-  } = await client.from("reward_card").select("*").single();
-  return <RewardsCard points={points} updatePoints={updatePoints} />;
+  const user = await getUser();
+  const card = await getRewardsCard(user!.id).catch((err) => {
+    console.log("creating new card");
+    // TODO: need to get the correct organization oid
+    return createRewardCard(user!.id, 1);
+  });
+
+  return <RewardsCard card={card} updatePoints={updateRewardPoints} />;
 }

@@ -1,23 +1,7 @@
-import { createClient } from "@PNN/utils/supabase/server";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
+import { getUser, signOut } from "@PNN/utils/data-access/data-acess";
 
 export default async function Logout() {
-  const cookieStore = cookies();
-  const supabase = createClient(cookieStore);
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  const signOut = async () => {
-    "use server";
-
-    const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
-    await supabase.auth.signOut();
-    return redirect("/auth");
-  };
+  const user = await getUser();
 
   return user ? (
     <div className="flex items-center gap-4">

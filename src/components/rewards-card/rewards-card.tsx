@@ -3,13 +3,14 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import front from "@PNN/assests/front.jpg";
 import back from "@PNN/assests/back.jpg";
+import { Tables } from "@PNN/utils/data-access/database.types";
 
 interface RewardsCardProps {
-  points: number;
-  updatePoints: (points: number) => Promise<number>;
+  card: Tables<"reward_card">;
+  updatePoints: (cardId: number, points: number) => Promise<any>;
 }
 
-const RewardsCard: React.FC<RewardsCardProps> = ({ points, updatePoints }) => {
+const RewardsCard: React.FC<RewardsCardProps> = ({ card, updatePoints }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -42,14 +43,19 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ points, updatePoints }) => {
             className="flip-card-back w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
             style={{ backgroundImage: `url(${back.src})` }}
           >
-            {points}
+            {card.points}
           </div>
         </motion.div>
       </div>
-      <button className="p-4" onClick={() => updatePoints(points + 1)}>
+      <button
+        className="p-4"
+        onClick={() => updatePoints(card.id, card.points + 1)}
+      >
         tickup
       </button>
-      <button onClick={() => updatePoints(points - 1)}>tickdown</button>
+      <button onClick={() => updatePoints(card.id, card.points - 1)}>
+        tickdown
+      </button>
     </div>
   );
 };

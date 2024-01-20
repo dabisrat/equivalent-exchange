@@ -3,14 +3,12 @@ import { createClient } from "@PNN/utils/supabase/server";
 import { cookies } from "next/headers";
 import RewardsCardContainer from "../components/rewards-card/rewards-card-container";
 import Logout from "../components/logout";
+import { getUser } from "@PNN/utils/data-access/data-acess";
 
 export default async function App() {
-  const client = createClient(cookies());
-  const {
-    data: { session },
-  } = await client.auth.getSession();
+  const user = await getUser();
 
-  if (session?.user) {
+  if (user) {
     return (
       <div>
         <Logout />
