@@ -8,14 +8,18 @@ export async function getUser() {
   const { data, error } = await createClient(cookies()).auth.getUser();
 
   if (error) {
-    throw error;
+    console.error(error);
   }
 
-  return data?.user;
+  return data.user;
 }
 
 export async function signOut() {
-  await createClient(cookies()).auth.signOut();
+  const {error} = await createClient(cookies()).auth.signOut();
+
+  if(error) {
+    console.error(error)
+  }
   return redirect("/auth");
 }
 
@@ -40,8 +44,9 @@ export async function updateRewardPoints(cardId: number, points: number) {
     .eq("id", cardId)
     .select()
     .single();
+
   if (error) {
-    throw error;
+    throw error
   }
   revalidatePath("/");
   return data;
@@ -56,7 +61,7 @@ export async function createRewardCard(userId: string, orgId: number) {
     .single();
 
   if (error) {
-    throw error;
+    throw error
   }
 
   revalidatePath("/");

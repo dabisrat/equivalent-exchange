@@ -22,7 +22,7 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ card, updatePoints }) => {
   }
 
   return (
-    <div className="flex items-center justify-center bg-black h-[800px] cursor-pointer">
+    <div className="flex flex-col items-center justify-center bg-black h-[800px] cursor-pointer">
       <div
         className="flip-card w-[600px] h-[360px] rounded-md"
         onClick={handleFlip}
@@ -47,15 +47,17 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ card, updatePoints }) => {
           </div>
         </motion.div>
       </div>
-      <button
-        className="p-4"
-        onClick={() => updatePoints(card.id, card.points + 1)}
-      >
-        tickup
-      </button>
-      <button onClick={() => updatePoints(card.id, card.points - 1)}>
-        tickdown
-      </button>
+      <div>
+        <button
+          className="p-4"
+          onClick={() => updatePoints(card.id, card.points + 1)}
+        >
+          tickup
+        </button>
+        <button onClick={() => updatePoints(card.id, card.points - 1)}>
+          tickdown
+        </button>
+      </div>
     </div>
   );
 };

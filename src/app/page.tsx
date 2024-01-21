@@ -1,6 +1,4 @@
 import { redirect } from "next/navigation";
-import { createClient } from "@PNN/utils/supabase/server";
-import { cookies } from "next/headers";
 import RewardsCardContainer from "../components/rewards-card/rewards-card-container";
 import Logout from "../components/logout";
 import { getUser } from "@PNN/utils/data-access/data-acess";
