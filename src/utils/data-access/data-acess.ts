@@ -15,12 +15,12 @@ export async function getUser() {
 }
 
 export async function signOut() {
-  const {error} = await createClient(cookies()).auth.signOut();
+  const { error } = await createClient(cookies()).auth.signOut();
 
-  if(error) {
-    console.error(error)
+  if (error) {
+    console.error(error);
   }
-  return redirect("/auth");
+  return redirect("/login");
 }
 
 // -----------------------------------------------------------------------------------------------------
@@ -46,7 +46,7 @@ export async function updateRewardPoints(cardId: number, points: number) {
     .single();
 
   if (error) {
-    throw error
+    throw error;
   }
   revalidatePath("/");
   return data;
@@ -61,7 +61,7 @@ export async function createRewardCard(userId: string, orgId: number) {
     .single();
 
   if (error) {
-    throw error
+    throw error;
   }
 
   revalidatePath("/");

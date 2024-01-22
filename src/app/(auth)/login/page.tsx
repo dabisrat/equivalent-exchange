@@ -13,14 +13,15 @@ const getUrl = () => {
   }
 };
 
-export default function Authentication() {
+export default function Login() {
   const client = createClient();
   const router = useRouter();
+
   useEffect(() => {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
-      if (event === "SIGNED_IN") {
+      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
         router.replace("/");
       }
     });
@@ -42,7 +43,8 @@ export default function Authentication() {
         },
       }}
       socialLayout="horizontal"
-      redirectTo={`${getUrl()}/auth/callback`}
+      redirectTo={`${getUrl()}/callback`}
+      magicLink
       theme="dark"
       otpType="email"
       providers={["google"]}

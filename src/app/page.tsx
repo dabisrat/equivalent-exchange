@@ -14,6 +14,6 @@ export default async function App() {
       </div>
     );
   } else {
-    redirect("/auth");
+    redirect("/login");
   }
 }
