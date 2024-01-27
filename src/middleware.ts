@@ -2,6 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@PNN/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
+  // const requestHeaders = new Headers(request.headers);
+  // requestHeaders.set("x-pathname", request.nextUrl.pathname);
   try {
     console.log("in middleware");
     // This `try/catch` block is only here for the interactive tutorial.
