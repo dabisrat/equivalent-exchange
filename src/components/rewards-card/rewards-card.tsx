@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { PropsWithChildren, useState } from "react";
 import { motion } from "framer-motion";
 import front from "@PNN/assests/front.jpg";
 import back from "@PNN/assests/back.jpg";
@@ -10,7 +10,11 @@ interface RewardsCardProps {
   updatePoints: (cardId: number, points: number) => Promise<any>;
 }
 
-const RewardsCard: React.FC<RewardsCardProps> = ({ card, updatePoints }) => {
+const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
+  card,
+  updatePoints,
+  children,
+}) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -43,7 +47,12 @@ const RewardsCard: React.FC<RewardsCardProps> = ({ card, updatePoints }) => {
             className="flip-card-back w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
             style={{ backgroundImage: `url(${back.src})` }}
           >
-            {card.points}
+            <div className=" w-[100%] h-[100%] grid grid-rows-3 grid-cols-3">
+              <div className="item1">{card.points}</div>
+              <div className="item2 justify-self-center row-start-2 col-start-2">
+                {children}
+              </div>
+            </div>
           </div>
         </motion.div>
       </div>

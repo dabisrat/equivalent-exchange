@@ -23,9 +23,9 @@ export default async function RewardsCardContainer() {
   });
   return (
     <>
-      <RewardsCard card={card} updatePoints={updateRewardPoints} />
-
-      <Image src={qrCode} alt="card-url-code" width="148" height="148" />
+      <RewardsCard card={card} updatePoints={updateRewardPoints}>
+        <Image src={qrCode} alt="card-url-code" width="148" height="148" />
+      </RewardsCard>
     </>
   );
 }
