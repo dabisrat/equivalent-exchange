@@ -26,28 +26,38 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center bg-black h-[800px] cursor-pointer">
+    <div className="flex flex-col h-full items-center justify-center bg-black cursor-pointer">
       <div
-        className="flip-card w-[600px] h-[360px] rounded-md"
+        className="flip-card w-full h-[240px] rounded-md"
         onClick={handleFlip}
       >
         <motion.div
-          className="flip-card-inner w-[100%] h-[100%]"
+          className="flip-card-inner h-full"
           initial={false}
           animate={{ rotateY: isFlipped ? 180 : 360 }}
           transition={{ duration: 0.3, animationDirection: "normal" }}
           onAnimationComplete={() => setIsAnimating(false)}
         >
           <div
-            className="flip-card-front w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
-            style={{ backgroundImage: `url(${front.src})` }}
+            className="flip-card-front w-full h-full bg-cover border-[1px] text-white rounded-lg p-4"
+            style={{
+              backgroundImage: `url(${front.src})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+              // minHeight: "100hv",
+            }}
           ></div>
 
           <div
-            className="flip-card-back w-[100%] h-[100%] bg-cover border-[1px] text-white rounded-lg p-4"
-            style={{ backgroundImage: `url(${back.src})` }}
+            className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg p-4"
+            style={{
+              backgroundImage: `url(${back.src})`,
+              backgroundSize: "100% 100%",
+              backgroundRepeat: "no-repeat",
+              // minHeight: "100hv",
+            }}
           >
-            <div className=" w-[100%] h-[100%] grid grid-rows-3 grid-cols-3">
+            <div className="grid grid-rows-4 grid-cols-3 w-full h-full">
               <div className="item1">{card.points}</div>
               <div className="item2 justify-self-center row-start-2 col-start-2">
                 {children}
