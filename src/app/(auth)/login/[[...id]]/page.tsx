@@ -13,16 +13,17 @@ const getUrl = () => {
   }
 };
 
-export default function Login() {
+export default function Login({ params }: { params?: { id: string[] } }) {
   const client = createClient();
   const router = useRouter();
+  const route = params?.id?.join("/") ?? "";
 
   useEffect(() => {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
       if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
-        router.replace("/");
+        router.replace(`/${route}`);
       }
     });
 
@@ -43,7 +44,7 @@ export default function Login() {
         },
       }}
       socialLayout="horizontal"
-      redirectTo={`${getUrl()}/callback`}
+      redirectTo={`${getUrl()}/callback/${route}`}
       magicLink
       theme="dark"
       otpType="email"

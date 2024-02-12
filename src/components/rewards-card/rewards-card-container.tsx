@@ -2,25 +2,24 @@ import { headers } from "next/headers";
 import RewardsCard from "./rewards-card";
 import { toString, toDataURL } from "qrcode";
 import {
-  createRewardCard,
   getRewardsCard,
-  getUser,
   updateRewardPoints,
 } from "@PNN/utils/data-access/data-acess";
 import Image from "next/image";
 
-export default async function RewardsCardContainer() {
+export default async function RewardsCardContainer({
+  cardId,
+}: {
+  cardId: string;
+}) {
   const h = headers();
-
-  const user = await getUser();
-  const card = await getRewardsCard(user!.id).catch((err) => {
-    console.log("creating new card");
-    // TODO: need to get the correct organization oid
-    return createRewardCard(user!.id, 1);
-  });
-  const qrCode = await toDataURL(`${h.get("host")}/${card?.user_id}`, {
-    type: "image/webp",
-  });
+  const card = await getRewardsCard(cardId);
+  const qrCode = await toDataURL(
+    `${h.get("host")}/${card.organization_id}/card/${card.id}`,
+    {
+      type: "image/webp",
+    }
+  );
   return (
     <>
       <RewardsCard card={card} updatePoints={updateRewardPoints}>

@@ -1,18 +1,32 @@
 import { redirect } from "next/navigation";
-import RewardsCardContainer from "../components/rewards-card/rewards-card-container";
-import Logout from "../components/logout";
-import { getUser } from "@PNN/utils/data-access/data-acess";
+import Logout from "@PNN/components/logout";
+import {
+  getUser,
+  getUsersRewardsCards,
+} from "@PNN/utils/data-access/data-acess";
+import RewardsCardPreview from "@PNN/components/rewards-card/rewards-card-preview";
 
 export default async function App() {
   const user = await getUser();
 
   if (user) {
-    return (
+    const cards = await getUsersRewardsCards(user.id);
+    if (cards?.length) {
+      return (
+        <>
+          <Logout />
+          {cards.map((card) => (
+            <RewardsCardPreview key={card.id} card={card} />
+          ))}
+          <div>create new crad</div>
+        </>
+      );
+    } else {
       <div>
-        <Logout />
-        <RewardsCardContainer />
-      </div>
-    );
+        <div>no cards found</div>
+        <div>create new crad</div>
+      </div>;
+    }
   } else {
     redirect("/login");
   }

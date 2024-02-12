@@ -7,7 +7,7 @@ import { Tables } from "@PNN/utils/data-access/database.types";
 
 interface RewardsCardProps {
   card: Tables<"reward_card">;
-  updatePoints: (cardId: number, points: number) => Promise<any>;
+  updatePoints: (cardId: string, points: number) => Promise<any>;
 }
 
 const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
@@ -28,7 +28,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   return (
     <div className="flex flex-col h-full items-center justify-center bg-black cursor-pointer">
       <div
-        className="flip-card w-full h-[240px] rounded-md"
+        className="flip-card  w-[375px] h-[225px] rounded-md"
         onClick={handleFlip}
       >
         <motion.div

@@ -5,7 +5,6 @@ export async function middleware(request: NextRequest) {
   // const requestHeaders = new Headers(request.headers);
   // requestHeaders.set("x-pathname", request.nextUrl.pathname);
   try {
-    console.log("in middleware");
     // This `try/catch` block is only here for the interactive tutorial.
     // Feel free to remove once you have Supabase connected.
     const { supabase, response } = createClient(request);
