@@ -15,8 +15,13 @@ export default async function App() {
     return (
       <>
         <Logout />
-        {!!cards.length &&
-          cards.map((card) => <RewardsCardPreview key={card.id} card={card} />)}
+        {!!cards.length && (
+          <div className="p-4">
+            {cards.map((card) => (
+              <RewardsCardPreview key={card.id} card={card} />
+            ))}
+          </div>
+        )}
         {!cards.length && <> no cards found </>}
       </>
     );

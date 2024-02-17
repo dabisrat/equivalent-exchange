@@ -26,10 +26,10 @@ export default async function CardPage({
 
     if (!cardId) {
       return (
-        <>
-          no card found for {orgId}
+        <div className="flex flex-col gap-4 p-4">
+          <span>no card found for {orgId}</span>
           <CraeteCard orgId={orgId} userId={userId}></CraeteCard>
-        </>
+        </div>
       );
     }
   }

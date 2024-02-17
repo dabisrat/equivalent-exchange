@@ -1,4 +1,5 @@
-import { getUser, createRewardCard } from "@PNN/utils/data-access/data-acess";
+import { createRewardCard } from "@PNN/utils/data-access/data-acess";
+import { Button } from "@PNN/components/ui/button";
 
 export default async function CraeteCard({
   orgId,
@@ -8,12 +9,10 @@ export default async function CraeteCard({
   userId: string;
 }) {
   return (
-    <div className="flex items-center gap-4">
+    <div>
       {/* TODO check what is the best way to handle forms in server components. should this be a client component */}
       <form action={createRewardCard.bind(null, userId, orgId)}>
-        <button className="py-2 px-4 rounded-md no-underline bg-btn-background hover:bg-btn-background-hover">
-          create Card
-        </button>
+        <Button>create card</Button>
       </form>
     </div>
   );

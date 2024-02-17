@@ -13,10 +13,10 @@ interface RewardsCardProps {
 const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
   const router = useRouter();
   return (
-    <>
+    <div className="mb-4">
       <div
         onClick={() => router.push(`/${card.organization_id}/${card.id}`)}
-        className="w-[150px] h-[100px] bg-cover border-[1px] text-white rounded-lg p-4"
+        className="w-[150px] h-[100px] bg-cover border-[1px] rounded-lg"
         style={{
           backgroundImage: `url(${front.src})`,
           backgroundSize: "100% 100%",
@@ -24,7 +24,7 @@ const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
         }}
       ></div>
       {card.organization_id}
-    </>
+    </div>
   );
 };
 

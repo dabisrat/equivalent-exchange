@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import front from "@PNN/assests/front.jpg";
 import back from "@PNN/assests/back.jpg";
 import { Tables } from "@PNN/utils/data-access/database.types";
-
+import { Button } from "@PNN/components/ui/button";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
   updatePoints: (cardId: string, points: number) => Promise<any>;
@@ -26,7 +26,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }
 
   return (
-    <div className="flex flex-col h-full items-center justify-center bg-black cursor-pointer">
+    <div className="flex flex-col h-full items-center justify-center cursor-pointer">
       <div
         className="flip-card  w-[375px] h-[225px] rounded-md"
         onClick={handleFlip}
@@ -44,7 +44,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               backgroundImage: `url(${front.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
-              // minHeight: "100hv",
             }}
           ></div>
 
@@ -54,7 +53,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               backgroundImage: `url(${back.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
-              // minHeight: "100hv",
             }}
           >
             <div className="grid grid-rows-4 grid-cols-3 w-full h-full">
@@ -66,16 +64,19 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           </div>
         </motion.div>
       </div>
-      <div>
-        <button
-          className="p-4"
+      <div className="mt-1 flex gap-1">
+        <Button
+          variant="outline"
           onClick={() => updatePoints(card.id, card.points + 1)}
         >
           tickup
-        </button>
-        <button onClick={() => updatePoints(card.id, card.points - 1)}>
+        </Button>
+        <Button
+          variant="outline"
+          onClick={() => updatePoints(card.id, card.points - 1)}
+        >
           tickdown
-        </button>
+        </Button>
       </div>
     </div>
   );
