@@ -15,7 +15,7 @@ export default async function RewardsCardContainer({
   const h = headers();
   const card = await getRewardsCard(cardId);
   const qrCode = await toDataURL(
-    `${h.get("host")}/${card.organization_id}/card/${card.id}`,
+    `${h.get("host")}/${card.organization_id}/${card.id}`,
     {
       type: "image/webp",
     }
