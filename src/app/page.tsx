@@ -18,7 +18,6 @@ export default async function App() {
         {!!cards.length &&
           cards.map((card) => <RewardsCardPreview key={card.id} card={card} />)}
         {!cards.length && <> no cards found </>}
-        <div>create new crad</div>
       </>
     );
   } else {

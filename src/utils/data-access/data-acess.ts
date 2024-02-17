@@ -8,7 +8,7 @@ export async function getUser() {
   const { data, error } = await createClient(cookies()).auth.getUser();
 
   if (error) {
-    console.error(error);
+    throw error;
   }
 
   return data.user;
@@ -90,6 +90,5 @@ export async function createRewardCard(userId: string, orgId: string) {
     throw error;
   }
 
-  revalidatePath("/");
-  return data;
+  redirect(`/${orgId}/${data.id}`);
 }
