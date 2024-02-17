@@ -9,7 +9,7 @@ export default async function Layout({
   children: React.ReactNode;
   params: { id: string[] };
 }) {
-  const user = await getUser();
+  const user = await getUser().catch((e) => null);
 
   if (!user) {
     redirect(`/login/${params.id.join("/")}`);

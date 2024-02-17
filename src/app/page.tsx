@@ -7,7 +7,7 @@ import {
 import RewardsCardPreview from "@PNN/components/rewards-card/rewards-card-preview";
 
 export default async function App() {
-  const user = await getUser();
+  const user = await getUser().catch((e) => null);
 
   if (user) {
     const cards = await getUsersRewardsCards(user.id);
