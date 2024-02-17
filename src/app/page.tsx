@@ -11,22 +11,16 @@ export default async function App() {
 
   if (user) {
     const cards = await getUsersRewardsCards(user.id);
-    if (cards?.length) {
-      return (
-        <>
-          <Logout />
-          {cards.map((card) => (
-            <RewardsCardPreview key={card.id} card={card} />
-          ))}
-          <div>create new crad</div>
-        </>
-      );
-    } else {
-      <div>
-        <div>no cards found</div>
+
+    return (
+      <>
+        <Logout />
+        {!!cards.length &&
+          cards.map((card) => <RewardsCardPreview key={card.id} card={card} />)}
+        {!cards.length && <> no cards found </>}
         <div>create new crad</div>
-      </div>;
-    }
+      </>
+    );
   } else {
     redirect("/login");
   }
