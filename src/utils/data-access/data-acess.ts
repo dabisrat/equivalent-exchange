@@ -92,3 +92,17 @@ export async function createRewardCard(userId: string, orgId: string) {
 
   redirect(`/${orgId}/${data.id}`);
 }
+
+export async function getMaxCount(orgId: string) {
+  const { data, error } = await createClient(cookies())
+    .from("organization")
+    .select("max_points")
+    .eq("id", orgId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data.max_points;
+}

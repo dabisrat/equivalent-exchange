@@ -1,10 +1,7 @@
 import { headers } from "next/headers";
 import RewardsCard from "./rewards-card";
-import { toString, toDataURL } from "qrcode";
-import {
-  getRewardsCard,
-  updateRewardPoints,
-} from "@PNN/utils/data-access/data-acess";
+import { toDataURL } from "qrcode";
+import { getMaxCount, getRewardsCard } from "@PNN/utils/data-access/data-acess";
 import Image from "next/image";
 
 export default async function RewardsCardContainer({
@@ -14,6 +11,7 @@ export default async function RewardsCardContainer({
 }) {
   const h = headers();
   const card = await getRewardsCard(cardId);
+  const maxPoints = await getMaxCount(card.organization_id);
   const qrCode = await toDataURL(
     `${h.get("host")}/${card.organization_id}/${card.id}`,
     {
@@ -22,7 +20,7 @@ export default async function RewardsCardContainer({
   );
   return (
     <>
-      <RewardsCard card={card} updatePoints={updateRewardPoints}>
+      <RewardsCard card={card} maxPoints={maxPoints}>
         <Image src={qrCode} alt="card-url-code" width="100" height="100" />
       </RewardsCard>
     </>

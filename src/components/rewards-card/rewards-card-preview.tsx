@@ -1,8 +1,5 @@
 "use client";
-import { PropsWithChildren, useState } from "react";
-import { motion } from "framer-motion";
 import front from "@PNN/assests/front.jpg";
-import back from "@PNN/assests/back.jpg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import { useRouter } from "next/navigation";
 

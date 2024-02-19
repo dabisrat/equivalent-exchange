@@ -4,167 +4,170 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
+  | Json[]
 
 export type Database = {
   public: {
     Tables: {
       organization: {
         Row: {
-          created_at: string;
-          email: string | null;
-          id: string;
-          organization_name: string | null;
-        };
+          created_at: string
+          email: string | null
+          id: string
+          max_points: number
+          organization_name: string | null
+        }
         Insert: {
-          created_at?: string;
-          email?: string | null;
-          id?: string;
-          organization_name?: string | null;
-        };
+          created_at?: string
+          email?: string | null
+          id?: string
+          max_points: number
+          organization_name?: string | null
+        }
         Update: {
-          created_at?: string;
-          email?: string | null;
-          id?: string;
-          organization_name?: string | null;
-        };
-        Relationships: [];
-      };
+          created_at?: string
+          email?: string | null
+          id?: string
+          max_points?: number
+          organization_name?: string | null
+        }
+        Relationships: []
+      }
       reward_card: {
         Row: {
-          created_at: string;
-          id: string;
-          organization_id: string;
-          points: number;
-          user_id: string | null;
-        };
+          created_at: string
+          id: string
+          organization_id: string
+          points: number
+          user_id: string
+        }
         Insert: {
-          created_at?: string;
-          id?: string;
-          organization_id?: string;
-          points?: number;
-          user_id?: string | null;
-        };
+          created_at?: string
+          id?: string
+          organization_id?: string
+          points?: number
+          user_id: string
+        }
         Update: {
-          created_at?: string;
-          id?: string;
-          organization_id?: string;
-          points?: number;
-          user_id?: string | null;
-        };
+          created_at?: string
+          id?: string
+          organization_id?: string
+          points?: number
+          user_id?: string
+        }
         Relationships: [
           {
-            foreignKeyName: "reward_card_organization_id_fkey";
-            columns: ["organization_id"];
-            isOneToOne: true;
-            referencedRelation: "organization";
-            referencedColumns: ["id"];
+            foreignKeyName: "reward_card_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "reward_card_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
+            foreignKeyName: "reward_card_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           }
-        ];
-      };
+        ]
+      }
       stamp: {
         Row: {
-          created_at: string;
-          id: string;
-          reward_card_id: string;
-          stamped: boolean | null;
-          stamper_id: number;
-        };
+          created_at: string
+          id: string
+          reward_card_id: string
+          stamped: boolean | null
+          stamper_id: number
+        }
         Insert: {
-          created_at?: string;
-          id?: string;
-          reward_card_id: string;
-          stamped?: boolean | null;
-          stamper_id: number;
-        };
+          created_at?: string
+          id?: string
+          reward_card_id: string
+          stamped?: boolean | null
+          stamper_id: number
+        }
         Update: {
-          created_at?: string;
-          id?: string;
-          reward_card_id?: string;
-          stamped?: boolean | null;
-          stamper_id?: number;
-        };
+          created_at?: string
+          id?: string
+          reward_card_id?: string
+          stamped?: boolean | null
+          stamper_id?: number
+        }
         Relationships: [
           {
-            foreignKeyName: "stamp_reward_card_id_fkey";
-            columns: ["reward_card_id"];
-            isOneToOne: true;
-            referencedRelation: "reward_card";
-            referencedColumns: ["id"];
+            foreignKeyName: "stamp_reward_card_id_fkey"
+            columns: ["reward_card_id"]
+            isOneToOne: true
+            referencedRelation: "reward_card"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "stamp_stamper_id_fkey";
-            columns: ["stamper_id"];
-            isOneToOne: false;
-            referencedRelation: "stamper";
-            referencedColumns: ["id"];
+            foreignKeyName: "stamp_stamper_id_fkey"
+            columns: ["stamper_id"]
+            isOneToOne: false
+            referencedRelation: "stamper"
+            referencedColumns: ["id"]
           }
-        ];
-      };
+        ]
+      }
       stamper: {
         Row: {
-          created_at: string;
-          email: string | null;
-          id: number;
-          name: string | null;
-          organization_id: string;
-          user_id: string | null;
-        };
+          created_at: string
+          email: string | null
+          id: number
+          name: string | null
+          organization_id: string
+          user_id: string | null
+        }
         Insert: {
-          created_at?: string;
-          email?: string | null;
-          id?: number;
-          name?: string | null;
-          organization_id?: string;
-          user_id?: string | null;
-        };
+          created_at?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          organization_id?: string
+          user_id?: string | null
+        }
         Update: {
-          created_at?: string;
-          email?: string | null;
-          id?: number;
-          name?: string | null;
-          organization_id?: string;
-          user_id?: string | null;
-        };
+          created_at?: string
+          email?: string | null
+          id?: number
+          name?: string | null
+          organization_id?: string
+          user_id?: string | null
+        }
         Relationships: [
           {
-            foreignKeyName: "stamper_organization_id_fkey";
-            columns: ["organization_id"];
-            isOneToOne: true;
-            referencedRelation: "organization";
-            referencedColumns: ["id"];
+            foreignKeyName: "stamper_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organization"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "stamper_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
+            foreignKeyName: "stamper_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           }
-        ];
-      };
-    };
+        ]
+      }
+    }
     Views: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Functions: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     Enums: {
-      [_ in never]: never;
-    };
+      [_ in never]: never
+    }
     CompositeTypes: {
-      [_ in never]: never;
-    };
-  };
-};
+      [_ in never]: never
+    }
+  }
+}
 
 export type Tables<
   PublicTableNameOrOptions extends
@@ -177,7 +180,7 @@ export type Tables<
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R;
+      Row: infer R
     }
     ? R
     : never
@@ -185,11 +188,11 @@ export type Tables<
       Database["public"]["Views"])
   ? (Database["public"]["Tables"] &
       Database["public"]["Views"])[PublicTableNameOrOptions] extends {
-      Row: infer R;
+      Row: infer R
     }
     ? R
     : never
-  : never;
+  : never
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
@@ -200,17 +203,17 @@ export type TablesInsert<
     : never = never
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I;
+      Insert: infer I
     }
     ? I
     : never
   : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
   ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-      Insert: infer I;
+      Insert: infer I
     }
     ? I
     : never
-  : never;
+  : never
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
@@ -221,17 +224,17 @@ export type TablesUpdate<
     : never = never
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U;
+      Update: infer U
     }
     ? U
     : never
   : PublicTableNameOrOptions extends keyof Database["public"]["Tables"]
   ? Database["public"]["Tables"][PublicTableNameOrOptions] extends {
-      Update: infer U;
+      Update: infer U
     }
     ? U
     : never
-  : never;
+  : never
 
 export type Enums<
   PublicEnumNameOrOptions extends
@@ -244,4 +247,4 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof Database["public"]["Enums"]
   ? Database["public"]["Enums"][PublicEnumNameOrOptions]
-  : never;
+  : never

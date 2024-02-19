@@ -9,15 +9,16 @@ import { Button } from "@PNN/components/ui/button";
 import { updateRewardPoints } from "@PNN/utils/data-access/data-acess";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
+  maxPoints: number;
 }
 
 const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   card,
+  maxPoints,
   children,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const limit = 10;
 
   function handleFlip() {
     if (!isAnimating) {
@@ -61,7 +62,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               <div className="justify-self-center row-start-2 col-start-2 col-span-4 row-span-3">
                 {children}
               </div>
-              {Array(limit)
+              {Array(maxPoints)
                 .fill(0)
                 .map((_, i) => {
                   let className = "justify-self-center";
@@ -83,7 +84,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           </div>
         </motion.div>
       </div>
-      {limit === card.points && (
+      {maxPoints === card.points && (
         <div>
           <Button onClick={() => updateRewardPoints(card.id, 0)}>
             Redeem Points

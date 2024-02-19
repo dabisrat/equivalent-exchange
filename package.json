@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "update-types": "npx supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts"
+
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
