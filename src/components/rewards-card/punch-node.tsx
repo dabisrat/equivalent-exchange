@@ -1,6 +1,6 @@
 "use client";
 import { updateRewardPoints } from "@PNN/utils/data-access/data-acess";
-import { useEffect, useState } from "react";
+import { useEffect, useState, MouseEvent } from "react";
 import { MdStars, MdCircle } from "react-icons/md";
 
 export default function PunchNode({
@@ -21,12 +21,12 @@ export default function PunchNode({
     }
   }, [total]);
 
-  async function punchClicked(e: MouseEvent) {
+  async function punchClicked(e: MouseEvent<HTMLDivElement>) {
     e.preventDefault();
     e.stopPropagation();
+    const count = isPunched ? -1 : 1;
 
     setLoading(true);
-    const count = isPunched ? -1 : 1;
     await updateRewardPoints(cardId, count + total).finally(() =>
       setLoading(false)
     );
@@ -37,7 +37,7 @@ export default function PunchNode({
     <>
       <div
         className="w-[24px] h-[24px] flex justify-center items-center"
-        onClick={(e) => punchClicked(e)}
+        onClick={punchClicked}
       >
         {isLoading && (
           <MdStars className="animate-ping" fontSize="24"></MdStars>
