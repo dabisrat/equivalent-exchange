@@ -63,13 +63,45 @@ export async function getRewardsCardId(orgId: string, userId: string) {
   return data;
 }
 
-export async function updateRewardPoints(cardId: string, points: number) {
+export async function redeemRewards(cardId: string) {
   const { data, error } = await createClient(cookies())
     .from("reward_card")
-    .update({ points: points })
+    .update({ points: 0 })
     .eq("id", cardId)
     .select()
     .single();
+
+  if (error) {
+    throw error;
+  }
+  revalidatePath("/");
+  return data;
+}
+
+export async function addRewardPoints(card_id: string) {
+  let { data, error } = await createClient(cookies()).rpc("incrementpoints", {
+    card_id,
+  });
+
+  if (data === null) {
+    throw new Error("something went wrong!");
+  }
+
+  if (error) {
+    throw error;
+  }
+  revalidatePath("/");
+  return data;
+}
+
+export async function removeRewardPoints(card_id: string) {
+  const { data, error } = await createClient(cookies()).rpc("decrementpoints", {
+    card_id,
+  });
+
+  if (data === null) {
+    throw new Error("something went wrong!");
+  }
 
   if (error) {
     throw error;

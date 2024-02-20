@@ -6,7 +6,7 @@ import back from "@PNN/assests/back.jpg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import PunchNode from "./punch-node";
 import { Button } from "@PNN/components/ui/button";
-import { updateRewardPoints } from "@PNN/utils/data-access/data-acess";
+import { redeemRewards } from "@PNN/utils/data-access/data-acess";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
@@ -86,9 +86,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
       </div>
       {maxPoints === card.points && (
         <div>
-          <Button onClick={() => updateRewardPoints(card.id, 0)}>
-            Redeem Points
-          </Button>
+          <Button onClick={() => redeemRewards(card.id)}>Redeem Points</Button>
         </div>
       )}
     </div>

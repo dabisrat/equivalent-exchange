@@ -158,7 +158,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      decrementpoints: {
+        Args: {
+          card_id: string
+        }
+        Returns: number
+      }
+      incrementpoints: {
+        Args: {
+          card_id: string
+        }
+        Returns: number
+      }
     }
     Enums: {
       [_ in never]: never
