@@ -138,3 +138,14 @@ export async function getMaxCount(orgId: string) {
 
   return data.max_points;
 }
+
+export async function canModifyCard(userId: string, orgId: string) {
+  const { data, error } = await createClient(cookies())
+    .from("stamper")
+    .select("organization_id")
+    .eq("user_id", userId)
+    .eq("organization_id", orgId)
+    .single();
+
+  return data?.organization_id === orgId;
+}

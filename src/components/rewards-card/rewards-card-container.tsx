@@ -1,7 +1,12 @@
 import { headers } from "next/headers";
 import RewardsCard from "./rewards-card";
 import { toDataURL } from "qrcode";
-import { getMaxCount, getRewardsCard } from "@PNN/utils/data-access/data-acess";
+import {
+  canModifyCard,
+  getMaxCount,
+  getRewardsCard,
+  getUser,
+} from "@PNN/utils/data-access/data-acess";
 import Image from "next/image";
 
 export default async function RewardsCardContainer({
@@ -10,8 +15,11 @@ export default async function RewardsCardContainer({
   cardId: string;
 }) {
   const h = headers();
+  const user = await getUser(); //TODO I should do this at the top level and pass the user
   const card = await getRewardsCard(cardId); //TODO I should do this at the top level and pass the card
   const maxPoints = await getMaxCount(card.organization_id); // same as above
+  const canModify = await canModifyCard(user.id, card.organization_id); // same as above
+  console.log(canModify);
   const qrCode = await toDataURL(
     `${h.get("host")}/${card.organization_id}/${card.id}`,
     {
@@ -20,7 +28,12 @@ export default async function RewardsCardContainer({
   );
   return (
     <>
-      <RewardsCard card={card} maxPoints={maxPoints}>
+      {user.id !== card.user_id && (
+        <div className="flex justify-center">
+          You are viewing another users card{" "}
+        </div>
+      )}
+      <RewardsCard card={card} maxPoints={maxPoints} canModify={canModify}>
         <Image src={qrCode} alt="card-url-code" width="100" height="100" />
       </RewardsCard>
     </>

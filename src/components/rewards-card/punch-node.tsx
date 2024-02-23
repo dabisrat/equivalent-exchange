@@ -44,23 +44,25 @@ export default function PunchNode({
       : removeRewardPoints(cardId)
     ).finally(() => setLoading(false));
 
-    setIgnorePunchUpdate(true);
+    if (!ignorePunchUpdate) {
+      setIgnorePunchUpdate(true);
+    }
     punchIt((p) => !p);
   }
 
   return (
     <>
       <div
-        className="w-[24px] h-[24px] flex justify-center items-center"
+        className="w-[32px] h-[32px] flex justify-center items-center"
         onClick={punchClicked}
       >
         {isLoading && (
-          <MdStars className="animate-spin" fontSize="24"></MdStars>
+          <MdStars className="animate-ping" fontSize="32"></MdStars>
         )}
         {!isLoading && (
           <>
             {isPunched ? (
-              <MdStars color="#857A46" fontSize="24"></MdStars>
+              <MdStars color="#857A46" fontSize="32"></MdStars>
             ) : (
               <MdCircle color="#857A46" fontSize="small"></MdCircle>
             )}

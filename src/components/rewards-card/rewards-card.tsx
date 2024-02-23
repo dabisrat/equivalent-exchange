@@ -11,11 +11,13 @@ import { createClient } from "@PNN/utils/supabase/client";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
+  canModify: boolean;
 }
 
 const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   card,
   maxPoints,
+  canModify,
   children,
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
@@ -25,7 +27,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   useEffect(() => {
     let sub = createClient()
-      .channel("schema_db_changes")
+      .channel("card_update")
       .on(
         "postgres_changes",
         {
@@ -39,7 +41,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           setPoints(updatedCard.points);
         }
       )
-      .subscribe();
+      .subscribe((connection) => {
+        console.log("connection", connection);
+        if (connection === "SUBSCRIBED") {
+          console.log("Subscribed to changes");
+        }
+      });
 
     return () => {
       sub.unsubscribe();
@@ -112,7 +119,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           </div>
         </motion.div>
       </div>
-      {maxPoints === points && ignorePunchUpdate && (
+      {maxPoints === points && canModify && (
         <div>
           <Button onClick={() => redeemRewards(card.id)}>Redeem Points</Button>
         </div>
