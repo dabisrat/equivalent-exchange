@@ -10,8 +10,8 @@ export default async function RewardsCardContainer({
   cardId: string;
 }) {
   const h = headers();
-  const card = await getRewardsCard(cardId);
-  const maxPoints = await getMaxCount(card.organization_id);
+  const card = await getRewardsCard(cardId); //TODO I should do this at the top level and pass the card
+  const maxPoints = await getMaxCount(card.organization_id); // same as above
   const qrCode = await toDataURL(
     `${h.get("host")}/${card.organization_id}/${card.id}`,
     {

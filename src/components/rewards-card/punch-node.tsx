@@ -10,12 +10,16 @@ export default function PunchNode({
   cardId,
   total,
   punched,
+  ignorePunchUpdate,
+  setIgnorePunchUpdate,
 }: {
   cardId: string;
   total: number;
   punched: boolean;
+  ignorePunchUpdate: boolean;
+  setIgnorePunchUpdate: (bol: boolean) => void;
 }) {
-  const [isPunched, punchIt] = useState(punched);
+  const [isPunched, punchIt] = useState(false);
   const [isLoading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,6 +27,12 @@ export default function PunchNode({
       punchIt(false);
     }
   }, [total]);
+
+  useEffect(() => {
+    if (!ignorePunchUpdate) {
+      punchIt(punched);
+    }
+  }, [punched]);
 
   async function punchClicked(e: MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -34,7 +44,8 @@ export default function PunchNode({
       : removeRewardPoints(cardId)
     ).finally(() => setLoading(false));
 
-    punchIt(!isPunched);
+    setIgnorePunchUpdate(true);
+    punchIt((p) => !p);
   }
 
   return (

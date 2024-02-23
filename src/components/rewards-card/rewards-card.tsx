@@ -1,5 +1,5 @@
 "use client";
-import { PropsWithChildren, useState } from "react";
+import { PropsWithChildren, useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import front from "@PNN/assests/front.jpg";
 import back from "@PNN/assests/back.jpg";
@@ -7,6 +7,7 @@ import { Tables } from "@PNN/utils/data-access/database.types";
 import PunchNode from "./punch-node";
 import { Button } from "@PNN/components/ui/button";
 import { redeemRewards } from "@PNN/utils/data-access/data-acess";
+import { createClient } from "@PNN/utils/supabase/client";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
@@ -19,6 +20,31 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [points, setPoints] = useState(card.points);
+  const [ignorePunchUpdate, setIgnorePunchUpdate] = useState(false);
+
+  useEffect(() => {
+    let sub = createClient()
+      .channel("schema_db_changes")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "reward_card",
+          filter: "id=eq." + card.id,
+        },
+        (payload) => {
+          const updatedCard = payload.new;
+          setPoints(updatedCard.points);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      sub.unsubscribe();
+    };
+  }, []);
 
   function handleFlip() {
     if (!isAnimating) {
@@ -28,7 +54,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }
 
   return (
-    <div className="flex flex-col  gap-3 h-full items-center justify-center cursor-pointer">
+    <div className="flex flex-col gap-3 h-full items-center justify-center cursor-pointer">
       <div
         className="flip-card  w-[375px] h-[225px] rounded-md"
         onClick={handleFlip}
@@ -50,14 +76,14 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           ></div>
 
           <div
-            className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg "
+            className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg"
             style={{
               backgroundImage: `url(${back.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute top-1 left-2">{card.points}</div>
+            <div className="absolute top-1 left-2">{points}</div>
             <div className="grid grid-cols-6 h-full p-4">
               <div className="justify-self-center row-start-2 col-start-2 col-span-4 row-span-3">
                 {children}
@@ -74,8 +100,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                     <div key={i} className={className}>
                       <PunchNode
                         cardId={card.id}
-                        total={card.points}
-                        punched={i < card.points}
+                        total={points}
+                        punched={i < points}
+                        ignorePunchUpdate={ignorePunchUpdate}
+                        setIgnorePunchUpdate={setIgnorePunchUpdate}
                       ></PunchNode>
                     </div>
                   );
@@ -84,7 +112,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           </div>
         </motion.div>
       </div>
-      {maxPoints === card.points && (
+      {maxPoints === points && ignorePunchUpdate && (
         <div>
           <Button onClick={() => redeemRewards(card.id)}>Redeem Points</Button>
         </div>

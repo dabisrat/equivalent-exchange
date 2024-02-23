@@ -10,7 +10,7 @@ export default async function CardPage({
 }) {
   const [orgId, cardId] = params.id;
 
-  if (orgId && cardId) {
+  if (cardId) {
     return <RewardsCardContainer cardId={cardId} />;
   }
 

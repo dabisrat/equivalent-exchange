@@ -90,7 +90,7 @@ export async function addRewardPoints(card_id: string) {
   if (error) {
     throw error;
   }
-  revalidatePath("/");
+
   return data;
 }
 
@@ -106,7 +106,7 @@ export async function removeRewardPoints(card_id: string) {
   if (error) {
     throw error;
   }
-  revalidatePath("/");
+
   return data;
 }
 
