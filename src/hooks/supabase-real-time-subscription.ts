@@ -11,7 +11,6 @@ const defaultCB = (payload: any) => {
   console.log(["Received realtime event", payload]);
 };
 
-let initialMessageSkipped = false;
 const supabaseClient = createClient();
 
 export function useSupabaseRealtimeSubscription(
@@ -25,6 +24,11 @@ export function useSupabaseRealtimeSubscription(
   useEffect(() => {
     const channel = supabaseClient
       .channel(table === "*" ? "public" : `public:${table}`)
+      .on("system" as any, {} as any, (payload: any) => {
+        if (payload.extension == "postgres_changes" && payload.status == "ok") {
+          setIsReady(true);
+        }
+      })
       .on(
         REALTIME_LISTEN_TYPES.POSTGRES_CHANGES,
         {
@@ -37,19 +41,10 @@ export function useSupabaseRealtimeSubscription(
           callback(payload);
         }
       )
-      .on("system" as any, {} as any, (payload: any) => {
-        if (payload.extension == "postgres_changes" && payload.status == "ok") {
-          if (!initialMessageSkipped) {
-            initialMessageSkipped = true;
-            return;
-          }
-          setIsReady(true);
-        }
-      })
+
       .subscribe();
 
     return () => {
-      channel.unsubscribe();
       supabaseClient.removeChannel(channel);
     };
   }, []);

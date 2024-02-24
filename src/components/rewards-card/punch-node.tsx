@@ -38,22 +38,26 @@ export default function PunchNode({
     e.preventDefault();
     e.stopPropagation();
 
-    setLoading(true);
-    await (!isPunched
-      ? addRewardPoints(cardId)
-      : removeRewardPoints(cardId)
-    ).finally(() => setLoading(false));
-
-    if (!ignorePunchUpdate) {
-      setIgnorePunchUpdate(true);
+    if (isLoading) {
+      return;
     }
+
+    setLoading(true);
+    await (!isPunched ? addRewardPoints(cardId) : removeRewardPoints(cardId))
+      .then(() => {
+        if (!ignorePunchUpdate) {
+          setIgnorePunchUpdate(true);
+        }
+      })
+      .finally(() => setLoading(false));
+
     punchIt((p) => !p);
   }
 
   return (
     <>
       <div
-        className="w-[32px] h-[32px] flex justify-center items-center"
+        className="w-[32px] h-[32px] flex justify-center items-center cursor-pointer"
         onClick={punchClicked}
       >
         {isLoading && (

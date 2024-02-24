@@ -17,9 +17,11 @@ export default async function App() {
         <Logout />
         {!!cards.length && (
           <div className="p-4">
-            {cards.map((card) => (
-              <RewardsCardPreview key={card.id} card={card} />
-            ))}
+            {cards
+              .sort((a, b) => a.id.localeCompare(b.id))
+              .map((card) => (
+                <RewardsCardPreview key={card.id} card={card} />
+              ))}
           </div>
         )}
         {!cards.length && <> no cards found </>}

@@ -19,7 +19,6 @@ export default async function RewardsCardContainer({
   const card = await getRewardsCard(cardId); //TODO I should do this at the top level and pass the card
   const maxPoints = await getMaxCount(card.organization_id); // same as above
   const canModify = await canModifyCard(user.id, card.organization_id); // same as above
-  console.log(canModify);
   const qrCode = await toDataURL(
     `${h.get("host")}/${card.organization_id}/${card.id}`,
     {

@@ -23,7 +23,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [isLoading, setLoading] = useState(true);
+
   const [points, setPoints] = useState(card.points);
   const [ignorePunchUpdate, setIgnorePunchUpdate] = useState(false);
   const { isReady } = useSupabaseRealtimeSubscription(
@@ -32,12 +32,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     "reward_card",
     `id=eq.${card.id}`
   );
-
-  useEffect(() => {
-    if (isReady) {
-      setLoading(false);
-    }
-  }, [isReady]);
 
   function handleFlip() {
     if (!isAnimating) {
@@ -48,7 +42,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   return (
     <>
-      {isLoading && (
+      {!isReady && (
         <div className="flex flex-col space-y-3 justify-center items-center">
           <Skeleton className="w-[375px] h-[225px] rounded-md" />
           <div className="space-y-2">
@@ -57,7 +51,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           </div>
         </div>
       )}
-      {!isLoading && (
+      {isReady && (
         <div className="flex flex-col gap-3 h-full items-center justify-center cursor-pointer">
           <div
             className="flip-card  w-[375px] h-[225px] rounded-md"
