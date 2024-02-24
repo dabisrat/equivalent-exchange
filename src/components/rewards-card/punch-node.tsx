@@ -10,12 +10,14 @@ export default function PunchNode({
   cardId,
   total,
   punched,
+  canModify,
   ignorePunchUpdate,
   setIgnorePunchUpdate,
 }: {
   cardId: string;
   total: number;
   punched: boolean;
+  canModify: boolean;
   ignorePunchUpdate: boolean;
   setIgnorePunchUpdate: (bol: boolean) => void;
 }) {
@@ -42,14 +44,18 @@ export default function PunchNode({
       return;
     }
 
+    if (!canModify) {
+      return;
+    }
+
+    if (!ignorePunchUpdate) {
+      setIgnorePunchUpdate(true);
+    }
     setLoading(true);
-    await (!isPunched ? addRewardPoints(cardId) : removeRewardPoints(cardId))
-      .then(() => {
-        if (!ignorePunchUpdate) {
-          setIgnorePunchUpdate(true);
-        }
-      })
-      .finally(() => setLoading(false));
+    await (!isPunched
+      ? addRewardPoints(cardId)
+      : removeRewardPoints(cardId)
+    ).finally(() => setLoading(false));
 
     punchIt((p) => !p);
   }

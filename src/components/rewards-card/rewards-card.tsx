@@ -100,6 +100,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                             cardId={card.id}
                             total={points}
                             punched={i < points}
+                            canModify={canModify}
                             ignorePunchUpdate={ignorePunchUpdate}
                             setIgnorePunchUpdate={setIgnorePunchUpdate}
                           ></PunchNode>
