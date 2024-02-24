@@ -36,6 +36,7 @@ export function useSupabaseRealtimeSubscription(
         }
       )
       .on("system" as any, {} as any, (payload: any) => {
+        console.log(payload);
         if (payload.extension == "postgres_changes" && payload.status == "ok") {
           if (!initialMessageSkipped) {
             initialMessageSkipped = true;
