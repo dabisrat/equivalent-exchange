@@ -12,13 +12,14 @@ const defaultCB = (payload: any) => {
 };
 
 let initialMessageSkipped = false;
+const supabaseClient = createClient();
+
 export function useSupabaseRealtimeSubscription(
   callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
   event: string = "*",
   table: string,
   filter: string
 ) {
-  const supabaseClient = createClient();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ export function useSupabaseRealtimeSubscription(
       .subscribe();
 
     return () => {
+      channel.unsubscribe();
       supabaseClient.removeChannel(channel);
     };
   }, []);
