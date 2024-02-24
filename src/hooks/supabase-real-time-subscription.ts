@@ -10,6 +10,7 @@ const defaultCB = (payload: any) => {
   console.log(["Received realtime event", payload]);
 };
 
+let initialMessageSkipped = false;
 export function useSupabaseRealtimeSubscription(
   callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
   event: string = "*",
@@ -20,8 +21,6 @@ export function useSupabaseRealtimeSubscription(
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    let initialMessageSkipped = false;
-
     const channel = supabaseClient
       .channel(table === "*" ? "public" : `public:${table}`)
       .on(
