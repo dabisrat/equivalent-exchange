@@ -27,7 +27,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [points, setPoints] = useState(card.points);
   const [ignorePunchUpdate, setIgnorePunchUpdate] = useState(false);
   const { isReady } = useSupabaseRealtimeSubscription(
-    (payload) => setPoints(payload.new.points),
+    (payload) => {
+      if (payload.new.points === 0) {
+        setIgnorePunchUpdate(false);
+      }
+      setPoints(payload.new.points);
+    },
     "UPDATE",
     "reward_card",
     `id=eq.${card.id}`
@@ -98,7 +103,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                         <div key={i} className={className}>
                           <PunchNode
                             cardId={card.id}
-                            total={points}
                             punched={i < points}
                             canModify={canModify}
                             ignorePunchUpdate={ignorePunchUpdate}
@@ -112,11 +116,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             </motion.div>
           </div>
           {maxPoints === points && canModify && (
-            <div>
-              <Button onClick={() => redeemRewards(card.id)}>
-                Redeem Points
-              </Button>
-            </div>
+            <Button onClick={() => redeemRewards(card.id)}>
+              Redeem Points
+            </Button>
           )}
         </div>
       )}

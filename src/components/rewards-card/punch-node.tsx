@@ -14,7 +14,6 @@ export default function PunchNode({
   setIgnorePunchUpdate,
 }: {
   cardId: string;
-  total: number;
   punched: boolean;
   canModify: boolean;
   ignorePunchUpdate: boolean;
@@ -44,6 +43,7 @@ export default function PunchNode({
     if (!ignorePunchUpdate) {
       setIgnorePunchUpdate(true);
     }
+
     setLoading(true);
     await (!isPunched
       ? addRewardPoints(cardId)
