@@ -23,6 +23,7 @@ export default async function RewardsCardContainer({
     `${h.get("host")}/${card.organization_id}/${card.id}`,
     {
       type: "image/webp",
+      color: { dark: "#000000FF", light: "#00000000" },
     }
   );
   return (
