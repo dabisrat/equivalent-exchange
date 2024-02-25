@@ -8,7 +8,6 @@ import { MdStars, MdCircle } from "react-icons/md";
 
 export default function PunchNode({
   cardId,
-  total,
   punched,
   canModify,
   ignorePunchUpdate,
@@ -23,12 +22,6 @@ export default function PunchNode({
 }) {
   const [isPunched, punchIt] = useState(false);
   const [isLoading, setLoading] = useState(false);
-
-  useEffect(() => {
-    if (total === 0) {
-      punchIt(false);
-    }
-  }, [total]);
 
   useEffect(() => {
     if (!ignorePunchUpdate) {
