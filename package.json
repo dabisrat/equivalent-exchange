@@ -7,8 +7,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "update-types": "npx supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts"
-
+    "update-types": "npx supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts",
+    "db-data-dump": "npx supabase db dump --data-only -f supabase/seed.sql",
+    "db-data-upload": "psql -h localhost -U postgres -p 54322 -f supabase/seed.sql",
+    "db-diff-migration": "npx supabase db diff --use-migra -f local_schema_change",
+    "supabase-update": "npm update supabase --save-dev"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.0.2",
@@ -39,6 +42,7 @@
   },
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
-    "encoding": "^0.1.13"
+    "encoding": "^0.1.13",
+    "supabase": "^1.148.6"
   }
 }

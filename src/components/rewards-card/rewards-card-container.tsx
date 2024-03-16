@@ -14,18 +14,17 @@ export default async function RewardsCardContainer({
 }: {
   cardId: string;
 }) {
-  const h = headers();
   const user = await getUser(); //TODO I should do this at the top level and pass the user
   const card = await getRewardsCard(cardId); //TODO I should do this at the top level and pass the card
   const maxPoints = await getMaxCount(card.organization_id); // same as above
   const canModify = await canModifyCard(user.id, card.organization_id); // same as above
-  const qrCode = await toDataURL(
-    `${h.get("host")}/${card.organization_id}/${card.id}`,
-    {
-      type: "image/webp",
-      color: { dark: "#000000FF", light: "#00000000" },
-    }
-  );
+  const url = `https://${headers().get("host")}/${card.organization_id}/${
+    card.id
+  }`;
+  const qrCode = await toDataURL(url, {
+    type: "image/webp",
+    color: { dark: "#000000FF", light: "#00000000" },
+  });
   return (
     <>
       {user.id !== card.user_id && (
