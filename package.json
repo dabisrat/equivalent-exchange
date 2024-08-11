@@ -43,6 +43,6 @@
   "devDependencies": {
     "@types/qrcode": "^1.5.5",
     "encoding": "^0.1.13",
-    "supabase": "^1.148.6"
+    "supabase": "1.187.1"
   }
 }
