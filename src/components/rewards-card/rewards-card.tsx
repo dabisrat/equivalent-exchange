@@ -27,7 +27,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [points, setPoints] = useState<Tables<"stamp">[]>([]);
   const { isReady } = useSupabaseRealtimeSubscription(
     (payload) => {
+      console.log("value pushed from db", payload);
       getStamps(card.id).then((stamps) => {
+        console.log("Stamps data db push callback =", stamps);
         setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
       });
     },
@@ -38,6 +40,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   useEffect(() => {
     getStamps(card.id).then((stamps) => {
+      console.log("Stamps data form use effect =", stamps);
       setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
     });
   }, []);
