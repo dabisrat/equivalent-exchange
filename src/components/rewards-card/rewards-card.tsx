@@ -23,14 +23,23 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-
   const [points, setPoints] = useState<Tables<"stamp">[]>([]);
+
   const { isReady } = useSupabaseRealtimeSubscription(
-    (payload) => {
-      console.log("value pushed from db", payload);
-      getStamps(card.id).then((stamps) => {
-        console.log("Stamps data db push callback =", stamps);
-        setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
+    (updatedPoints) => {
+      console.log("value pushed from db", updatedPoints);
+
+      setPoints((oldPoints) => {
+        const match = oldPoints.findIndex(
+          (point) => point.stamp_index === updatedPoints.new.stamp_index
+        );
+
+        const newPoints =
+          match > -1
+            ? oldPoints.toSpliced(match, 1, updatedPoints.new)
+            : [...oldPoints, updatedPoints.new];
+
+        return newPoints.sort((a, b) => a.stamp_index - b.stamp_index);
       });
     },
     "UPDATE",
@@ -40,7 +49,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   useEffect(() => {
     getStamps(card.id).then((stamps) => {
-      console.log("Stamps data form use effect =", stamps);
       setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
     });
   }, []);
@@ -110,7 +118,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                     {children}
                   </div>
                   {Array(maxPoints)
-                    .fill(0)
+                    .fill({})
                     .map((_, i) => {
                       let className = "justify-self-center";
                       if (i == 0 || i === 5) {
