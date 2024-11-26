@@ -36,7 +36,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
         const newPoints =
           match > -1
-            ? oldPoints.toSpliced(match, 1, updatedPoints.new)
+            ? [...oldPoints].splice(match, 1, updatedPoints.new)
             : [...oldPoints, updatedPoints.new];
 
         return newPoints.sort((a, b) => a.stamp_index - b.stamp_index);
