@@ -28,8 +28,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const { isReady } = useSupabaseRealtimeSubscription(
     (payload) => {
       getStamps(card.id).then((stamps) => {
-        console.log(stamps);
-        console.log(card.points);
         setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
       });
     },

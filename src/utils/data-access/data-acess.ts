@@ -160,7 +160,7 @@ export async function getStamps(cardId: string) {
   if (error) {
     throw error;
   }
-  console.log(data);
+
   return data;
 }
 
@@ -173,7 +173,6 @@ async function getStamp(cardId: string, stampIndex: number) {
     .single();
 
   if (error) {
-    console.log(error);
     return null;
   }
 
@@ -195,14 +194,12 @@ async function updateStampById(cardId: string, stampIndex: number) {
   const stamp = await getStamp(cardId, stampIndex);
 
   if (stamp) {
-    // console.log("updating");
     await client
       .from("stamp")
       .update({ stamped: !stamp.stamped, stamper_id: user.id })
       .eq("stamp_index", stamp.stamp_index)
       .eq("reward_card_id", stamp.reward_card_id);
   } else {
-    // console.log("inserting");
     await client.from("stamp").insert([
       {
         reward_card_id: cardId,

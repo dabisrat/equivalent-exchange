@@ -18,7 +18,6 @@ export default function PunchNode({
   index: number;
 }) {
   const [isLoading, setLoading] = useState(false);
-  console.log(isLoading);
 
   function punchClicked(e: MouseEvent<HTMLDivElement>) {
     e.preventDefault();
@@ -29,7 +28,6 @@ export default function PunchNode({
     }
 
     setLoading(true);
-    console.log(index);
     (!punched
       ? addRewardPoints(cardId, index)
       : removeRewardPoints(cardId, index)
