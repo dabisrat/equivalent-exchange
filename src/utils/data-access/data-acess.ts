@@ -66,21 +66,18 @@ export async function getRewardsCardId(orgId: string, userId: string) {
 }
 
 export async function redeemRewards(cardId: string) {
+  const user = await getUser();
   const { data, error } = await createClient(cookies())
-    .from("reward_card")
-    .update({ points: 0 })
-    .eq("id", cardId)
-    .select()
-    .single();
-
+    .from("stamp")
+    .update({ stamped: false, stamper_id: user.id })
+    .eq("reward_card_id", cardId);
   if (error) {
     throw error;
   }
   revalidatePath("/");
-  return data;
 }
 
-export async function addRewardPoints(card_id: string) {
+export async function addRewardPoints(card_id: string, stampIndex: number) {
   let { data, error } = await createClient(cookies()).rpc("incrementpoints", {
     card_id,
   });
@@ -92,11 +89,11 @@ export async function addRewardPoints(card_id: string) {
   if (error) {
     throw error;
   }
-  revalidatePath("/");
+  updateStampById(card_id, stampIndex);
   return data;
 }
 
-export async function removeRewardPoints(card_id: string) {
+export async function removeRewardPoints(card_id: string, stampIndex: number) {
   const { data, error } = await createClient(cookies()).rpc("decrementpoints", {
     card_id,
   });
@@ -109,7 +106,7 @@ export async function removeRewardPoints(card_id: string) {
     throw error;
   }
 
-  revalidatePath("/");
+  updateStampById(card_id, stampIndex);
 
   return data;
 }
@@ -152,4 +149,68 @@ export async function canModifyCard(userId: string, orgId: string) {
     .single();
 
   return data?.organization_id === orgId;
+}
+
+export async function getStamps(cardId: string) {
+  const { data, error } = await createClient(cookies())
+    .from("stamp")
+    .select("*")
+    .eq("reward_card_id", cardId);
+
+  if (error) {
+    throw error;
+  }
+  console.log(data);
+  return data;
+}
+
+async function getStamp(cardId: string, stampIndex: number) {
+  const { data, error } = await createClient(cookies())
+    .from("stamp")
+    .select("*")
+    .eq("reward_card_id", cardId)
+    .eq("stamp_index", stampIndex)
+    .single();
+
+  if (error) {
+    console.log(error);
+    return null;
+  }
+
+  return data;
+}
+
+async function updateStampById(cardId: string, stampIndex: number) {
+  const client = await createClient(cookies());
+
+  const card = await getRewardsCard(cardId);
+  const maxCount = await getMaxCount(card.organization_id);
+
+  // indexes less then 1 are invalid and caught by database constraints
+  if (stampIndex > maxCount) {
+    return;
+  }
+
+  const user = await getUser();
+  const stamp = await getStamp(cardId, stampIndex);
+
+  if (stamp) {
+    // console.log("updating");
+    await client
+      .from("stamp")
+      .update({ stamped: !stamp.stamped, stamper_id: user.id })
+      .eq("stamp_index", stamp.stamp_index)
+      .eq("reward_card_id", stamp.reward_card_id);
+  } else {
+    // console.log("inserting");
+    await client.from("stamp").insert([
+      {
+        reward_card_id: cardId,
+        stamp_index: stampIndex,
+        stamped: true,
+      },
+    ]);
+  }
+
+  revalidatePath("/");
 }

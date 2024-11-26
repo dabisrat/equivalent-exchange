@@ -6,7 +6,7 @@ import back from "@PNN/assests/back.jpg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import PunchNode from "./punch-node";
 import { Button } from "@PNN/components/ui/button";
-import { redeemRewards } from "@PNN/utils/data-access/data-acess";
+import { getStamps, redeemRewards } from "@PNN/utils/data-access/data-acess";
 import { Skeleton } from "../ui/skeleton";
 import { useSupabaseRealtimeSubscription } from "@PNN/hooks/supabase-real-time-subscription";
 interface RewardsCardProps {
@@ -24,25 +24,40 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
 
-  const [points, setPoints] = useState(card.points);
-  const [ignorePunchUpdate, setIgnorePunchUpdate] = useState(false);
+  const [points, setPoints] = useState<Tables<"stamp">[]>([]);
   const { isReady } = useSupabaseRealtimeSubscription(
     (payload) => {
-      if (payload.new.points === 0) {
-        setIgnorePunchUpdate(false);
-      }
-      setPoints(payload.new.points);
+      getStamps(card.id).then((stamps) => {
+        console.log(stamps);
+        console.log(card.points);
+        setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
+      });
     },
     "UPDATE",
-    "reward_card",
-    `id=eq.${card.id}`
+    "stamp",
+    `reward_card_id=eq.${card.id}`
   );
+
+  useEffect(() => {
+    getStamps(card.id).then((stamps) => {
+      setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
+    });
+  }, []);
 
   function handleFlip() {
     if (!isAnimating) {
       setIsFlipped(!isFlipped);
       setIsAnimating(true);
     }
+  }
+
+  function getTotalPoints() {
+    return points
+      .filter((p) => p.stamp_index < maxPoints)
+      .reduce((memo, point) => {
+        const value = point.stamped ? 1 : 0;
+        return memo + value;
+      }, 0);
   }
 
   return (
@@ -86,7 +101,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <div className="absolute top-1 left-2">{points}</div>
+                <div className="absolute top-1 left-2">
+                  {getTotalPoints() || 0}
+                </div>
                 <div className="grid grid-cols-6 h-full p-4">
                   <div className="justify-self-center row-start-2 col-start-2 col-span-4 row-span-3">
                     {children}
@@ -102,11 +119,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                       return (
                         <div key={i} className={className}>
                           <PunchNode
+                            punched={points[i]?.stamped || false}
                             cardId={card.id}
-                            punched={i < points}
                             canModify={canModify}
-                            ignorePunchUpdate={ignorePunchUpdate}
-                            setIgnorePunchUpdate={setIgnorePunchUpdate}
+                            index={i}
                           ></PunchNode>
                         </div>
                       );
@@ -115,7 +131,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               </div>
             </motion.div>
           </div>
-          {maxPoints === points && canModify && (
+          {maxPoints === getTotalPoints() && canModify && (
             <Button onClick={() => redeemRewards(card.id)}>
               Redeem Points
             </Button>

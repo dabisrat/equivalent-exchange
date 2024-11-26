@@ -10,47 +10,30 @@ export default function PunchNode({
   cardId,
   punched,
   canModify,
-  ignorePunchUpdate,
-  setIgnorePunchUpdate,
+  index,
 }: {
   cardId: string;
   punched: boolean;
   canModify: boolean;
-  ignorePunchUpdate: boolean;
-  setIgnorePunchUpdate: (bol: boolean) => void;
+  index: number;
 }) {
-  const [isPunched, punchIt] = useState(false);
   const [isLoading, setLoading] = useState(false);
+  console.log(isLoading);
 
-  useEffect(() => {
-    if (!ignorePunchUpdate) {
-      punchIt(punched);
-    }
-  }, [punched]);
-
-  async function punchClicked(e: MouseEvent<HTMLDivElement>) {
+  function punchClicked(e: MouseEvent<HTMLDivElement>) {
     e.preventDefault();
     e.stopPropagation();
 
-    if (isLoading) {
+    if (isLoading || !canModify) {
       return;
-    }
-
-    if (!canModify) {
-      return;
-    }
-
-    if (!ignorePunchUpdate) {
-      setIgnorePunchUpdate(true);
     }
 
     setLoading(true);
-    await (!isPunched
-      ? addRewardPoints(cardId)
-      : removeRewardPoints(cardId)
+    console.log(index);
+    (!punched
+      ? addRewardPoints(cardId, index)
+      : removeRewardPoints(cardId, index)
     ).finally(() => setLoading(false));
-
-    punchIt((p) => !p);
   }
 
   return (
@@ -64,7 +47,7 @@ export default function PunchNode({
         )}
         {!isLoading && (
           <>
-            {isPunched ? (
+            {punched ? (
               <MdStars color="#857A46" fontSize="32"></MdStars>
             ) : (
               <MdCircle color="#857A46" fontSize="small"></MdCircle>
