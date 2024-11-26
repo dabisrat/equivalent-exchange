@@ -23,22 +23,13 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 }) => {
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
-  const [points, setPoints] = useState<Tables<"stamp">[]>([]);
+  const [points, setPoints] = useState<{ [key: number]: Tables<"stamp"> }>({});
 
   const { isReady } = useSupabaseRealtimeSubscription(
     (updatedPoints) => {
       setPoints((oldPoints) => {
-        const match = oldPoints.findIndex(
-          (point) => point.stamp_index === updatedPoints.new.stamp_index
-        );
-
-        if (match > -1) {
-          oldPoints.splice(match, 1);
-        }
-
-        const newPoints = [...oldPoints, updatedPoints.new];
-        newPoints.sort((a, b) => a.stamp_index - b.stamp_index);
-        return newPoints;
+        oldPoints[updatedPoints.new.stamp_index] = updatedPoints.new;
+        return { ...oldPoints };
       });
     },
     "UPDATE",
@@ -47,8 +38,15 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   );
 
   useEffect(() => {
-    getStamps(card.id).then((stamps) => {
-      setPoints(stamps.sort((a, b) => a.stamp_index - b.stamp_index));
+    getStamps(card.id).then((stampsArray) => {
+      const stamps = stampsArray.reduce(
+        (memo: { [key: number]: Tables<"stamp"> }, stamp) => {
+          memo[stamp.stamp_index] = stamp;
+          return memo;
+        },
+        {}
+      );
+      setPoints(stamps);
     });
   }, []);
 
@@ -60,12 +58,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }
 
   function getTotalPoints() {
-    return points
-      .filter((p) => p.stamp_index < maxPoints)
-      .reduce((memo, point) => {
-        const value = point.stamped ? 1 : 0;
-        return memo + value;
-      }, 0);
+    return Object.values(points).filter((point) => point.stamped).length;
   }
 
   return (
@@ -130,7 +123,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                             punched={points[i]?.stamped || false}
                             cardId={card.id}
                             canModify={canModify}
-                            index={i}
+                            index={points[i]?.stamp_index || i}
                           ></PunchNode>
                         </div>
                       );
