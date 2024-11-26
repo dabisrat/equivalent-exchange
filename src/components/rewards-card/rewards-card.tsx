@@ -27,19 +27,18 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   const { isReady } = useSupabaseRealtimeSubscription(
     (updatedPoints) => {
-      console.log("value pushed from db", updatedPoints);
-
       setPoints((oldPoints) => {
         const match = oldPoints.findIndex(
           (point) => point.stamp_index === updatedPoints.new.stamp_index
         );
 
-        const newPoints =
-          match > -1
-            ? [...oldPoints].splice(match, 1, updatedPoints.new)
-            : [...oldPoints, updatedPoints.new];
+        if (match > -1) {
+          oldPoints.splice(match, 1);
+        }
 
-        return newPoints.sort((a, b) => a.stamp_index - b.stamp_index);
+        const newPoints = [...oldPoints, updatedPoints.new];
+        newPoints.sort((a, b) => a.stamp_index - b.stamp_index);
+        return newPoints;
       });
     },
     "UPDATE",
