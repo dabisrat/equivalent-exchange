@@ -89,7 +89,7 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-  updateStampById(card_id, stampIndex);
+  await updateStampById(card_id, stampIndex);
   return data;
 }
 
@@ -106,7 +106,7 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
     throw error;
   }
 
-  updateStampById(card_id, stampIndex);
+  await updateStampById(card_id, stampIndex);
 
   return data;
 }
