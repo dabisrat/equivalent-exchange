@@ -67,17 +67,31 @@ export async function getRewardsCardId(orgId: string, userId: string) {
 
 export async function redeemRewards(cardId: string) {
   const user = await getUser();
-  const { data, error } = await createClient(cookies())
+  const client = createClient(cookies());
+  const { data, error } = await client
     .from("stamp")
     .update({ stamped: false, stamper_id: user.id })
     .eq("reward_card_id", cardId);
+
   if (error) {
     throw error;
   }
+
+  const { data: d, error: e } = await client
+    .from("reward_card")
+    .update({ points: 0 })
+    .eq("id", cardId);
+
+  if (e) {
+    throw e;
+  }
+
   revalidatePath("/");
 }
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
+  await updateStampById(card_id, stampIndex);
+
   let { data, error } = await createClient(cookies()).rpc("incrementpoints", {
     card_id,
   });
@@ -89,11 +103,12 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-  await updateStampById(card_id, stampIndex);
   return data;
 }
 
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
+  await updateStampById(card_id, stampIndex);
+
   const { data, error } = await createClient(cookies()).rpc("decrementpoints", {
     card_id,
   });
@@ -106,12 +121,45 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
     throw error;
   }
 
-  await updateStampById(card_id, stampIndex);
-
   return data;
 }
 
+async function updateStampById(cardId: string, stampIndex: number) {
+  const client = await createClient(cookies());
+
+  const card = await getRewardsCard(cardId);
+  const maxCount = await getMaxCount(card.organization_id);
+
+  // indexes less then 1 are invalid and caught by database constraints
+  if (stampIndex > maxCount) {
+    throw new Error("stamp index out of range");
+  }
+
+  const user = await getUser();
+  const stamp = await getStamp(cardId, stampIndex);
+
+  if (stamp) {
+    await client
+      .from("stamp")
+      .update({ stamped: !stamp.stamped, stamper_id: user.id })
+      .eq("stamp_index", stamp.stamp_index)
+      .eq("reward_card_id", stamp.reward_card_id);
+  } else {
+    await client.from("stamp").insert([
+      {
+        reward_card_id: cardId,
+        stamp_index: stampIndex,
+        stamped: true,
+      },
+    ]);
+  }
+}
+
 export async function createRewardCard(userId: string, orgId: string) {
+  const org = await getOrganizationDetails(orgId).catch((e) => null);
+  if (!org) {
+    throw new Error("organization not found");
+  }
   const { data, error } = await createClient(cookies())
     .from("reward_card")
     .insert({ user_id: userId, points: 0, organization_id: orgId })
@@ -138,6 +186,20 @@ export async function getMaxCount(orgId: string) {
   }
 
   return data.max_points;
+}
+
+async function getOrganizationDetails(orgId: string) {
+  const { data, error } = await createClient(cookies())
+    .from("organization")
+    .select("*")
+    .eq("id", orgId)
+    .single();
+
+  if (error) {
+    console.log("error", error);
+    throw error;
+  }
+  return data;
 }
 
 export async function canModifyCard(userId: string, orgId: string) {
@@ -177,37 +239,4 @@ async function getStamp(cardId: string, stampIndex: number) {
   }
 
   return data;
-}
-
-async function updateStampById(cardId: string, stampIndex: number) {
-  const client = await createClient(cookies());
-
-  const card = await getRewardsCard(cardId);
-  const maxCount = await getMaxCount(card.organization_id);
-
-  // indexes less then 1 are invalid and caught by database constraints
-  if (stampIndex > maxCount) {
-    return;
-  }
-
-  const user = await getUser();
-  const stamp = await getStamp(cardId, stampIndex);
-
-  if (stamp) {
-    await client
-      .from("stamp")
-      .update({ stamped: !stamp.stamped, stamper_id: user.id })
-      .eq("stamp_index", stamp.stamp_index)
-      .eq("reward_card_id", stamp.reward_card_id);
-  } else {
-    await client.from("stamp").insert([
-      {
-        reward_card_id: cardId,
-        stamp_index: stampIndex,
-        stamped: true,
-      },
-    ]);
-  }
-
-  revalidatePath("/");
 }

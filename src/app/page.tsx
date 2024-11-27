@@ -5,6 +5,13 @@ import {
   getUsersRewardsCards,
 } from "@PNN/utils/data-access/data-acess";
 import RewardsCardPreview from "@PNN/components/rewards-card/rewards-card-preview";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@PNN/components/ui/carousel";
 
 export default async function App() {
   const user = await getUser().catch((e) => null);
@@ -15,13 +22,24 @@ export default async function App() {
     return (
       <>
         <Logout />
+
         {!!cards.length && (
-          <div className="p-4">
-            {cards
-              .sort((a, b) => a.id.localeCompare(b.id))
-              .map((card) => (
-                <RewardsCardPreview key={card.id} card={card} />
-              ))}
+          <div className="flex justify-center cursor-pointer">
+            <Carousel className="w-full max-w-xs ">
+              <CarouselContent>
+                {cards
+                  .sort((a, b) => a.id.localeCompare(b.id))
+                  .map((card, index) => (
+                    <CarouselItem key={index}>
+                      <div className="p-1">
+                        <RewardsCardPreview key={card.id} card={card} />
+                      </div>
+                    </CarouselItem>
+                  ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
           </div>
         )}
         {!cards.length && <> no cards found </>}

@@ -10,8 +10,12 @@ export default async function CraeteCard({
 }) {
   return (
     <div>
-      {/* TODO check what is the best way to handle forms in server components. should this be a client component */}
-      <form action={createRewardCard.bind(null, userId, orgId)}>
+      <form
+        action={async () => {
+          "use server";
+          createRewardCard(userId, orgId);
+        }}
+      >
         <Button>create card</Button>
       </form>
     </div>

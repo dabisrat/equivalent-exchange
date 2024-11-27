@@ -15,7 +15,7 @@
     "supabase-update": "npm update supabase --save-dev"
   },
   "dependencies": {
-    "@radix-ui/react-slot": "^1.0.2",
+    "@radix-ui/react-slot": "^1.1.0",
     "@supabase/auth-ui-react": "^0.4.6",
     "@supabase/auth-ui-shared": "^0.1.8",
     "@supabase/ssr": "^0.0.10",
@@ -26,6 +26,7 @@
     "autoprefixer": "10.4.14",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.0",
+    "embla-carousel-react": "^8.5.1",
     "eslint": "8.41.0",
     "eslint-config-next": "^14.0.4",
     "framer-motion": "^10.16.16",
