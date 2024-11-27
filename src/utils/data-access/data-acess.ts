@@ -153,6 +153,7 @@ async function updateStampById(cardId: string, stampIndex: number) {
       },
     ]);
   }
+  revalidatePath("/");
 }
 
 export async function createRewardCard(userId: string, orgId: string) {
