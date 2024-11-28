@@ -16,7 +16,7 @@ const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
         onClick={() => {
           router.push(`/${card.organization_id}/${card.id}`);
         }}
-        className="w-[300px] h-[200px] bg-cover border-[1px] rounded-lg"
+        className="w-screen max-w-[245px] h-[150px] bg-cover border-[1px] rounded-lg"
         style={{
           backgroundImage: `url(${front.src})`,
           backgroundSize: "100% 100%",

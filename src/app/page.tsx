@@ -25,7 +25,7 @@ export default async function App() {
 
         {!!cards.length && (
           <div className="flex justify-center cursor-pointer">
-            <Carousel className="w-full max-w-xs ">
+            <Carousel className="w-full max-w-[250px]">
               <CarouselContent>
                 {cards
                   .sort((a, b) => a.id.localeCompare(b.id))
