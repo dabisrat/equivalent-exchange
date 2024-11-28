@@ -1,7 +1,6 @@
 "use server";
 import { cookies } from "next/headers";
 import { createClient } from "../supabase/server";
-import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 const cache = new Map<string, number>();
@@ -85,8 +84,6 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
-
-  revalidatePath("/");
 }
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
@@ -103,7 +100,6 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-  return data;
 }
 
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
@@ -120,8 +116,6 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-
-  return data;
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
@@ -153,7 +147,6 @@ async function updateStampById(cardId: string, stampIndex: number) {
       },
     ]);
   }
-  revalidatePath("/");
 }
 
 export async function createRewardCard(userId: string, orgId: string) {

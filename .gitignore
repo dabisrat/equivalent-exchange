@@ -37,3 +37,6 @@ next-env.d.ts
 #hidden files
 .*
 !/.gitignore
+
+# seed-data
+seed.sql

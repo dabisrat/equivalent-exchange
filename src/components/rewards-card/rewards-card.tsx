@@ -32,7 +32,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         return { ...oldPoints };
       });
     },
-    "UPDATE",
     "stamp",
     `reward_card_id=eq.${card.id}`
   );

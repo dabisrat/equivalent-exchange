@@ -15,7 +15,6 @@ const supabaseClient = createClient();
 
 export function useSupabaseRealtimeSubscription(
   callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
-  event: string = "*",
   table: string,
   filter: string
 ) {
@@ -34,15 +33,13 @@ export function useSupabaseRealtimeSubscription(
         {
           schema: "public",
           table,
-          event,
+          event: '*',
           filter,
         } as RealtimePostgresChangesFilter<"*">,
         (payload) => {
           callback(payload);
         }
-      )
-
-      .subscribe();
+      ).subscribe();
 
     return () => {
       supabaseClient.removeChannel(channel);
