@@ -3,7 +3,7 @@ import {
   addRewardPoints,
   removeRewardPoints,
 } from "@PNN/utils/data-access/data-acess";
-import { useEffect, useState, MouseEvent } from "react";
+import { useState, MouseEvent } from "react";
 import { MdStars, MdCircle } from "react-icons/md";
 
 export default function PunchNode({

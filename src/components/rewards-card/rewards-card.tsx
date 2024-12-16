@@ -24,20 +24,23 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [isFlipped, setIsFlipped] = useState(false);
   const [isAnimating, setIsAnimating] = useState(false);
   const [points, setPoints] = useState<{ [key: number]: Tables<"stamp"> }>({});
+  
 
-  const { isReady } = useSupabaseRealtimeSubscription(
-    (updatedPoints) => {
-      setPoints((oldPoints) => {
-        oldPoints[updatedPoints.new.stamp_index] = updatedPoints.new;
-        return { ...oldPoints };
-      });
-    },
-    "stamp",
-    `reward_card_id=eq.${card.id}`
-  );
+  // const  isReady  = useSupabaseRealtimeSubscription(
+  //   (updatedPoints) => {
+  //     setPoints((oldPoints) => {
+  //       console.log("updating points", updatedPoints.new.stamp_index, updatedPoints.new);
+  //       oldPoints[updatedPoints.new.stamp_index] = updatedPoints.new;
+  //       return { ...oldPoints };
+  //     });
+  //   },
+  //   "stamp",
+  //   `reward_card_id=eq.${card.id}`
+  // );
 
-  useEffect(() => {
-    getStamps(card.id).then((stampsArray) => {
+  useEffect( () => {
+    console.log('useEffect called')
+    getStamps(card.id).then((stampsArray) => {   
       const stamps = stampsArray.reduce(
         (memo: { [key: number]: Tables<"stamp"> }, stamp) => {
           memo[stamp.stamp_index] = stamp;
@@ -46,8 +49,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         {}
       );
       setPoints(stamps);
+      
     });
-  }, []);
+  }, [card.points]);
 
   function handleFlip() {
     if (!isAnimating) {
@@ -62,7 +66,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   return (
     <>
-      {!isReady && (
+      {/* {!isReady && (
         <div className="flex flex-col space-y-3 justify-center items-center">
           <Skeleton className="w-[375px] h-[225px] rounded-md" />
           <div className="space-y-2">
@@ -70,8 +74,8 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             <Skeleton className="h-4 w-[200px]" />
           </div>
         </div>
-      )}
-      {isReady && (
+      )} */}
+      { (
         <div className="flex flex-col gap-3 h-full items-center justify-center cursor-pointer">
           <div
             className="flip-card  w-[375px] h-[225px] rounded-md"
@@ -102,7 +106,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 }}
               >
                 <div className="absolute top-1 left-2">
-                  {getTotalPoints() || 0}
+                  {card.points || 0}
                 </div>
                 <div className="grid grid-cols-6 h-full p-4">
                   <div className="justify-self-center row-start-2 col-start-2 col-span-4 row-span-3">
@@ -131,7 +135,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               </div>
             </motion.div>
           </div>
-          {maxPoints === getTotalPoints() && canModify && (
+          {maxPoints === card.points && canModify && (
             <Button onClick={() => redeemRewards(card.id)}>
               Redeem Points
             </Button>

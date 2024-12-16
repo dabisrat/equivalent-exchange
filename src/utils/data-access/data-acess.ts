@@ -2,6 +2,7 @@
 import { cookies } from "next/headers";
 import { createClient } from "../supabase/server";
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 
 const cache = new Map<string, number>();
 
@@ -84,9 +85,11 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
+  revalidatePath('/');
 }
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
+  console.log("addRewardPoints", card_id, stampIndex);
   await updateStampById(card_id, stampIndex);
 
   let { data, error } = await createClient(cookies()).rpc("incrementpoints", {
@@ -100,6 +103,7 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
+  revalidatePath('/');
 }
 
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
@@ -116,6 +120,8 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
+
+  revalidatePath('/');
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
@@ -131,6 +137,7 @@ async function updateStampById(cardId: string, stampIndex: number) {
 
   const user = await getUser();
   const stamp = await getStamp(cardId, stampIndex);
+  console.log('stamp', stamp);
 
   if (stamp) {
     await client

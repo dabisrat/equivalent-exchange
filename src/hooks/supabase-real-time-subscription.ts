@@ -5,25 +5,26 @@ import {
   RealtimePostgresChangesFilter,
   RealtimePostgresChangesPayload,
 } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 const defaultCB = (payload: any) => {
   console.log(["Received realtime event", payload]);
 };
 
-const supabaseClient = createClient();
 
 export function useSupabaseRealtimeSubscription(
   callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
   table: string,
   filter: string
 ) {
+  
+  const supabaseClient = createClient();
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
     const channel = supabaseClient
       .channel(table === "*" ? "public" : `public:${table}`)
-      .on("system" as any, {} as any, (payload: any) => {
+      .on("system", {}, (payload: any) => {
         if (payload.extension == "postgres_changes" && payload.status == "ok") {
           setIsReady(true);
         }
@@ -44,7 +45,7 @@ export function useSupabaseRealtimeSubscription(
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, []);
+  }, [supabaseClient]);
 
-  return { isReady };
+  return  isReady ;
 }
