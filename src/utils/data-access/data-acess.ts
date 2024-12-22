@@ -85,7 +85,7 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
-  // revalidatePath('/');
+  revalidatePath('/');
 }
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
@@ -102,7 +102,7 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-  // revalidatePath('/');
+  revalidatePath('/');
 }
 
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
@@ -120,7 +120,7 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
     throw error;
   }
 
-  // revalidatePath('/');
+  revalidatePath('/');
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
