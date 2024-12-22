@@ -25,7 +25,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [points, setPoints] = useState<{ [key: number]: Tables<"stamp"> }>({});
 
-  const { isReady } = useSupabaseRealtimeSubscription(
+  const  isReady  = useSupabaseRealtimeSubscription(
     (updatedPoints) => {
       setPoints((oldPoints) => {
         oldPoints[updatedPoints.new.stamp_index] = updatedPoints.new;

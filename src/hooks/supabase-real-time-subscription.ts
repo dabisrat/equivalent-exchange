@@ -25,6 +25,7 @@ export function useSupabaseRealtimeSubscription(
       .channel(table === "*" ? "public" : `public:${table}`)
       .on("system" as any, {} as any, (payload: any) => {
         if (payload.extension == "postgres_changes" && payload.status == "ok") {
+          console.log("Channel is ready");
           setIsReady(true);
         }
       })
@@ -44,7 +45,8 @@ export function useSupabaseRealtimeSubscription(
     return () => {
       supabaseClient.removeChannel(channel);
     };
-  }, []);
+  }, [supabaseClient]);
+  
 
-  return { isReady };
+  return  isReady ;
 }
