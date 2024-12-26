@@ -12,7 +12,6 @@ const defaultCB = (payload: any) => {
 };
 
 const supabaseClient = createClient();
-let isFirstTimeReady = false;
 
 export function useSupabaseRealtimeSubscription(
   callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
@@ -20,21 +19,15 @@ export function useSupabaseRealtimeSubscription(
   filter: string
 ) {
   const [isReady, setIsReady] = useState(false);
-  // const [isFirstTimeReady, setIsFirstTimeReady] = useState(false);
+  const [isFirstCall, setFirstCall] = useState(false);
 
   useEffect(() => {
     const channel = supabaseClient
       .channel(table === "*" ? "public" : `public:${table}`)
-      .on("system" as any, {} as any, (payload: any) => {
+      .on("system", {}, (payload: any) => {
+        
         if (payload.extension == "postgres_changes" && payload.status == "ok") {
-          console.log("Channel is ready");
-
-          if(!isFirstTimeReady) {
-            isFirstTimeReady = true;
-          }else {
-            setIsReady(true);
-          }
-          
+              setIsReady(true);
         }
       })
       .on(
@@ -51,9 +44,10 @@ export function useSupabaseRealtimeSubscription(
       ).subscribe();
 
     return () => {
+      console.log("Unsubscribing from channel");
       supabaseClient.removeChannel(channel);
     };
-  }, [supabaseClient]);
+  }, [supabaseClient, isReady]);
   
 
   return  isReady ;

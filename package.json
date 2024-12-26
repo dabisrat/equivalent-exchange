@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev-https": "next dev --experimental-https",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -47,6 +48,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.0.1",
     "@types/qrcode": "^1.5.5",
+    "@types/web-bluetooth": "^0.0.20",
     "@vitejs/plugin-react": "^4.3.4",
     "encoding": "^0.1.13",
     "jsdom": "^25.0.1",
