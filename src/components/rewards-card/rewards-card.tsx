@@ -124,7 +124,11 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                   backgroundSize: "100% 100%",
                   backgroundRepeat: "no-repeat",
                 }}
-              ></div>
+              >
+                <div className="absolute top-1 right-2 text-[rgb(120,102,49)]">
+                  {getTotalPoints() || 0}
+                </div>
+              </div>
 
               <div
                 className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg"
@@ -134,7 +138,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                   backgroundRepeat: "no-repeat",
                 }}
               >
-                <div className="absolute top-1 left-2">
+                <div className="absolute top-1 left-2 text-[rgb(120,102,49)]">
                   {getTotalPoints() || 0}
                 </div>
                 <div className="grid grid-cols-6 h-full p-4">
