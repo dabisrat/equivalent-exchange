@@ -19,7 +19,6 @@ export function useSupabaseRealtimeSubscription(
   filter: string
 ) {
   const [isReady, setIsReady] = useState(false);
-  const [isFirstCall, setFirstCall] = useState(false);
 
   useEffect(() => {
     const channel = supabaseClient
@@ -44,7 +43,6 @@ export function useSupabaseRealtimeSubscription(
       ).subscribe();
 
     return () => {
-      console.log("Unsubscribing from channel");
       supabaseClient.removeChannel(channel);
     };
   }, [supabaseClient, isReady]);

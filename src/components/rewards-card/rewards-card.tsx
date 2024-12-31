@@ -9,11 +9,44 @@ import { Button } from "@PNN/components/ui/button";
 import { getStamps, redeemRewards } from "@PNN/utils/data-access/data-acess";
 import { Skeleton } from "../ui/skeleton";
 import { useSupabaseRealtimeSubscription } from "@PNN/hooks/supabase-real-time-subscription";
+import confetti from "canvas-confetti";
 interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
   canModify: boolean;
 }
+
+
+const handleClick = () => {
+  const defaults = {
+    spread: 360,
+    ticks: 50,
+    gravity: 0,
+    decay: 0.94,
+    startVelocity: 30,
+    colors: ["#857A46", "#a39655", "#c9ba6b", "#998d51", "#857A46"],
+  };
+
+  const shoot = () => {
+    confetti({
+      ...defaults,
+      particleCount: 40,
+      scalar: 1.2,
+      shapes: ["star"],
+    });
+
+    confetti({
+      ...defaults,
+      particleCount: 10,
+      scalar: 0.75,
+      shapes: ["circle"],
+    });
+  };
+
+  setTimeout(shoot, 0);
+  setTimeout(shoot, 100);
+  setTimeout(shoot, 200);
+};
 
 const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   card,
@@ -25,7 +58,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [points, setPoints] = useState<{ [key: number]: Tables<"stamp"> }>({});
 
-  const  isReady  = useSupabaseRealtimeSubscription(
+  const isReady = useSupabaseRealtimeSubscription(
     (updatedPoints) => {
       setPoints((oldPoints) => {
         oldPoints[updatedPoints.new.stamp_index] = updatedPoints.new;
@@ -132,7 +165,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             </motion.div>
           </div>
           {maxPoints === getTotalPoints() && canModify && (
-            <Button onClick={() => redeemRewards(card.id)}>
+            <Button onClick={() => {
+              handleClick();
+              redeemRewards(card.id)
+            }}>
               Redeem Points
             </Button>
           )}
