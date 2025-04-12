@@ -2,51 +2,81 @@
 import { createClient } from "@PNN/utils/supabase/client";
 import {
   REALTIME_LISTEN_TYPES,
-  RealtimePostgresChangesFilter,
+  REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
   RealtimePostgresChangesPayload,
+  RealtimeChannel,
 } from "@supabase/supabase-js";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 
-const defaultCB = (payload: any) => {
-  console.log(["Received realtime event", payload]);
+interface SubscriptionStatus {
+  isReady: boolean;
+  error: Error | null;
+}
+
+type SubscriptionOptions = {
+  callback?: (payload: RealtimePostgresChangesPayload<any>) => void;
+  filter?: string;
+  event?: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
 };
 
 const supabaseClient = createClient();
 
 export function useSupabaseRealtimeSubscription(
-  callback: (param: RealtimePostgresChangesPayload<any>) => void = defaultCB,
   table: string,
-  filter: string
-) {
-  const [isReady, setIsReady] = useState(false);
+  options: SubscriptionOptions = {}
+): SubscriptionStatus {
+  const [status, setStatus] = useState<SubscriptionStatus>({
+    isReady: false,
+    error: null,
+  });
+
+  const defaultCallback = useCallback((payload: RealtimePostgresChangesPayload<any>) => {
+    console.log(`Received realtime event for table ${table}:`, payload);
+  }, [table]);
+
+  const {
+    callback = defaultCallback,
+    filter = "",
+    event = REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL
+  } = options;
 
   useEffect(() => {
-    const channel = supabaseClient
-      .channel(table === "*" ? "public" : `public:${table}`)
-      .on("system", {}, (payload: any) => {
-        
-        if (payload.extension == "postgres_changes" && payload.status == "ok") {
-              setIsReady(true);
-        }
-      })
-      .on(
-        REALTIME_LISTEN_TYPES.POSTGRES_CHANGES,
-        {
-          schema: "public",
-          table,
-          event: '*',
-          filter,
-        } as RealtimePostgresChangesFilter<"*">,
-        (payload) => {
-          callback(payload);
-        }
-      ).subscribe();
+    let channel: RealtimeChannel;
+
+    try {
+      channel = supabaseClient
+        .channel(table === "*" ? "public" : `public:${table}`)
+        .on("system", {}, (payload: any) => {
+          console.log("system", payload);
+          if (payload.extension == "postgres_changes" && payload.status == "ok") {
+            setStatus({ isReady: true, error: null });
+          }
+        })
+        .on(
+          REALTIME_LISTEN_TYPES.POSTGRES_CHANGES as any,
+          {
+            schema: "public",
+            table,
+            event,
+            filter,
+          },
+          callback
+        )
+        .subscribe();
+    } catch (error) {
+      console.error("Error subscribing to channel:", error);
+      setStatus({
+        isReady: false,
+        error: error instanceof Error ? error : new Error("Unknown error occurred")
+      });
+    }
 
     return () => {
-      supabaseClient.removeChannel(channel);
+      if (channel) {
+        void supabaseClient.removeChannel(channel);
+      }
     };
-  }, [supabaseClient, isReady]);
-  
+  }, [ status.isReady, filter, event]);
 
-  return  isReady ;
+  return status;
 }

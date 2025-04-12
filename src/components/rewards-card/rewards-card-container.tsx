@@ -25,6 +25,7 @@ export default async function RewardsCardContainer({
     type: "image/webp",
     color: { dark: "#000000FF", light: "#00000000" },
   });
+  
   return (
     <>
       {user.id !== card.user_id && (
