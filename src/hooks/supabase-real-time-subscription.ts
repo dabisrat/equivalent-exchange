@@ -47,7 +47,6 @@ export function useSupabaseRealtimeSubscription(
       channel = supabaseClient
         .channel(table === "*" ? "public" : `public:${table}`)
         .on("system", {}, (payload: any) => {
-          console.log("system", payload);
           if (payload.extension == "postgres_changes" && payload.status == "ok") {
             setStatus({ isReady: true, error: null });
           }

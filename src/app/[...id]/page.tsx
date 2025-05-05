@@ -6,9 +6,9 @@ import CraeteCard from "@PNN/components/createCard";
 export default async function CardPage({
   params,
 }: {
-  params: { id: string[] };
+  params: Promise<{ id: string[] }>;
 }) {
-  const [orgId, cardId] = params.id;
+  const [orgId, cardId] = (await params).id;
 
   if (cardId) {
     return <RewardsCardContainer cardId={cardId} />;

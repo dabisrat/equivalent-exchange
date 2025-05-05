@@ -4,8 +4,6 @@ import { createClient } from "../supabase/server";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 
-const cache = new Map<string, number>();
-
 export async function getUser() {
   const { data, error } = await createClient(cookies()).auth.getUser();
 
