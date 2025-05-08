@@ -17,7 +17,8 @@ const getUrl = () => {
   return url;
 };
 
-export default function Login({ params }: { params?: { id: string[] } }) {
+export default async function Login({ params }: any) {
+  params = await params 
   const client = createClient();
   const router = useRouter();
   const route = params?.id?.join("/") ?? "";

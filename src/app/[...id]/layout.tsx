@@ -4,15 +4,15 @@ import { redirect } from "next/navigation";
 
 export default async function Layout({
   children,
-  params = { id: [] },
+  params = Promise.resolve( { id: [] }),
 }: {
   children: React.ReactNode;
-  params: { id: string[] };
+  params: Promise<{ id: string[] }>;
 }) {
   const user = await getUser().catch((e) => null);
 
   if (!user) {
-    redirect(`/login/${params.id.join("/")}`);
+    redirect(`/login/${(await params).id.join("/")}`);
   } else {
     return (
       <>
