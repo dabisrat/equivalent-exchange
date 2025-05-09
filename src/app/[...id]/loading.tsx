@@ -1,7 +1,6 @@
 import { Skeleton } from "@PNN/components/ui/skeleton";
 
 export default async function Loading() {
-    await new Promise(resolve => setTimeout(resolve, 1000));
   return (
     <div className="flex flex-col space-y-3 justify-center items-center min-h-screen">
       <Skeleton className="w-[375px] h-[225px] rounded-md" />

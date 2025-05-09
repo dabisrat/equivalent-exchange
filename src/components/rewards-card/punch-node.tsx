@@ -3,7 +3,7 @@ import {
   addRewardPoints,
   removeRewardPoints,
 } from "@PNN/utils/data-access/data-acess";
-import { useEffect, useState, MouseEvent } from "react";
+import { useState, MouseEvent } from "react";
 import { MdStars, MdCircle } from "react-icons/md";
 
 export default function PunchNode({
@@ -41,7 +41,7 @@ export default function PunchNode({
         onClick={punchClicked}
       >
         {isLoading && (
-          <MdStars className="animate-ping" fontSize="32"></MdStars>
+          <MdStars className="animate-spin" fontSize="32"></MdStars>
         )}
         {!isLoading && (
           <>
