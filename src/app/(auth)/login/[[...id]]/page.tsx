@@ -1,9 +1,9 @@
 "use client";
 import { createClient } from "@PNN/utils/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { authUiConfig } from "@PNN/utils/supabase/auth-ui-config";
 
 const getUrl = () => {
   let url =
@@ -17,7 +17,7 @@ const getUrl = () => {
   return url;
 };
 
-export default  function Login({ params }: any) {
+export default function Login({ params }: any) {
   const client = createClient();
   const router = useRouter();
   const route = params?.id?.join("/") ?? "";
@@ -39,18 +39,10 @@ export default  function Login({ params }: any) {
   return (
     <Auth
       supabaseClient={client}
-      appearance={{
-        theme: ThemeSupa,
-        style: {
-          container: {
-            padding: "1rem",
-          },
-        },
-      }}
+      appearance={authUiConfig}
       socialLayout="horizontal"
       redirectTo={`${getUrl()}/callback/${route}`}
       magicLink
-      theme="dark"
       otpType="email"
       providers={["google"]}
       queryParams={{

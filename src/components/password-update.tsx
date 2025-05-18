@@ -1,9 +1,9 @@
 "use client";
 import { createClient } from "@PNN/utils/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
-import { ThemeSupa } from "@supabase/auth-ui-shared";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { authUiConfig } from "@PNN/utils/supabase/auth-ui-config";
 
 export default function PasswordUpdate({ children }: any) {
   const client = createClient();
@@ -33,15 +33,7 @@ export default function PasswordUpdate({ children }: any) {
       <Auth
         supabaseClient={client}
         view="update_password"
-        appearance={{
-          theme: ThemeSupa,
-          style: {
-            container: {
-              padding: "1rem",
-            },
-          },
-        }}
-        theme="dark"
+        appearance={authUiConfig}
       />
     </>
   );

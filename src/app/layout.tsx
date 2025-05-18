@@ -1,7 +1,9 @@
 import "./globals.css";
 
+
 import { Inter } from "next/font/google";
 import { cn } from "@PNN/utils/shadcn/utils";
+import { ThemeProvider } from "@PNN/providers/theme-provider";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -20,7 +22,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(fontSans.variable)}>{children}</body>
+      <body className={cn(fontSans.variable)}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
