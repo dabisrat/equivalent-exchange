@@ -40,32 +40,32 @@
   }
 
   .dark {
-    --background: 226 32% 8%;
+    --background: 226 48% 5%;
     --foreground: 50 10% 95%;
-    --card: 226 30% 12%;
+    --card: 226 48% 9%;
     --card-foreground: 50 10% 95%;
-    --popover: 226 30% 12%;
+    --popover: 226 48% 9%;
     --popover-foreground: 50 10% 95%;
     --primary: 50 31% 40%;
     --primary-foreground: 50 31% 95%;
-    --secondary: 50 7% 20%;
-    --secondary-foreground: 50 7% 95%;
-    --muted: 50 7% 20%;
-    --muted-foreground: 50 15% 65%;
-    --accent: 65 82% 11%;
-    --accent-foreground: 65 10% 95%;
+    --secondary: 45 8% 21%;
+    --secondary-foreground: 45 8% 95%;
+    --muted: 45 8% 21%;
+    --muted-foreground: 45 15% 65%;
+    --accent: 64 84% 10%;
+    --accent-foreground: 64 10% 95%;
     --destructive: 0 70% 45%;
     --destructive-foreground: 50 31% 95%;
-    --border: 226 40% 18%;
-    --input: 226 40% 18%;
+    --border: 226 30% 15%;
+    --input: 226 30% 15%;
     --ring: 50 31% 40%;
-    --sidebar-background: 226 32% 8%;
+    --sidebar-background: 226 48% 17%;
     --sidebar-foreground: 50 10% 95%;
     --sidebar-primary: 50 31% 40%;
     --sidebar-primary-foreground: 50 31% 95%;
-    --sidebar-accent: 65 82% 11%;
-    --sidebar-accent-foreground: 65 10% 95%;
-    --sidebar-border: 226 40% 18%;
+    --sidebar-accent: 64 84% 10%;
+    --sidebar-accent-foreground: 64 10% 95%;
+    --sidebar-border: 226 30% 15%;
     --sidebar-ring: 50 31% 40%;
   }
 }
