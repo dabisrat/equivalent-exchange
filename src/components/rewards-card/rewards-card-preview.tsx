@@ -1,8 +1,10 @@
 "use client";
 import front from "@PNN/assests/front.svg";
+import frontDark from "@PNN/assests/front-dark.svg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 interface RewardsCardProps {
   card: Tables<"reward_card">;
@@ -10,6 +12,7 @@ interface RewardsCardProps {
 
 const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
   const router = useRouter();
+  const { resolvedTheme } = useTheme();
   return (
     <div className="mb-4">
       <div
@@ -18,7 +21,7 @@ const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
         }}
         className="w-[300px] h-[200px] bg-cover border-[1px] rounded-lg"
         style={{
-          backgroundImage: `url(${front.src})`,
+          backgroundImage: `url(${resolvedTheme === 'light' ? front.src : frontDark.src})`,
           backgroundSize: "100% 100%",
           backgroundRepeat: "no-repeat",
         }}

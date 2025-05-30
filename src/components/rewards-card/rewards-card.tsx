@@ -182,7 +182,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           <div
             className="flip-card-front w-full h-full bg-cover border-[1px] text-white rounded-lg p-4"
             style={{
-              backgroundImage: `url(${resolvedTheme === 'dark' ? frontDark.src : front.src})`,
+              backgroundImage: `url(${resolvedTheme === 'light' ? front.src : frontDark.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
@@ -196,7 +196,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           <div
             className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg"
             style={{
-              backgroundImage: `url(${resolvedTheme === 'dark' ? backDark.src : back.src})`,
+              backgroundImage: `url(${resolvedTheme === 'light' ? back.src : backDark.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
