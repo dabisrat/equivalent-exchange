@@ -1,8 +1,10 @@
 "use client";
 import { PropsWithChildren, useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import front from "@PNN/assests/front.jpg";
-import back from "@PNN/assests/back.jpg";
+import front from "@PNN/assests/front.svg";
+import frontDark from "@PNN/assests/front-dark.svg";
+import back from "@PNN/assests/back.svg";
+import backDark from "@PNN/assests/back-dark.svg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import PunchNode from "./punch-node";
 import { Button } from "@PNN/components/ui/button";
@@ -11,6 +13,7 @@ import { Skeleton } from "../ui/skeleton";
 import { useSupabaseRealtimeSubscription } from "@PNN/hooks/supabase-real-time-subscription";
 import confetti from "canvas-confetti";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import { useTheme } from "next-themes";
 
 type Stamp = Tables<"stamp">;
 
@@ -82,6 +85,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     isAnimating: false,
     points: {},
   });
+  const { resolvedTheme } = useTheme();
 
   const triggerConfetti = useConfettiEffect();
 
@@ -178,12 +182,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           <div
             className="flip-card-front w-full h-full bg-cover border-[1px] text-white rounded-lg p-4"
             style={{
-              backgroundImage: `url(${front.src})`,
+              backgroundImage: `url(${resolvedTheme === 'dark' ? frontDark.src : front.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute top-1 right-2 text-[rgb(120,102,49)]">
+            <div className="absolute top-1 right-2 text-[#b89f3d]">
               {getTotalPoints()}
             </div>
           </div>
@@ -192,12 +196,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           <div
             className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg"
             style={{
-              backgroundImage: `url(${back.src})`,
+              backgroundImage: `url(${resolvedTheme === 'dark' ? backDark.src : back.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute top-1 left-2 text-[rgb(120,102,49)]">
+            <div className="absolute top-1 left-2 text-[#b89f3d]">
               {getTotalPoints()}
             </div>
             <div className="grid grid-cols-6 h-full p-4">
@@ -209,9 +213,8 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 .map((_, i) => (
                   <div
                     key={i}
-                    className={`justify-self-center ${
-                      GRID_LAYOUT.SPECIAL_INDICES.includes(i) ? 'row-span-2 self-center' : ''
-                    }`}
+                    className={`justify-self-center ${GRID_LAYOUT.SPECIAL_INDICES.includes(i) ? 'row-span-2 self-center' : ''
+                      }`}
                   >
                     <PunchNode
                       punched={state.points[i]?.stamped || false}

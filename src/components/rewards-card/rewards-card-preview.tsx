@@ -1,5 +1,5 @@
 "use client";
-import front from "@PNN/assests/front.jpg";
+import front from "@PNN/assests/front.svg";
 import { Tables } from "@PNN/utils/data-access/database.types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";

@@ -46,9 +46,9 @@ export default function PunchNode({
         {!isLoading && (
           <>
             {punched ? (
-              <MdStars color="#857A46" fontSize="32"></MdStars>
+              <MdStars color="#b89f3d" fontSize="32"></MdStars>
             ) : (
-              <MdCircle color="#857A46" fontSize="small"></MdCircle>
+              <MdCircle color="#b89f3d" fontSize="small"></MdCircle>
             )}
           </>
         )}
