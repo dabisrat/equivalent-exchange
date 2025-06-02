@@ -21,12 +21,12 @@ export default function Login({ params }: any) {
   const client = createClient();
   const router = useRouter();
   const route = params?.id?.join("/") ?? "";
-
   useEffect(() => {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
-      if (session && (event === "SIGNED_IN" || event === "INITIAL_SESSION")) {
+      // Only redirect on successful sign in, not on initial session
+      if (session && event === "SIGNED_IN") {
         router.replace(`/${route}`);
       }
     });
