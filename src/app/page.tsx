@@ -24,14 +24,14 @@ export default async function App() {
         <Logout />
 
         {!!cards.length && (
-          <div className="flex justify-center cursor-pointer">
+          <div className="flex justify-center">
             <Carousel className="w-full max-w-xs ">
               <CarouselContent>
                 {cards
                   .sort((a, b) => a.id.localeCompare(b.id))
                   .map((card, index) => (
                     <CarouselItem key={index}>
-                      <div className="p-1">
+                      <div className="p-1 cursor-pointer">
                         <RewardsCardPreview key={card.id} card={card} />
                       </div>
                     </CarouselItem>

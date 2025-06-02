@@ -7,10 +7,11 @@ export const authUiConfig: Appearance = {
         default: {
             colors: {
                 brand: 'hsl(var(--primary))',
-                brandAccent: 'hsl(var(--accent))',
+                brandAccent: 'hsl(var(--primary) / 0.9)',
                 brandButtonText: 'hsl(var(--primary-foreground))',
-                defaultButtonBackground: 'hsl(var(--secondary))',
-                defaultButtonBackgroundHover: 'hsl(var(--accent))',
+                defaultButtonBackground: 'hsl(var(--primary))',
+                defaultButtonBackgroundHover: 'hsl(var(--primary) / 0.9)',
+                defaultButtonText: 'hsl(var(--primary-foreground))',
                 inputBackground: 'hsl(var(--background))',
                 inputBorder: 'hsl(var(--border))',
                 inputBorderHover: 'hsl(var(--ring))',
@@ -59,10 +60,11 @@ export const authUiConfig: Appearance = {
         dark: {
             colors: {
                 brand: 'hsl(var(--primary))',
-                brandAccent: 'hsl(var(--accent))',
+                brandAccent: 'hsl(var(--primary) / 0.9)',
                 brandButtonText: 'hsl(var(--primary-foreground))',
-                defaultButtonBackground: 'hsl(var(--secondary))',
-                defaultButtonBackgroundHover: 'hsl(var(--accent))',
+                defaultButtonBackground: 'hsl(var(--primary))',
+                defaultButtonBackgroundHover: 'hsl(var(--primary) / 0.9)',
+                defaultButtonText: 'hsl(var(--primary-foreground))',
                 inputBackground: 'hsl(var(--background))',
                 inputBorder: 'hsl(var(--border))',
                 inputBorderHover: 'hsl(var(--ring))',
