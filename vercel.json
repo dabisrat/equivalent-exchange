@@ -1,0 +1,5 @@
+{
+    "buildCommand": "pnpm --filter equivalent-exchange... build",
+    "installCommand": "pnpm install",
+    "outputDirectory": "apps/equivalent-exchange/.next"
+}
