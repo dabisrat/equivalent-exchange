@@ -1,4 +1,4 @@
-import { Skeleton } from "@PNN/components/ui/skeleton";
+import { Skeleton } from "@eq-ex/ui";
 
 export default async function Loading() {
   return (

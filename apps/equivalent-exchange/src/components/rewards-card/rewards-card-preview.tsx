@@ -1,7 +1,7 @@
 "use client";
-import front from "@PNN/assests/front.svg";
-import frontDark from "@PNN/assests/front-dark.svg";
-import { Tables } from "@PNN/utils/data-access/database.types";
+import front from "@eq-ex/app/assests/front.svg";
+import frontDark from "@eq-ex/app/assests/front-dark.svg";
+import { Tables } from "@eq-ex/app/utils/data-access/database.types";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTheme } from "next-themes";

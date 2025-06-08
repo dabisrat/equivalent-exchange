@@ -1,4 +1,4 @@
-import { createClient } from "@PNN/utils/supabase/server";
+import { createClient } from "@eq-ex/app/utils/supabase/server";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 

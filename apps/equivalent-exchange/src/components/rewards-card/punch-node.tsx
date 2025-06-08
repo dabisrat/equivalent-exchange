@@ -2,7 +2,7 @@
 import {
   addRewardPoints,
   removeRewardPoints,
-} from "@PNN/utils/data-access/data-acess";
+} from "@eq-ex/app/utils/data-access/data-acess";
 import { useState, MouseEvent } from "react";
 import { MdStars, MdCircle } from "react-icons/md";
 

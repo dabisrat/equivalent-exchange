@@ -1,5 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { createClient } from "@PNN/utils/supabase/middleware";
+import { createClient } from "@eq-ex/app/utils/supabase/middleware";
 
 export async function middleware(request: NextRequest) {
   // const requestHeaders = new Headers(request.headers);

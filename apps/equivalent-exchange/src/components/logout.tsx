@@ -1,5 +1,5 @@
-import { getUser, signOut } from "@PNN/utils/data-access/data-acess";
-import { Button } from "@PNN/components/ui/button";
+import { getUser, signOut } from "@eq-ex/app/utils/data-access/data-acess";
+import { Button } from "@eq-ex/ui";
 
 export default async function Logout() {
   const user = await getUser();

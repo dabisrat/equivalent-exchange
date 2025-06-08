@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
-import { getRewardsCardId, getUser } from "@PNN/utils/data-access/data-acess";
-import RewardsCardContainer from "@PNN/components/rewards-card/rewards-card-container";
-import CraeteCard from "@PNN/components/createCard";
+import { getRewardsCardId, getUser } from "@eq-ex/app/utils/data-access/data-acess";
+import RewardsCardContainer from "@eq-ex/app/components/rewards-card/rewards-card-container";
+import CraeteCard from "@eq-ex/app/components/createCard";
 
 export default async function CardPage({
   params,

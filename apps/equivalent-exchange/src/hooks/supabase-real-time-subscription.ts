@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@PNN/utils/supabase/client";
+import { createClient } from "@eq-ex/app/utils/supabase/client";
 import {
   REALTIME_LISTEN_TYPES,
   REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
@@ -75,7 +75,7 @@ export function useSupabaseRealtimeSubscription(
         void supabaseClient.removeChannel(channel);
       }
     };
-  }, [ status.isReady, filter, event]);
+  }, [status.isReady, filter, event]);
 
   return status;
 }

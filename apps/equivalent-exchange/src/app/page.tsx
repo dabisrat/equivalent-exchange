@@ -1,17 +1,17 @@
 import { redirect } from "next/navigation";
-import Logout from "@PNN/components/logout";
+import Logout from "@eq-ex/app/components/logout";
 import {
   getUser,
   getUsersRewardsCards,
-} from "@PNN/utils/data-access/data-acess";
-import RewardsCardPreview from "@PNN/components/rewards-card/rewards-card-preview";
+} from "@eq-ex/app/utils/data-access/data-acess";
+import RewardsCardPreview from "@eq-ex/app/components/rewards-card/rewards-card-preview";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@PNN/components/ui/carousel";
+} from "@eq-ex/ui";
 
 export default async function App() {
   const user = await getUser().catch((e) => null);

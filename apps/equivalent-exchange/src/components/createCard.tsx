@@ -1,5 +1,5 @@
-import { createRewardCard } from "@PNN/utils/data-access/data-acess";
-import { Button } from "@PNN/components/ui/button";
+import { createRewardCard } from "@eq-ex/app/utils/data-access/data-acess";
+import { Button } from "@eq-ex/ui";
 
 export default async function CraeteCard({
   orgId,

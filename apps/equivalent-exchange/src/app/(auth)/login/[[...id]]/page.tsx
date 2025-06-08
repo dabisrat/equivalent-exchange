@@ -1,9 +1,9 @@
 "use client";
-import { createClient } from "@PNN/utils/supabase/client";
+import { createClient } from "@eq-ex/app/utils/supabase/client";
 import { Auth } from "@supabase/auth-ui-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { authUiConfig } from "@PNN/utils/supabase/auth-ui-config";
+import { authUiConfig } from "@eq-ex/app/utils/supabase/auth-ui-config";
 
 const getUrl = () => {
   let url =
