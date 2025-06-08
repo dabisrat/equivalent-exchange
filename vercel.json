@@ -1,5 +1,0 @@
-{
-    "buildCommand": "pnpm --filter equivalent-exchange build",
-    "installCommand": "pnpm install --frozen-lockfile",
-    "outputDirectory": "apps/equivalent-exchange/.next"
-}
