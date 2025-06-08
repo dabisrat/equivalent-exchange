@@ -1,4 +1,5 @@
 "use client";
+import { useState, useEffect } from "react";
 import front from "@eq-ex/app/assests/front.svg";
 import frontDark from "@eq-ex/app/assests/front-dark.svg";
 import { Tables } from "@eq-ex/app/utils/data-access/database.types";
@@ -13,6 +14,17 @@ interface RewardsCardProps {
 const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
   const router = useRouter();
   const { resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  // Prevent hydration mismatch
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Use a default theme until mounted to prevent hydration mismatch
+  const currentTheme = mounted ? resolvedTheme : 'light';
+  const backgroundImage = currentTheme === 'light' ? front.src : frontDark.src;
+
   return (
     <div className="mb-4">
       <div
@@ -21,7 +33,7 @@ const RewardsCardPreview: React.FC<RewardsCardProps> = ({ card }) => {
         }}
         className="w-[300px] h-[200px] bg-cover border-[1px] rounded-lg"
         style={{
-          backgroundImage: `url(${resolvedTheme === 'light' ? front.src : frontDark.src})`,
+          backgroundImage: `url(${backgroundImage})`,
           backgroundSize: "100% 100%",
           backgroundRepeat: "no-repeat",
         }}
