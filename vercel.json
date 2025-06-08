@@ -2,6 +2,5 @@
     "buildCommand": "pnpm run build",
     "outputDirectory": "apps/equivalent-exchange/.next",
     "installCommand": "pnpm install",
-    "framework": "nextjs",
-    "rootDirectory": "apps/equivalent-exchange"
+    "framework": "nextjs"
 }
