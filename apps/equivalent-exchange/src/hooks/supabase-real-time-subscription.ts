@@ -42,40 +42,44 @@ export function useSupabaseRealtimeSubscription(
 
   useEffect(() => {
     let channel: RealtimeChannel;
+    const supabase = createClient(); // Make sure this is your client creation function
 
     try {
-      channel = supabaseClient
+      channel = supabase
         .channel(table === "*" ? "public" : `public:${table}`)
-        .on("system", {}, (payload: any) => {
-          if (payload.extension == "postgres_changes" && payload.status == "ok") {
-            setStatus({ isReady: true, error: null });
-          }
-        })
         .on(
           REALTIME_LISTEN_TYPES.POSTGRES_CHANGES as any,
           {
-            schema: "public",
+            schema: 'public',
             table,
             event,
             filter,
           },
           callback
         )
-        .subscribe();
+        .subscribe((status, err) => {
+          console.log('📡 Realtime subscription status:', status, 'Error:', err);
+
+          setStatus({
+            isReady: status === 'SUBSCRIBED',
+            error: err || null
+          });
+        });
     } catch (error) {
-      console.error("Error subscribing to channel:", error);
+      console.error('💥 Realtime subscription setup error:', error);
       setStatus({
         isReady: false,
-        error: error instanceof Error ? error : new Error("Unknown error occurred")
+        error: error as Error
       });
     }
 
     return () => {
       if (channel) {
-        void supabaseClient.removeChannel(channel);
+        console.log('🧹 Cleaning up realtime subscription for:', table);
+        channel.unsubscribe();
       }
     };
-  }, [status.isReady, filter, event]);
+  }, [table, filter, event, callback]);
 
   return status;
 }
