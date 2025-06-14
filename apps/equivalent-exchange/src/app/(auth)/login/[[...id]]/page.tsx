@@ -1,9 +1,9 @@
 "use client";
-import { createClient } from "@eq-ex/app/utils/supabase/client";
+import { createBrowserClient } from "@eq-ex/shared";
 import { Auth } from "@supabase/auth-ui-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { authUiConfig } from "@eq-ex/app/utils/supabase/auth-ui-config";
+import { authUiConfig } from "@eq-ex/shared";
 
 const getUrl = () => {
   let url =
@@ -18,7 +18,7 @@ const getUrl = () => {
 };
 
 export default function Login({ params }: any) {
-  const client = createClient();
+  const client = createBrowserClient();
   const router = useRouter();
   const route = params?.id?.join("/") ?? "";
   useEffect(() => {

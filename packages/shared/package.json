@@ -1,0 +1,13 @@
+{
+  "name": "@eq-ex/shared",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "MIT",
+  "dependencies": {
+    "@supabase/ssr": "^0.0.10",
+    "next": "^15.3.3",
+    "@supabase/auth-ui-react": "^0.4.7",
+    "@supabase/auth-ui-shared": "^0.1.8"
+  }
+} 

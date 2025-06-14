@@ -1,5 +1,5 @@
 import Logout from "@eq-ex/app/components/logout";
-import { getUser } from "@eq-ex/app/utils/data-access/data-acess";
+import { getUser } from '@eq-ex/auth';
 import { redirect } from "next/navigation";
 
 export default async function Layout({

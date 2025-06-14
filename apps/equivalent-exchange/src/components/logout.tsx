@@ -1,4 +1,4 @@
-import { getUser, signOut } from "@eq-ex/app/utils/data-access/data-acess";
+import { getUser, signOut } from '@eq-ex/auth';
 import { Button } from "@eq-ex/ui";
 
 export default async function Logout() {

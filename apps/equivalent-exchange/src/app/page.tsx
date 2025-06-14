@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import Logout from "@eq-ex/app/components/logout";
+import { getUser } from '@eq-ex/auth';
 import {
-  getUser,
   getUsersRewardsCards,
 } from "@eq-ex/app/utils/data-access/data-acess";
 import RewardsCardPreview from "@eq-ex/app/components/rewards-card/rewards-card-preview";

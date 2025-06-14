@@ -1,9 +1,16 @@
 import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import tsconfigPaths from 'vite-tsconfig-paths'
- 
+import path from 'path'
+
 export default defineConfig({
-  plugins: [tsconfigPaths(), react()],
+  plugins: [react()],
+  resolve: {
+    alias: {
+      '@eq-ex/shared': path.resolve(__dirname, '../../packages/shared'),
+      '@eq-ex/auth': path.resolve(__dirname, '../../packages/auth'),
+      '@eq-ex/app': path.resolve(__dirname, './src'),
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',

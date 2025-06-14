@@ -5,9 +5,9 @@ import {
   canModifyCard,
   getMaxCount,
   getRewardsCard,
-  getUser,
 } from "@eq-ex/app/utils/data-access/data-acess";
 import Image from "next/image";
+import { getUser } from '@eq-ex/auth';
 
 export default async function RewardsCardContainer({
   cardId,

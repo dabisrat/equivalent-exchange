@@ -1,4 +1,4 @@
-import { createClient } from "@eq-ex/app/utils/supabase/server";
+import { createServerClient } from "@eq-ex/shared";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const type = requestUrl.searchParams.get("type");
   if (code) {
     const cookieStore = cookies();
-    const supabase = createClient(cookieStore);
+    const supabase = createServerClient(cookieStore);
     const {
       data: { session, user },
     } = await supabase.auth.exchangeCodeForSession(code);
