@@ -84,4 +84,4 @@ export const authUiConfig: Appearance = {
             padding: '1rem',
         }
     },
-}
+} 

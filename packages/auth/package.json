@@ -1,0 +1,16 @@
+{
+  "name": "@eq-ex/auth",
+  "version": "0.1.0",
+  "main": "index.ts",
+  "types": "index.ts",
+  "license": "MIT",
+  "peerDependencies": {
+    "@supabase/ssr": "^0.0.10",
+    "next": "^13.0.0 || ^14.0.0 || ^15.0.0"
+  },
+  "devDependencies": {
+    "@supabase/ssr": "^0.0.10",
+    "next": "^15.0.0",
+    "@types/node": "^20.0.0"
+  }
+} 

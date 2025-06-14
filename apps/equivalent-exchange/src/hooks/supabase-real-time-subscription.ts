@@ -1,5 +1,5 @@
 "use client";
-import { createClient } from "@eq-ex/app/utils/supabase/client";
+import { createBrowserClient } from "@eq-ex/shared";
 import {
   REALTIME_LISTEN_TYPES,
   REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
@@ -19,7 +19,7 @@ type SubscriptionOptions = {
   event?: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
 };
 
-const supabaseClient = createClient();
+const supabaseClient = createBrowserClient();
 
 export function useSupabaseRealtimeSubscription(
   table: string,
@@ -42,7 +42,7 @@ export function useSupabaseRealtimeSubscription(
 
   useEffect(() => {
     let channel: RealtimeChannel;
-    const supabase = createClient(); // Make sure this is your client creation function
+    const supabase = createBrowserClient(); // Make sure this is your client creation function
 
     try {
       channel = supabase

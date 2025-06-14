@@ -1,31 +1,12 @@
 "use server";
 import { cookies } from "next/headers";
-import { createClient } from "../supabase/server";
+import { createServerClient } from "@eq-ex/shared";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
+import { getUser } from "@eq-ex/auth";
 
-export async function getUser() {
-  const { data, error } = await createClient(cookies()).auth.getUser();
-
-  if (error) {
-    throw error;
-  }
-
-  return data.user;
-}
-
-export async function signOut() {
-  const { error } = await createClient(cookies()).auth.signOut();
-
-  if (error) {
-    console.error(error);
-  }
-  return redirect("/login");
-}
-
-// -----------------------------------------------------------------------------------------------------
 export async function getRewardsCard(id: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("reward_card")
     .select()
     .eq("id", id)
@@ -38,7 +19,7 @@ export async function getRewardsCard(id: string) {
 }
 
 export async function getUsersRewardsCards(id: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("reward_card")
     .select()
     .eq("user_id", id);
@@ -50,7 +31,7 @@ export async function getUsersRewardsCards(id: string) {
 }
 
 export async function getRewardsCardId(orgId: string, userId: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("reward_card")
     .select("id")
     .eq("organization_id", orgId)
@@ -65,7 +46,7 @@ export async function getRewardsCardId(orgId: string, userId: string) {
 
 export async function redeemRewards(cardId: string) {
   const user = await getUser();
-  const client = createClient(cookies());
+  const client = createServerClient(cookies());
   const { data, error } = await client
     .from("stamp")
     .update({ stamped: false, stamper_id: user.id })
@@ -89,7 +70,7 @@ export async function redeemRewards(cardId: string) {
 export async function addRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
 
-  let { data, error } = await createClient(cookies()).rpc("incrementpoints", {
+  let { data, error } = await createServerClient(cookies()).rpc("incrementpoints", {
     card_id,
   });
 
@@ -106,7 +87,7 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
 
-  const { data, error } = await createClient(cookies()).rpc("decrementpoints", {
+  const { data, error } = await createServerClient(cookies()).rpc("decrementpoints", {
     card_id,
   });
 
@@ -122,7 +103,7 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
-  const client = await createClient(cookies());
+  const client = await createServerClient(cookies());
 
   const card = await getRewardsCard(cardId);
   const maxCount = await getMaxCount(card.organization_id);
@@ -157,7 +138,7 @@ export async function createRewardCard(userId: string, orgId: string) {
   if (!org) {
     throw new Error("organization not found");
   }
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("reward_card")
     .insert({ user_id: userId, points: 0, organization_id: orgId })
     .eq("user_id", userId)
@@ -172,7 +153,7 @@ export async function createRewardCard(userId: string, orgId: string) {
 }
 
 export async function getMaxCount(orgId: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("organization")
     .select("max_points")
     .eq("id", orgId)
@@ -186,7 +167,7 @@ export async function getMaxCount(orgId: string) {
 }
 
 async function getOrganizationDetails(orgId: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("organization")
     .select("*")
     .eq("id", orgId)
@@ -200,7 +181,7 @@ async function getOrganizationDetails(orgId: string) {
 }
 
 export async function canModifyCard(userId: string, orgId: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("stamper")
     .select("organization_id")
     .eq("user_id", userId)
@@ -211,7 +192,7 @@ export async function canModifyCard(userId: string, orgId: string) {
 }
 
 export async function getStamps(cardId: string) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("stamp")
     .select("*")
     .eq("reward_card_id", cardId);
@@ -224,7 +205,7 @@ export async function getStamps(cardId: string) {
 }
 
 async function getStamp(cardId: string, stampIndex: number) {
-  const { data, error } = await createClient(cookies())
+  const { data, error } = await createServerClient(cookies())
     .from("stamp")
     .select("*")
     .eq("reward_card_id", cardId)
