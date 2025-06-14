@@ -175,7 +175,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           className="flip-card-inner h-full"
           initial={false}
           animate={{ rotateY: state.isFlipped ? 180 : 360 }}
-          transition={{ duration: ANIMATION_DURATION, animationDirection: "normal" }}
+          transition={{ duration: ANIMATION_DURATION}}
           onAnimationComplete={() => setState(prev => ({ ...prev, isAnimating: false }))}
         >
           {/* Front card content */}
