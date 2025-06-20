@@ -13,3 +13,5 @@ export {
 } from './dropdown-menu'
 export { Skeleton } from './skeleton'
 export { ModeToggle, type ModeToggleProps } from './theme-toggle'
+export { ThemeSwitch } from './theme-switch'
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip'
