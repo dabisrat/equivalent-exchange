@@ -11,10 +11,10 @@
     },
     "iconLibrary": "lucide",
     "aliases": {
-        "components": "@eq-ex/ui/components",
+        "components": "@app/components",
+        "hooks": "@app/hooks",
+        "lib": "@app/lib",
         "utils": "@eq-ex/ui/utils",
-        "ui": "@eq-ex/ui/components",
-        "hooks": "@eq-ex/ui/hooks",
-        "lib": "@eq-ex/ui/lib"
+        "ui": "@eq-ex/ui/components"
     }
 }

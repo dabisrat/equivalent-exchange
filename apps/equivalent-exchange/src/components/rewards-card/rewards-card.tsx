@@ -1,19 +1,18 @@
 "use client";
-import { PropsWithChildren, useEffect, useState, useCallback } from "react";
-import { motion } from "framer-motion";
-import front from "@eq-ex/app/assests/front.svg";
-import frontDark from "@eq-ex/app/assests/front-dark.svg";
-import back from "@eq-ex/app/assests/back.svg";
-import backDark from "@eq-ex/app/assests/back-dark.svg";
-import { Tables } from "@eq-ex/app/utils/data-access/database.types";
-import PunchNode from "./punch-node";
-import { Button } from "@eq-ex/ui";
-import { getStamps, redeemRewards } from "@eq-ex/app/utils/data-access/data-acess";
-import { Skeleton } from "@eq-ex/ui";
-import { useSupabaseRealtimeSubscription } from "@eq-ex/app/hooks/supabase-real-time-subscription";
-import confetti from "canvas-confetti";
+import backDark from "@app/assests/back-dark.svg";
+import back from "@app/assests/back.svg";
+import frontDark from "@app/assests/front-dark.svg";
+import front from "@app/assests/front.svg";
+import { useSupabaseRealtimeSubscription } from "@app/hooks/supabase-real-time-subscription";
+import { getStamps, redeemRewards } from "@app/utils/data-access";
+import { Tables } from "@app/utils/database.types";
+import { Button, Skeleton } from "@eq-ex/ui";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
+import confetti from "canvas-confetti";
+import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
+import { PropsWithChildren, useCallback, useEffect, useState } from "react";
+import PunchNode from "./punch-node";
 
 type Stamp = Tables<"stamp">;
 
@@ -175,12 +174,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           className="flip-card-inner h-full"
           initial={false}
           animate={{ rotateY: state.isFlipped ? 180 : 360 }}
-          transition={{ duration: ANIMATION_DURATION}}
+          transition={{ duration: ANIMATION_DURATION }}
           onAnimationComplete={() => setState(prev => ({ ...prev, isAnimating: false }))}
         >
           {/* Front card content */}
           <div
-            className="flip-card-front w-full h-full bg-cover border-[1px] text-white rounded-lg p-4"
+            className="flip-card-front w-full h-full bg-cover border text-white rounded-lg p-4"
             style={{
               backgroundImage: `url(${resolvedTheme === 'light' ? front.src : frontDark.src})`,
               backgroundSize: "100% 100%",
@@ -194,7 +193,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
           {/* Back card content */}
           <div
-            className="flip-card-back w-full h-full bg-cover border-[1px] text-white rounded-lg"
+            className="flip-card-back w-full h-full bg-cover border text-white rounded-lg"
             style={{
               backgroundImage: `url(${resolvedTheme === 'light' ? back.src : backDark.src})`,
               backgroundSize: "100% 100%",

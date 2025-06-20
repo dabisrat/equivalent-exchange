@@ -2,9 +2,9 @@
 import {
   addRewardPoints,
   removeRewardPoints,
-} from "@eq-ex/app/utils/data-access/data-acess";
-import { useState, MouseEvent } from "react";
-import { MdStars, MdCircle } from "react-icons/md";
+} from "@app/utils/data-access";
+import { MouseEvent, useState } from "react";
+import { MdCircle, MdStars } from "react-icons/md";
 
 export default function PunchNode({
   cardId,

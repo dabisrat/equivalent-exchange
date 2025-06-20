@@ -24,23 +24,14 @@
       }
     ],
     "paths": {
-      "@eq-ex/app/*": [
+      "@app/*": [
         "./src/*"
-      ],
-      "@eq-ex/ui": [
-        "../../packages/ui/src/index.ts"
       ],
       "@eq-ex/ui/*": [
         "../../packages/ui/src/*"
       ],
-      "@eq-ex/auth": [
-        "../../packages/auth/index.ts"
-      ],
       "@eq-ex/auth/*": [
         "../../packages/auth/*"
-      ],
-      "@eq-ex/shared": [
-        "../../packages/shared/index.ts"
       ],
       "@eq-ex/shared/*": [
         "../../packages/shared/*"

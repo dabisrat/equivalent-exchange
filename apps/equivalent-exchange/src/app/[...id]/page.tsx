@@ -1,8 +1,8 @@
-import { redirect } from "next/navigation";
-import { getRewardsCardId } from "@eq-ex/app/utils/data-access/data-acess";
-import RewardsCardContainer from "@eq-ex/app/components/rewards-card/rewards-card-container";
-import CraeteCard from "@eq-ex/app/components/createCard";
+import CraeteCard from "@app/components/createCard";
+import RewardsCardContainer from "@app/components/rewards-card/rewards-card-container";
+import { getRewardsCardId } from "@app/utils/data-access";
 import { getUser } from '@eq-ex/auth';
+import { redirect } from "next/navigation";
 
 export default async function CardPage({
   params,

@@ -1,6 +1,6 @@
 'use server';
-import { cookies } from 'next/headers';
 import { createServerClient } from '@eq-ex/shared';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 
 export async function getUser() {

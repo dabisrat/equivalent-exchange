@@ -1,13 +1,13 @@
-import { headers } from "next/headers";
-import RewardsCard from "./rewards-card";
-import { toDataURL } from "qrcode";
 import {
   canModifyCard,
   getMaxCount,
   getRewardsCard,
-} from "@eq-ex/app/utils/data-access/data-acess";
-import Image from "next/image";
+} from "@app/utils/data-access";
 import { getUser } from '@eq-ex/auth';
+import { headers } from "next/headers";
+import Image from "next/image";
+import { toDataURL } from "qrcode";
+import RewardsCard from "./rewards-card";
 
 export default async function RewardsCardContainer({
   cardId,

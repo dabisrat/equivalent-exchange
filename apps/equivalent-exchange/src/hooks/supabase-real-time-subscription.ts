@@ -3,10 +3,10 @@ import { createBrowserClient } from "@eq-ex/shared";
 import {
   REALTIME_LISTEN_TYPES,
   REALTIME_POSTGRES_CHANGES_LISTEN_EVENT,
-  RealtimePostgresChangesPayload,
   RealtimeChannel,
+  RealtimePostgresChangesPayload,
 } from "@supabase/supabase-js";
-import { useEffect, useState, useCallback } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 interface SubscriptionStatus {
   isReady: boolean;

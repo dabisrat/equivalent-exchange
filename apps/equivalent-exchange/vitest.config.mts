@@ -8,7 +8,7 @@ export default defineConfig({
     alias: {
       '@eq-ex/shared': path.resolve(__dirname, '../../packages/shared'),
       '@eq-ex/auth': path.resolve(__dirname, '../../packages/auth'),
-      '@eq-ex/app': path.resolve(__dirname, './src'),
+      '@app': path.resolve(__dirname, './src'),
     },
   },
   test: {

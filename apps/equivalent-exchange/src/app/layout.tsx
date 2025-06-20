@@ -1,9 +1,8 @@
 import "./globals.css";
 
 
+import { cn, ThemeProvider } from "@eq-ex/ui";
 import { Inter } from "next/font/google";
-import { cn } from "@eq-ex/ui";
-import { ThemeProvider } from "@eq-ex/ui";
 
 const fontSans = Inter({
   subsets: ["latin"],

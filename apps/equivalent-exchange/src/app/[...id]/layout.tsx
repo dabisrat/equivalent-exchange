@@ -1,4 +1,4 @@
-import Logout from "@eq-ex/app/components/logout";
+import Logout from "@app/components/logout";
 import { getUser } from '@eq-ex/auth';
 import { redirect } from "next/navigation";
 
