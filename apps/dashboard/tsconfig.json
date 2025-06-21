@@ -1,0 +1,31 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ],
+    "paths": {
+      "@app/*": [
+        "./src/*"
+      ],
+      "@eq-ex/ui/*": [
+        "../../packages/ui/src/*"
+      ],
+      "@eq-ex/auth/*": [
+        "../../packages/auth/src/*"
+      ],
+      "@eq-ex/shared/*": [
+        "../../packages/shared/*"
+      ]
+    }
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ]
+}
