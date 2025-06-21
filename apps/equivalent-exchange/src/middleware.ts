@@ -1,5 +1,5 @@
-import { NextResponse, type NextRequest } from "next/server";
 import { createMiddlewareClient } from "@eq-ex/shared";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // const requestHeaders = new Headers(request.headers);

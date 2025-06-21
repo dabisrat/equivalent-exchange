@@ -3,27 +3,15 @@ export { Button, buttonVariants, type ButtonProps } from './button'
 export {
     Carousel,
     CarouselContent,
-    CarouselItem,
-    CarouselPrevious,
-    CarouselNext,
-    type CarouselApi
+    CarouselItem, CarouselNext, CarouselPrevious, type CarouselApi
 } from './carousel'
 export {
-    DropdownMenu,
-    DropdownMenuTrigger,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuCheckboxItem,
-    DropdownMenuRadioItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuShortcut,
-    DropdownMenuGroup,
-    DropdownMenuPortal,
-    DropdownMenuSub,
+    DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuRadioGroup, DropdownMenuRadioItem, DropdownMenuSeparator,
+    DropdownMenuShortcut, DropdownMenuSub,
     DropdownMenuSubContent,
-    DropdownMenuSubTrigger,
-    DropdownMenuRadioGroup
+    DropdownMenuSubTrigger, DropdownMenuTrigger
 } from './dropdown-menu'
 export { Skeleton } from './skeleton'
 export { ModeToggle, type ModeToggleProps } from './theme-toggle'
+export { ThemeSwitch } from './theme-switch'
+export { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from './tooltip'

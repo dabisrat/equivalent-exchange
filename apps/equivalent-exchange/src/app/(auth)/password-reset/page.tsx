@@ -1,5 +1,5 @@
-import PasswordUpdate from "@eq-ex/app/components/password-update";
-import Logout from "@eq-ex/app/components/logout";
+import PasswordUpdate from "@app/components/password-update";
+import Logout from "@app/components/logout";
 
 export default function PasswordUpdatePage() {
   return (

@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import { Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { Button } from "./button"
@@ -10,13 +9,18 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "./dropdown-menu"
+import { useCustomTheme, Theme } from "../providers/custom-theme-provider"
 
 export interface ModeToggleProps {
     className?: string
 }
 
 export function ModeToggle({ className }: ModeToggleProps) {
-    const { setTheme } = useTheme()
+    const handleThemeToggle = (event: React.MouseEvent<HTMLButtonElement>, theme: Theme) => {
+        const { clientX: x, clientY: y } = event;
+        toggleTheme({ x, y }, theme);
+    };
+    const { toggleTheme } = useCustomTheme()
 
     return (
         <DropdownMenu>
@@ -28,13 +32,13 @@ export function ModeToggle({ className }: ModeToggleProps) {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={(e: any) => handleThemeToggle(e, "light")}>
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={(e: any) => handleThemeToggle(e, "dark")}>
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={(e: any) => handleThemeToggle(e, "system")}>
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>

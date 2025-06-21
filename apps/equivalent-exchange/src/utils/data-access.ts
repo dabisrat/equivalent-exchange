@@ -1,9 +1,9 @@
 "use server";
-import { cookies } from "next/headers";
-import { createServerClient } from "@eq-ex/shared";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
 import { getUser } from "@eq-ex/auth";
+import { createServerClient } from "@eq-ex/shared";
+import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 export async function getRewardsCard(id: string) {
   const { data, error } = await createServerClient(cookies())

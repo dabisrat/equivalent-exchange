@@ -1,5 +1,5 @@
 import { createBrowserClient } from "@supabase/ssr";
-import { Database } from "../../apps/equivalent-exchange/src/utils/data-access/database.types";
+import { Database } from "../../apps/equivalent-exchange/src/utils/database.types";
 
 export const createClient = () =>
   // make sure this is a sigleton

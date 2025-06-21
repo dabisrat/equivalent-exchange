@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { cookies } from 'next/headers'
-import { Database } from '../../apps/equivalent-exchange/src/utils/data-access/database.types'
+import { Database } from '../../apps/equivalent-exchange/src/utils/database.types'
 
 export const createClient = (cookieStore: ReturnType<typeof cookies>) => {
   // make sure this is a sigleton

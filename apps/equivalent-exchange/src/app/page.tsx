@@ -1,27 +1,27 @@
-import { redirect } from "next/navigation";
-import Logout from "@eq-ex/app/components/logout";
-import { getUser } from '@eq-ex/auth';
+import Logout from "@app/components/logout";
+import RewardsCardPreview from "@app/components/rewards-card/rewards-card-preview";
 import {
   getUsersRewardsCards,
-} from "@eq-ex/app/utils/data-access/data-acess";
-import RewardsCardPreview from "@eq-ex/app/components/rewards-card/rewards-card-preview";
+} from "@app/utils/data-access";
+import { getUser } from '@eq-ex/auth';
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
+  ModeToggle
 } from "@eq-ex/ui";
+import { redirect } from "next/navigation";
 
 export default async function App() {
-  const user = await getUser().catch((e) => null);
+  const user = await getUser().catch(() => null);
 
   if (user) {
-    const cards = await getUsersRewardsCards(user.id);
-
-    return (
+    const cards = await getUsersRewardsCards(user.id); return (
       <>
         <Logout />
+
 
         {!!cards.length && (
           <div className="flex justify-center">
