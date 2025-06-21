@@ -1,4 +1,4 @@
-import { Skeleton } from "@eq-ex/ui";
+import { Skeleton } from "@eq-ex/ui/components/skeleton";
 
 export default async function Loading() {
   return (

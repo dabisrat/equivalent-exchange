@@ -10,8 +10,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  ModeToggle
-} from "@eq-ex/ui";
+} from "@eq-ex/ui/components/carousel";
 import { redirect } from "next/navigation";
 
 export default async function App() {

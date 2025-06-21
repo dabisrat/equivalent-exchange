@@ -1,5 +1,5 @@
 import { getUser, signOut } from '@eq-ex/auth';
-import { Button } from "@eq-ex/ui";
+import { Button } from "@eq-ex/ui/components/button";
 
 export default async function Logout() {
   const user = await getUser();

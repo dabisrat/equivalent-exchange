@@ -1,7 +1,8 @@
 import "./globals.css";
-
-
-import { cn, ThemeProvider, CustomThemeProvider, ModeToggle } from "@eq-ex/ui";
+import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
+import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
+import { ThemeProvider } from "@eq-ex/ui/providers/theme-provider";
+import { cn } from "@eq-ex/ui/utils/cn";
 import { Inter } from "next/font/google";
 
 const fontSans = Inter({

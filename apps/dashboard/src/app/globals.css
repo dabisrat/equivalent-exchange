@@ -22,135 +22,175 @@
    @theme block: Maps CSS custom properties to Tailwind color tokens
    This allows using bg-background, text-foreground, etc. in your components
 */
-@theme {
-  /* Core UI Colors - map to CSS custom properties defined in @layer base */
-  --color-border: hsl(var(--border));
-  --color-input: hsl(var(--input));
-  --color-ring: hsl(var(--ring));
-  --color-background: hsl(var(--background));
-  --color-foreground: hsl(var(--foreground));
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
 
-  /* Primary brand colors */
-  --color-primary: hsl(var(--primary));
-  --color-primary-foreground: hsl(var(--primary-foreground));
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+  --font-serif: var(--font-serif);
 
-  /* Secondary UI colors */
-  --color-secondary: hsl(var(--secondary));
-  --color-secondary-foreground: hsl(var(--secondary-foreground));
-
-  /* Destructive/error colors */
-  --color-destructive: hsl(var(--destructive));
-  --color-destructive-foreground: hsl(var(--destructive-foreground));
-
-  /* Muted/subdued colors */
-  --color-muted: hsl(var(--muted));
-  --color-muted-foreground: hsl(var(--muted-foreground));
-
-  /* Accent colors for highlights */
-  --color-accent: hsl(var(--accent));
-  --color-accent-foreground: hsl(var(--accent-foreground));
-
-  /* Popover/dropdown colors */
-  --color-popover: hsl(var(--popover));
-  --color-popover-foreground: hsl(var(--popover-foreground));
-
-  /* Card component colors */
-  --color-card: hsl(var(--card));
-  --color-card-foreground: hsl(var(--card-foreground));
-
-  /* Chart/data visualization colors */
-  --color-chart-1: hsl(var(--chart-1));
-  --color-chart-2: hsl(var(--chart-2));
-  --color-chart-3: hsl(var(--chart-3));
-  --color-chart-4: hsl(var(--chart-4));
-  --color-chart-5: hsl(var(--chart-5));
-
-  /* Sidebar component colors */
-  --color-sidebar-background: hsl(var(--sidebar-background));
-  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
-  --color-sidebar-primary: hsl(var(--sidebar-primary));
-  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
-  --color-sidebar-accent: hsl(var(--sidebar-accent));
-  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
-  --color-sidebar-border: hsl(var(--sidebar-border));
-  --color-sidebar-ring: hsl(var(--sidebar-ring));
-
-  /* Custom brand color palette - "Pesto" theme */
-  --color-pesto-50: hsl(47, 36%, 95%);
-  --color-pesto-100: hsl(44, 35%, 89%);
-  --color-pesto-200: hsl(47, 35%, 80%);
-  --color-pesto-300: hsl(48, 32%, 67%);
-  --color-pesto-400: hsl(49, 30%, 55%);
-  --color-pesto-500: hsl(50, 31%, 40%);
-  --color-pesto-600: hsl(51, 33%, 35%);
-  --color-pesto-700: hsl(52, 31%, 27%);
-  --color-pesto-800: hsl(52, 26%, 23%);
-  --color-pesto-900: hsl(55, 24%, 20%);
-  --color-pesto-950: hsl(52, 29%, 10%);
-
-  /* Border radius scale */
-  --radius-lg: var(--radius);
-  --radius-md: calc(var(--radius) - 2px);
   --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
 
-  /* Animation definitions for accordion components */
-  --animate-accordion-down: accordion-down 0.2s ease-out;
-  --animate-accordion-up: accordion-up 0.2s ease-out;
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow: var(--shadow);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+  --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 
-  /* Keyframe animations for accordion expand/collapse */
-  @keyframes accordion-down {
-    from {
-      height: 0;
-    }
+  --tracking-tighter: calc(var(--tracking-normal) - 0.05em);
+  --tracking-tight: calc(var(--tracking-normal) - 0.025em);
+  --tracking-normal: var(--tracking-normal);
+  --tracking-wide: calc(var(--tracking-normal) + 0.025em);
+  --tracking-wider: calc(var(--tracking-normal) + 0.05em);
+  --tracking-widest: calc(var(--tracking-normal) + 0.1em);
+}
 
-    to {
-      height: var(--radix-accordion-content-height);
-    }
-  }
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(210 10.0000% 3.9216%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(210 10.0000% 3.9216%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(210 10.0000% 3.9216%);
+  --primary: hsl(224.0323 49.6000% 50.9804%);
+  --primary-foreground: hsl(226.1538 52.0000% 95.0980%);
+  --secondary: hsl(210 4.3478% 90.9804%);
+  --secondary-foreground: hsl(220 5.8824% 10%);
+  --muted: hsl(210 4.3478% 90.9804%);
+  --muted-foreground: hsl(225.0000 4.8000% 50.9804%);
+  --accent: hsl(223.4483 29.8969% 80.9804%);
+  --accent-foreground: hsl(224 29.4118% 10%);
+  --destructive: hsl(357.1053 99.1304% 45.0980%);
+  --destructive-foreground: hsl(0 100% 99.4118%);
+  --border: hsl(0 5.8824% 90%);
+  --input: hsl(0 5.8824% 90%);
+  --ring: hsl(224.0323 49.6000% 50.9804%);
+  --chart-1: hsl(224.0323 49.6000% 50.9804%);
+  --chart-2: hsl(224 34.4828% 65.8824%);
+  --chart-3: hsl(225.0000 19.6721% 76.0784%);
+  --chart-4: hsl(224.1818 59.7826% 36.0784%);
+  --chart-5: hsl(224.3836 54.8872% 26.0784%);
+  --sidebar: hsl(210 4.3478% 90.9804%);
+  --sidebar-foreground: hsl(220 5.8824% 10%);
+  --sidebar-primary: hsl(224.0323 49.6000% 50.9804%);
+  --sidebar-primary-foreground: hsl(226.1538 52.0000% 95.0980%);
+  --sidebar-accent: hsl(223.4483 29.8969% 80.9804%);
+  --sidebar-accent-foreground: hsl(224 29.4118% 10%);
+  --sidebar-border: hsl(0 5.8824% 90%);
+  --sidebar-ring: hsl(224.0323 49.6000% 50.9804%);
+  --font-sans: Inter, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Architects Daughter, sans-serif;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
+  --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
+  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px hsl(0 0% 0% / 0.17);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px hsl(0 0% 0% / 0.17);
+  --shadow-md: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 2px 4px -1px hsl(0 0% 0% / 0.17);
+  --shadow-lg: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 4px 6px -1px hsl(0 0% 0% / 0.17);
+  --shadow-xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 8px 10px -1px hsl(0 0% 0% / 0.17);
+  --shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.43);
+  --tracking-normal: 0.025em;
+}
 
-  @keyframes accordion-up {
-    from {
-      height: var(--radix-accordion-content-height);
-    }
-
-    to {
-      height: 0;
-    }
-  }
+.dark {
+  --background: hsl(226.1538 31.7073% 8.0392%);
+  --foreground: hsl(60 7.6923% 94.9020%);
+  --card: hsl(227.3684 31.1475% 11.9608%);
+  --card-foreground: hsl(60 7.6923% 94.9020%);
+  --popover: hsl(227.3684 31.1475% 11.9608%);
+  --popover-foreground: hsl(60 7.6923% 94.9020%);
+  --primary: hsl(50.3226 30.3922% 40%);
+  --primary-foreground: hsl(52.5000 30.7692% 94.9020%);
+  --secondary: hsl(42.8571 6.7961% 20.1961%);
+  --secondary-foreground: hsl(60 4.0000% 95.0980%);
+  --muted: hsl(42.8571 6.7961% 20.1961%);
+  --muted-foreground: hsl(50.7692 14.6067% 65.0980%);
+  --accent: hsl(65.3333 78.9474% 11.1765%);
+  --accent-foreground: hsl(80.0000 12.0000% 95.0980%);
+  --destructive: hsl(0 69.5652% 45.0980%);
+  --destructive-foreground: hsl(12.0000 12.1951% 91.9608%);
+  --border: hsl(224.4444 29.6703% 17.8431%);
+  --input: hsl(224.4444 29.6703% 17.8431%);
+  --ring: hsl(50.3226 30.3922% 40%);
+  --chart-1: hsl(50.3226 30.3922% 40%);
+  --chart-2: hsl(49.8795 36.2445% 55.0980%);
+  --chart-3: hsl(50.1370 40.7821% 64.9020%);
+  --chart-4: hsl(50.1639 39.8693% 30%);
+  --chart-5: hsl(50.0000 29.4118% 20%);
+  --sidebar: hsl(226.8750 31.3725% 20%);
+  --sidebar-foreground: hsl(60 7.6923% 94.9020%);
+  --sidebar-primary: hsl(50.3226 30.3922% 40%);
+  --sidebar-primary-foreground: hsl(52.5000 30.7692% 94.9020%);
+  --sidebar-accent: hsl(65.3333 78.9474% 11.1765%);
+  --sidebar-accent-foreground: hsl(80.0000 12.0000% 95.0980%);
+  --sidebar-border: hsl(224.4444 29.6703% 17.8431%);
+  --sidebar-ring: hsl(50.3226 30.3922% 40%);
+  --font-sans: Inter, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-mono: Architects Daughter, sans-serif;
+  --radius: 0.5rem;
+  --shadow-2xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
+  --shadow-xs: 0px 1px 3px 0px hsl(0 0% 0% / 0.09);
+  --shadow-sm: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px hsl(0 0% 0% / 0.17);
+  --shadow: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 1px 2px -1px hsl(0 0% 0% / 0.17);
+  --shadow-md: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 2px 4px -1px hsl(0 0% 0% / 0.17);
+  --shadow-lg: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 4px 6px -1px hsl(0 0% 0% / 0.17);
+  --shadow-xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.17), 0px 8px 10px -1px hsl(0 0% 0% / 0.17);
+  --shadow-2xl: 0px 1px 3px 0px hsl(0 0% 0% / 0.43);
 }
 
 /* ==============================================================================
-   CUSTOM UTILITIES
-   ============================================================================== */
-
-/* 
-   Custom container utility with responsive behavior
-   Provides centered layout with padding and max-width constraints
-*/
-@utility container {
-  margin-inline: auto;
-  padding-inline: 2rem;
-
-  /* No max-width constraint on small screens */
-  @media (width >=--theme(--breakpoint-sm)) {
-    max-width: none;
-  }
-
-  /* Max width of 1400px on larger screens */
-  @media (width >=1400px) {
-    max-width: 1400px;
-  }
-}
-
-/* ==============================================================================
-   TAILWIND v4 COMPATIBILITY & BASE STYLES
-   ============================================================================== */
+TAILWIND v4 COMPATIBILITY & BASE STYLES
+============================================================================== */
 
 /*
-  Border color compatibility for Tailwind v4:
-  The default border color changed from gray-200 to currentcolor in v4.
-  This ensures consistent borders across the application.
+Border color compatibility for Tailwind v4:
+The default border color changed from gray-200 to currentcolor in v4.
+This ensures consistent borders across the application.
 */
+
+
+/* ==============================================================================
+  GLOBAL BASE STYLES
+  ============================================================================== */
 @layer base {
 
   *,
@@ -160,133 +200,6 @@
   ::file-selector-button {
     border-color: var(--color-gray-200, currentcolor);
   }
-
-  /* ==============================================================================
-     THEME COLOR DEFINITIONS
-     ============================================================================== */
-
-  /* 
-     Light theme colors (default)
-     These CSS custom properties are referenced by the @theme block above
-  */
-  :root {
-    --background: 0 0% 95%;
-    /* Main background */
-    --foreground: 224 10% 4%;
-    /* Main text color */
-    --card: 0 0% 100%;
-    /* Card backgrounds */
-    --card-foreground: 224 10% 4%;
-    /* Card text */
-    --popover: 0 0% 100%;
-    /* Popover backgrounds */
-    --popover-foreground: 224 10% 4%;
-    /* Popover text */
-    --primary: 224 50% 51%;
-    /* Primary brand color */
-    --primary-foreground: 224 50% 95%;
-    /* Text on primary */
-    --secondary: 224 5% 91%;
-    /* Secondary backgrounds */
-    --secondary-foreground: 224 5% 10%;
-    /* Secondary text */
-    --muted: 224 5% 91%;
-    /* Muted backgrounds */
-    --muted-foreground: 224 30% 45%;
-    /* Muted text */
-    --accent: 224 30% 81%;
-    /* Accent color */
-    --accent-foreground: 224 30% 10%;
-    /* Accent text */
-    --destructive: 357.18 100% 45%;
-    /* Error/danger color */
-    --destructive-foreground: 224 50% 95%;
-    /* Error text */
-    --border: 224 5% 81%;
-    /* Border color */
-    --input: 224 5% 81%;
-    /* Input border color */
-    --ring: 224 50% 51%;
-    /* Focus ring color */
-    --radius: 0.3rem;
-    /* Border radius */
-
-    /* Chart colors for data visualization */
-    --chart-1: 224 50% 51%;
-    --chart-2: 224 35% 66%;
-    --chart-3: 224 20% 76%;
-    --chart-4: 224 60% 36%;
-    --chart-5: 224 55% 26%;
-
-    /* Sidebar component colors */
-    --sidebar-background: 224 5% 91%;
-    --sidebar-foreground: 224 5% 10%;
-    --sidebar-primary: 224 50% 51%;
-    --sidebar-primary-foreground: 224 50% 95%;
-    --sidebar-accent: 224 30% 81%;
-    --sidebar-accent-foreground: 224 30% 10%;
-    --sidebar-border: 224 5% 81%;
-    --sidebar-ring: 224 50% 51%;
-  }
-
-  /* 
-     Dark theme colors
-     Applied when .dark class is present on html element
-  */
-  .dark {
-    --background: 226 48% 5%;
-    /* Dark background */
-    --foreground: 50 10% 95%;
-    /* Light text on dark */
-    --card: 226 48% 9%;
-    /* Slightly lighter card background */
-    --card-foreground: 50 10% 95%;
-    /* Light text on cards */
-    --popover: 226 48% 9%;
-    /* Dark popover background */
-    --popover-foreground: 50 10% 95%;
-    /* Light popover text */
-    --primary: 50 31% 40%;
-    /* Darker primary for accessibility */
-    --primary-foreground: 50 31% 95%;
-    /* Light text on primary */
-    --secondary: 45 8% 21%;
-    /* Dark secondary background */
-    --secondary-foreground: 45 8% 95%;
-    /* Light secondary text */
-    --muted: 45 8% 21%;
-    /* Dark muted background */
-    --muted-foreground: 45 15% 65%;
-    /* Muted text with contrast */
-    --accent: 64 84% 10%;
-    /* Dark accent color */
-    --accent-foreground: 64 10% 95%;
-    /* Light accent text */
-    --destructive: 0 70% 45%;
-    /* Adjusted error color for dark */
-    --destructive-foreground: 50 31% 95%;
-    /* Light error text */
-    --border: 226 30% 15%;
-    /* Dark border */
-    --input: 226 30% 15%;
-    /* Dark input border */
-    --ring: 50 31% 40%;
-    /* Dark focus ring */
-
-    /* Dark sidebar colors */
-    --sidebar-background: 226 48% 17%;
-    --sidebar-foreground: 50 10% 95%;
-    --sidebar-primary: 50 31% 40%;
-    --sidebar-primary-foreground: 50 31% 95%;
-    --sidebar-accent: 64 84% 10%;
-    --sidebar-accent-foreground: 64 10% 95%;
-    --sidebar-border: 226 30% 15%;
-    --sidebar-ring: 50 31% 40%;
-  }
-
-  /* ==============================================================================
-     GLOBAL BASE STYLES
-     ============================================================================== */
 
   /* Apply consistent border color using the theme system */
   * {
@@ -313,14 +226,12 @@
 }
 
 /* ==============================================================================
-   APPLICATION-SPECIFIC COMPONENTS
-   ============================================================================== */
-
-
+APPLICATION-SPECIFIC COMPONENTS
+============================================================================== */
 
 /* 
-   Rotating Gradient Animation
-   Creates a moving gradient effect for dynamic backgrounds
+Rotating Gradient Animation
+Creates a moving gradient effect for dynamic backgrounds
 */
 @keyframes rotateGradient {
   0% {
@@ -333,37 +244,13 @@
 }
 
 /* ==============================================================================
-   REWARDS CARD THEME-AWARE BACKGROUNDS
-   ============================================================================== */
+VIEW TRANSITION API - THEME SWITCHING ANIMATIONS
+============================================================================== */
 
 /* 
-   Rewards card background that automatically switches with theme
-   Uses CSS custom properties passed from React component
-*/
-.rewards-card-bg {
-  background-image: var(--light-bg);
-  /* Light theme background */
-  background-size: 100% 100%;
-  /* Stretch to fill container */
-  background-repeat: no-repeat;
-  /* Don't repeat the image */
-}
-
-/* Dark theme background - applied when .dark class is present */
-.dark .rewards-card-bg {
-  background-image: var(--dark-bg);
-  /* Switch to dark theme background */
-}
-
-
-/* ==============================================================================
-   VIEW TRANSITION API - THEME SWITCHING ANIMATIONS
-   ============================================================================== */
-
-/* 
-   View Transition Wave Effect
-   Creates smooth animated transitions when switching between light/dark themes
-   Uses the CSS View Transitions API for seamless theme changes
+View Transition Wave Effect
+Creates smooth animated transitions when switching between light/dark themes
+Uses the CSS View Transitions API for seamless theme changes
 */
 
 /* Reset default view transition animations */
@@ -388,9 +275,9 @@
 }
 
 /* 
-   Circular Reveal Animation
-   Creates a wave-like reveal effect that expands from the click point
-   Uses clip-path to create a growing circle animation
+Circular Reveal Animation
+Creates a wave-like reveal effect that expands from the click point
+Uses clip-path to create a growing circle animation
 */
 @keyframes reveal {
   from {
@@ -412,35 +299,35 @@
 ::view-transition-new(root) {
   animation: reveal 0.4s ease-in-out forwards;
   /* 
-   * 0.4s: Quick but smooth transition duration
-   * ease-in-out: Gradual start and end for natural feel
-   * forwards: Keep final animation state after completion
-   */
+  * 0.4s: Quick but smooth transition duration
+  * ease-in-out: Gradual start and end for natural feel
+  * forwards: Keep final animation state after completion
+  */
 }
 
 /* ==============================================================================
-   TEXT & CONTENT ANIMATIONS
-   ============================================================================== */
+TEXT & CONTENT ANIMATIONS
+============================================================================== */
 
 /* 
-   Mention/Tag Styling
-   Styles for @mentions or tagged content with theme-aware backgrounds
+Mention/Tag Styling
+Styles for @mentions or tagged content with theme-aware backgrounds
 */
 .mention {
   @apply bg-primary/10 rounded-md px-1 font-mono text-sm font-semibold;
   /* 
-   * bg-primary/10: Primary color with 10% opacity for subtle background
-   * rounded-md: Medium border radius for modern look
-   * px-1: Small horizontal padding for compact appearance
-   * font-mono: Monospace font for code-like appearance
-   * text-sm: Small text size
-   * font-semibold: Medium-bold weight for emphasis
-   */
+  * bg-primary/10: Primary color with 10% opacity for subtle background
+  * rounded-md: Medium border radius for modern look
+  * px-1: Small horizontal padding for compact appearance
+  * font-mono: Monospace font for code-like appearance
+  * text-sm: Small text size
+  * font-semibold: Medium-bold weight for emphasis
+  */
 }
 
 /* 
-   Animated Text Background Effect
-   Creates a moving gradient background that slides behind text
+Animated Text Background Effect
+Creates a moving gradient background that slides behind text
 */
 @keyframes text {
   from {
@@ -458,19 +345,19 @@
 .animate-text {
   animation: text 3s linear infinite;
   /* 
-   * 3s: Full cycle duration for smooth, readable animation
-   * linear: Constant speed throughout animation
-   * infinite: Continuously repeat the animation
-   */
+  * 3s: Full cycle duration for smooth, readable animation
+  * linear: Constant speed throughout animation
+  * infinite: Continuously repeat the animation
+  */
 }
 
 /* ==============================================================================
-   CUSTOM SCROLLBAR UTILITIES
-   ============================================================================== */
+CUSTOM SCROLLBAR UTILITIES
+============================================================================== */
 
 /* 
-   Thin Scrollbar Utility
-   Creates minimal, theme-aware scrollbars for better UX
+Thin Scrollbar Utility
+Creates minimal, theme-aware scrollbars for better UX
 */
 @utility scrollbar-thin {
   scrollbar-width: thin;
@@ -486,26 +373,45 @@
 }
 
 /* 
-   Stable Scrollbar Gutter
-   Prevents layout shift by reserving space for scrollbar
+Stable Scrollbar Gutter
+Prevents layout shift by reserving space for scrollbar
 */
 @utility scrollbar-gutter-stable {
   scrollbar-gutter: stable;
   /* 
-   * Reserves space for scrollbar even when content doesn't overflow
-   * Prevents horizontal layout jumps when scrollbar appears/disappears
-   */
+  * Reserves space for scrollbar even when content doesn't overflow
+  * Prevents horizontal layout jumps when scrollbar appears/disappears
+  */
 }
 
 /* 
-   Both-Edges Scrollbar Gutter
-   Reserves space on both sides for centered content alignment
+Both-Edges Scrollbar Gutter
+Reserves space on both sides for centered content alignment
 */
 @utility scrollbar-gutter-both {
   scrollbar-gutter: stable both-edges;
   /* 
-   * Reserves scrollbar space on both left and right edges
-   * Keeps content perfectly centered regardless of scrollbar presence
-   * Useful for centered layouts that need consistent alignment
-   */
+  * Reserves scrollbar space on both left and right edges
+  * Keeps content perfectly centered regardless of scrollbar presence
+  * Useful for centered layouts that need consistent alignment
+  */
+}
+
+/* 
+   Custom container utility with responsive behavior
+   Provides centered layout with padding and max-width constraints
+*/
+@utility container {
+  margin-inline: auto;
+  padding-inline: 2rem;
+
+  /* No max-width constraint on small screens */
+  @media (width >=--theme(--breakpoint-sm)) {
+    max-width: none;
+  }
+
+  /* Max width of 1400px on larger screens */
+  @media (width >=1400px) {
+    max-width: 1400px;
+  }
 }
