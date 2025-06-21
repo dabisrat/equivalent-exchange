@@ -2,7 +2,6 @@
 
 import * as SwitchPrimitives from "@radix-ui/react-switch";
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useCustomTheme } from "../providers/custom-theme-provider";
 
 

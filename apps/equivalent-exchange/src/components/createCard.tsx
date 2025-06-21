@@ -1,5 +1,5 @@
 import { createRewardCard } from "@app/utils/data-access";
-import { Button } from "@eq-ex/ui";
+import { Button } from "@eq-ex/ui/components/button";
 
 export default async function CraeteCard({
   orgId,

@@ -1,19 +1,13 @@
-"use client"
-import { cn } from "../utils/cn";
+import { cn } from "@eq-ex/ui/utils/cn"
 
-function Skeleton({
-    className,
-    ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-    return (
-        <div
-            className={cn(
-                "animate-pulse rounded-md bg-stone-100 dark:bg-stone-800",
-                className
-            )}
-            {...props}
-        />
-    );
+function Skeleton({ className, ...props }: React.ComponentProps<"div">) {
+  return (
+    <div
+      data-slot="skeleton"
+      className={cn("bg-accent animate-pulse rounded-md", className)}
+      {...props}
+    />
+  )
 }
 
-export { Skeleton };
+export { Skeleton }

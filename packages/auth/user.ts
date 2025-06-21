@@ -2,8 +2,9 @@
 import { createServerClient } from '@eq-ex/shared';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
+import type { User } from '@supabase/supabase-js';
 
-export async function getUser() {
+export async function getUser(): Promise<User> {
   const { data, error } = await createServerClient(cookies()).auth.getUser();
 
   if (error) {
@@ -20,4 +21,4 @@ export async function signOut() {
     console.error(error);
   }
   return redirect('/login');
-} 
+}
