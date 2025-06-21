@@ -9,6 +9,8 @@ import {
 } from "@eq-ex/ui/components/sidebar"
 
 import data from "./data.json"
+import { ChartPieDonut } from "@app/components/chart-pie-donut"
+import { ChartBarMixed } from "@app/components/chart-bar-mixed"
 
 export default function Page() {
   return (
@@ -29,6 +31,14 @@ export default function Page() {
               <SectionCards />
               <div className="px-4 lg:px-6">
                 <ChartAreaInteractive />
+              </div>
+              <div className="flex flex-col gap-4 px-4 sm:flex-row sm:gap-4 lg:px-6">
+                <div className="w-full sm:basis-1/2">
+                  <ChartPieDonut />
+                </div>
+                <div className="w-full sm:basis-1/2">
+                  <ChartBarMixed />
+                </div>
               </div>
               <DataTable data={data} />
             </div>
