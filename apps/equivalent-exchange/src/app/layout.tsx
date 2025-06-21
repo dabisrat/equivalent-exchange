@@ -1,7 +1,7 @@
 import "./globals.css";
 
 
-import { cn, ThemeProvider } from "@eq-ex/ui";
+import { cn, ThemeProvider, CustomThemeProvider, ModeToggle } from "@eq-ex/ui";
 import { Inter } from "next/font/google";
 
 const fontSans = Inter({
@@ -28,7 +28,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
+          <CustomThemeProvider defaultTheme="system">
+            {children}
+            <ModeToggle className="fixed bottom-2 left-2 z-50" />
+          </CustomThemeProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -10,7 +10,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-  // ModeToggle
+  ModeToggle
 } from "@eq-ex/ui";
 import { redirect } from "next/navigation";
 
@@ -21,7 +21,7 @@ export default async function App() {
     const cards = await getUsersRewardsCards(user.id); return (
       <>
         <Logout />
-        {/* <ModeToggle /> */}
+
 
         {!!cards.length && (
           <div className="flex justify-center">
