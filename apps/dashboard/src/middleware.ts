@@ -3,35 +3,19 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   try {
+    // This `try/catch` block is only here for the interactive tutorial.
+    // Feel free to remove once you have Supabase connected.
     const { supabase, response } = createMiddlewareClient(request);
 
     // Refresh session if expired - required for Server Components
-    const { data: { session } } = await supabase.auth.getSession();
-
-    // Get the pathname of the request
-    const { pathname } = request.nextUrl;
-
-    // Define public routes that don't require authentication
-    const publicRoutes = ['/login', '/reset-password', '/callback'];
-    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
-
-    // If user is not authenticated and trying to access protected route
-    if (!session && !isPublicRoute) {
-      const redirectUrl = new URL('/login', request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
-
-    // If user is authenticated and trying to access auth pages, redirect to dashboard
-    if (session && isPublicRoute) {
-      const redirectUrl = new URL('/dashboard', request.url);
-      return NextResponse.redirect(redirectUrl);
-    }
+    // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-session-with-middleware
+    await supabase.auth.getSession();
 
     return response;
   } catch (e) {
     // If you are here, a Supabase client could not be created!
     // This is likely because you have not set up environment variables.
-    console.error('Middleware error:', e);
+    // Check out http://localhost:3000 for Next Steps.
     return NextResponse.next({
       request: {
         headers: request.headers,

@@ -13,7 +13,6 @@ export default function PasswordUpdate({ children }: any) {
     const {
       data: { subscription },
     } = client.auth.onAuthStateChange((event, session) => {
-      debugger;
       if (!session) {
         router.replace("/login");
       }
