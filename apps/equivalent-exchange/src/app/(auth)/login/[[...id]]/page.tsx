@@ -4,6 +4,7 @@ import { Auth } from "@supabase/auth-ui-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { authUiConfig } from "@eq-ex/shared";
+import { AuthCard } from "@eq-ex/ui/components/auth-card";
 
 const getUrl = () => {
   let url =
@@ -37,18 +38,23 @@ export default function Login({ params }: any) {
   }, []);
 
   return (
-    <Auth
-      supabaseClient={client}
-      appearance={authUiConfig}
-      socialLayout="horizontal"
-      redirectTo={`${getUrl()}/callback/${route}`}
-      magicLink
-      otpType="email"
-      providers={["google"]}
-      queryParams={{
-        access_type: "offline",
-        prompt: "consent",
-      }}
-    />
+    <AuthCard
+      title="Equivalent Exchange"
+      description="Sign in or create an account to continue"
+    >
+      <Auth
+        supabaseClient={client}
+        appearance={authUiConfig}
+        socialLayout="horizontal"
+        redirectTo={`${getUrl()}/callback/${route}`}
+        magicLink
+        otpType="email"
+        providers={["google"]}
+        queryParams={{
+          access_type: "offline",
+          prompt: "consent",
+        }}
+      />
+    </AuthCard>
   );
 }

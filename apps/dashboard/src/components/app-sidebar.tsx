@@ -32,13 +32,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@eq-ex/ui/components/sidebar"
+import { useAuth } from "@app/hooks/use-auth"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -151,6 +147,19 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuth();
+
+  // Create user data from authenticated user
+  const userData = user ? {
+    name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'User',
+    email: user.email || '',
+    avatar: user.user_metadata?.avatar_url || '',
+  } : {
+    name: 'User',
+    email: '',
+    avatar: '',
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -171,7 +180,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   )

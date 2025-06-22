@@ -1,3 +1,5 @@
+'use client';
+
 import { Button } from "@eq-ex/ui/components/button"
 import { Separator } from "@eq-ex/ui/components/separator"
 import { SidebarTrigger } from "@eq-ex/ui/components/sidebar"
@@ -12,7 +14,7 @@ export function SiteHeader() {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Documents</h1>
+        <h1 className="text-base font-medium">Dashboard</h1>
         <div className="ml-auto flex items-center gap-2">
           <Button variant="ghost" asChild size="sm" className="flex">
             <ModeToggle />
