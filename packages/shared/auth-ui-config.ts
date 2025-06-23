@@ -1,7 +1,6 @@
-import { Appearance } from 'node_modules/@supabase/auth-ui-react/dist/types'
-import { ThemeSupa } from '@supabase/auth-ui-shared'
+import { ThemeSupa, BaseAppearance } from '@supabase/auth-ui-shared'
 
-export const authUiConfig: Appearance = {
+export const authUiConfig: BaseAppearance & { style: any } = {
     theme: ThemeSupa,
     variables: {
         default: {
