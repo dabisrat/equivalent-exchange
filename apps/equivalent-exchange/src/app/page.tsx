@@ -14,6 +14,7 @@ import {
 import { redirect } from "next/navigation";
 
 export default async function App() {
+  const unusedVariable = 'This should trigger a lint error';
   const user = await getUser().catch(() => null);
 
   if (user) {

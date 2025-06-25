@@ -4,7 +4,6 @@ import "./globals.css";
 
 import { ThemeProvider } from "next-themes";
 import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
-import { createBrowserClient } from "@eq-ex/shared";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
