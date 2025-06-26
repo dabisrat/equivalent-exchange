@@ -7,7 +7,7 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@eq-ex/ui/components/sidebar"
-import { ProtectedRoute } from "@app/components/protected-route"
+import { OrganizationProtectedRoute } from "@app/components/organization-protected-route"
 
 import data from "./data.json"
 import { ChartPieDonut } from "@app/components/chart-pie-donut"
@@ -15,7 +15,7 @@ import { ChartBarMixed } from "@app/components/chart-bar-mixed"
 
 export default function DashboardPage() {
   return (
-    <ProtectedRoute>
+    <OrganizationProtectedRoute>
       <SidebarProvider
         style={
           {
@@ -48,6 +48,6 @@ export default function DashboardPage() {
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </ProtectedRoute>
+    </OrganizationProtectedRoute>
   )
 } 
