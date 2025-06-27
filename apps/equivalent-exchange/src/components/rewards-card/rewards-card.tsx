@@ -168,7 +168,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   return (
     <div className="flex flex-col gap-3 h-full items-center justify-center">
       <div
-        className="flip-card w-[375px] h-[225px] rounded-md cursor-pointer"
+        className="flip-card p-2 w-[375px] h-[225px] rounded-md cursor-pointer"
         onClick={handleFlip}
       >
         <motion.div

@@ -8,6 +8,9 @@ import { Input } from '@eq-ex/ui/components/input';
 import { Label } from '@eq-ex/ui/components/label';
 import { createOrganization } from '@app/utils/organization';
 import { useAuth } from '@app/hooks/use-auth';
+import { ModeToggle } from '@eq-ex/ui/components/theme-toggle';
+import { LogOut } from 'lucide-react';
+import { signOut } from '@eq-ex/auth';
 
 export default function OrganizationSetupPage() {
     const router = useRouter();
@@ -63,93 +66,119 @@ export default function OrganizationSetupPage() {
         }));
     };
 
+    const handleSignOut = async () => {
+        try {
+            await signOut('/login')
+        } catch (error) {
+            console.error('Failed to sign out:', error)
+        }
+    };
+
     return (
         // TODO: use shadcn form with react-hook-form for better form handling
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
-            <div className="w-full max-w-md">
-                <Card className="p-6">
-                    <div className="text-center mb-6">
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                            Organization Setup
-                        </h1>
-                        <p className="text-gray-600 dark:text-gray-400 mt-2">
-                            Set up your organization to get started
-                        </p>
+        <>
+            <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+                <div className="container mx-auto px-2 h-14 flex items-center justify-between">
+                    <div className="mr-4">
+                        <h1 className="text-lg font-semibold">Dashboard</h1>
                     </div>
+                    <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
+                        <ModeToggle />
+                        {user &&
+                            < Button variant="ghost" onClick={handleSignOut} className="gap-2">
+                                <LogOut className="h-4 w-4" />
+                                Logout
+                            </Button>}
+                    </div>
+                </div>
+            </header >
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        <div>
-                            <Label htmlFor="email" className="text-sm font-medium">
-                                Email
-                            </Label>
-                            <Input
-                                id="email"
-                                type="email"
-                                value={user?.email || ''}
-                                disabled
-                                className="mt-1 bg-gray-100 dark:bg-gray-800"
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                This email will be associated with your organization
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900 p-4">
+                <div className="w-full max-w-md">
+                    <Card className="p-6">
+                        <div className="text-center mb-6">
+                            <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">
+                                Organization Setup
+                            </h1>
+                            <p className="text-gray-600 dark:text-gray-400 mt-2">
+                                Set up your organization to get started
                             </p>
                         </div>
 
-                        <div>
-                            <Label htmlFor="organization_name" className="text-sm font-medium">
-                                Organization Name *
-                            </Label>
-                            <Input
-                                id="organization_name"
-                                type="text"
-                                value={formData.organization_name}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('organization_name', e.target.value)}
-                                placeholder="Enter your organization name"
-                                className="mt-1"
-                                required
-                            />
-                        </div>
-
-                        <div>
-                            <Label htmlFor="max_points" className="text-sm font-medium">
-                                Maximum Points *
-                            </Label>
-                            <Input
-                                id="max_points"
-                                type="number"
-                                value={formData.max_points}
-                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('max_points', parseInt(e.target.value) || 0)}
-                                placeholder="100"
-                                min="1"
-                                className="mt-1"
-                                required
-                            />
-                            <p className="text-xs text-gray-500 mt-1">
-                                Maximum points that can be awarded
-                            </p>
-                        </div>
-
-                        {error && (
-                            <div className="text-red-600 dark:text-red-400 text-sm text-center">
-                                {error}
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div>
+                                <Label htmlFor="email" className="text-sm font-medium">
+                                    Email
+                                </Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={user?.email || ''}
+                                    disabled
+                                    className="mt-1 bg-gray-100 dark:bg-gray-800"
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    This email will be associated with your organization
+                                </p>
                             </div>
-                        )}
 
-                        <Button
-                            type="submit"
-                            className="w-full"
-                            disabled={isLoading}
-                        >
-                            {isLoading ? 'Creating Organization...' : 'Create Organization'}
-                        </Button>
-                    </form>
+                            <div>
+                                <Label htmlFor="organization_name" className="text-sm font-medium">
+                                    Organization Name *
+                                </Label>
+                                <Input
+                                    id="organization_name"
+                                    type="text"
+                                    value={formData.organization_name}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('organization_name', e.target.value)}
+                                    placeholder="Enter your organization name"
+                                    className="mt-1"
+                                    required
+                                />
+                            </div>
 
-                    <div className="mt-4 text-center">
-                        <p className="text-xs text-gray-500">
-                            * Required fields
-                        </p>
-                    </div>
-                </Card>
+                            <div>
+                                <Label htmlFor="max_points" className="text-sm font-medium">
+                                    Maximum Points *
+                                </Label>
+                                <Input
+                                    id="max_points"
+                                    type="number"
+                                    value={formData.max_points}
+                                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleInputChange('max_points', parseInt(e.target.value) || 0)}
+                                    placeholder="100"
+                                    min="1"
+                                    className="mt-1"
+                                    required
+                                />
+                                <p className="text-xs text-gray-500 mt-1">
+                                    Maximum points that can be awarded
+                                </p>
+                            </div>
+
+                            {error && (
+                                <div className="text-red-600 dark:text-red-400 text-sm text-center">
+                                    {error}
+                                </div>
+                            )}
+
+                            <Button
+                                type="submit"
+                                className="w-full"
+                                disabled={isLoading}
+                            >
+                                {isLoading ? 'Creating Organization...' : 'Create Organization'}
+                            </Button>
+                        </form>
+
+                        <div className="mt-4 text-center">
+                            <p className="text-xs text-gray-500">
+                                * Required fields
+                            </p>
+                        </div>
+                    </Card>
+                </div>
             </div>
-        </div>
+        </>
     );
 }

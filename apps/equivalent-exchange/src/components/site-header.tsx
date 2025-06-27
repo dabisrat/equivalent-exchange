@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from 'react'
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle"
-import { NavUser } from "@eq-ex/ui/components/nav-user"
 import { getUser, signOut } from '@eq-ex/auth'
 import { createBrowserClient } from '@eq-ex/shared'
 import type { User } from '@supabase/supabase-js'
+import { Button } from '@eq-ex/ui/components/button';
+import { BiLogOut } from 'react-icons/bi';
 
 export function SiteHeader() {
     const [user, setUser] = useState<User | null>(null)
@@ -55,24 +56,15 @@ export function SiteHeader() {
                 <div className="mr-4">
                     <h1 className="text-lg font-semibold">Equivalent Exchange</h1>
                 </div>
-                <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-
-                    <nav className="flex items-center gap-2">
-                        {user && (
-                            <NavUser
-                                user={{
-                                    name: user.user_metadata?.full_name || user.email || 'User',
-                                    email: user.email || '',
-                                    avatar: user.user_metadata?.avatar_url || '',
-                                }}
-                                onSignOut={handleSignOut}
-                                showSidebarLayout={false}
-                            />
-                        )}
-                    </nav>
+                <div className="flex gap-1 items-center justify-between">
                     <ModeToggle />
+                    {user &&
+                        < Button variant="ghost" onClick={handleSignOut} className="gap-2">
+                            <BiLogOut className="h-4 w-4" />
+                            Logout
+                        </Button>}
                 </div>
             </div>
-        </header>
+        </header >
     )
 }
