@@ -1,4 +1,3 @@
-import Logout from "@app/components/logout";
 import { getUser } from '@eq-ex/auth';
 import { redirect } from "next/navigation";
 
@@ -16,7 +15,6 @@ export default async function Layout({
   } else {
     return (
       <>
-        <Logout />
         {children}
       </>
     );

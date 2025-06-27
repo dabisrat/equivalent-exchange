@@ -14,11 +14,14 @@ export async function getUser(): Promise<User> {
   return data.user;
 }
 
-export async function signOut() {
+export async function signOut(redirectTo = '') {
   const { error } = await createServerClient(cookies()).auth.signOut();
 
   if (error) {
     console.error(error);
   }
-  return redirect('/login');
+
+  if (redirectTo) {
+    return redirect(redirectTo);
+  }
 }

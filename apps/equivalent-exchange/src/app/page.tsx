@@ -1,5 +1,5 @@
-import Logout from "@app/components/logout";
 import RewardsCardPreview from "@app/components/rewards-card/rewards-card-preview";
+import { SiteHeader } from "@app/components/site-header";
 import {
   getUsersRewardsCards,
 } from "@app/utils/data-access";
@@ -14,15 +14,12 @@ import {
 import { redirect } from "next/navigation";
 
 export default async function App() {
-  const unusedVariable = 'This should trigger a lint error';
   const user = await getUser().catch(() => null);
 
   if (user) {
-    const cards = await getUsersRewardsCards(user.id); return (
+    const cards = await getUsersRewardsCards(user.id);
+    return (
       <>
-        <Logout />
-
-
         {!!cards.length && (
           <div className="flex justify-center">
             <Carousel className="w-full max-w-xs ">

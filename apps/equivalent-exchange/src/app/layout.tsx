@@ -1,3 +1,4 @@
+import { SiteHeader } from "@app/components/site-header";
 import "./globals.css";
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
@@ -30,8 +31,8 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CustomThemeProvider defaultTheme="system">
+            <SiteHeader />
             {children}
-            <ModeToggle className="fixed bottom-2 left-2 z-50" />
           </CustomThemeProvider>
         </ThemeProvider>
       </body>
