@@ -9,6 +9,12 @@ export default async function CardPage({
 }: {
   params: Promise<{ id: string[] }>;
 }) {
+  const user = await getUser().catch((e) => null);
+  const _params = await params;
+  if (!user) {
+    redirect(`/auth/login?redirectTo=${encodeURIComponent('/' + _params.id.join('/'))}`);
+  }
+
   const [orgId, cardId] = (await params).id;
 
   if (cardId) {

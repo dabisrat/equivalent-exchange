@@ -5,6 +5,7 @@ import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
 import { ThemeProvider } from "@eq-ex/ui/providers/theme-provider";
 import { cn } from "@eq-ex/ui/utils/cn";
 import { Inter } from "next/font/google";
+import { AuthProvider } from "@eq-ex/auth";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -31,8 +32,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <CustomThemeProvider defaultTheme="system">
-            <SiteHeader />
-            {children}
+            <AuthProvider>
+              <SiteHeader />
+              {children}
+            </AuthProvider>
           </CustomThemeProvider>
         </ThemeProvider>
       </body>
