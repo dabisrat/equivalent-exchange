@@ -9,14 +9,14 @@
     "lint": "eslint *.ts"
   },
   "peerDependencies": {
-    "@supabase/ssr": "^0.0.10",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.0.0",
     "react": "^19.0.0",
     "next": "^15.0.0"
   },
   "devDependencies": {
     "@eq-ex/shared": "workspace:*",
-    "@supabase/ssr": "^0.0.10",
+    "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.0.0",
     "next": "^15.0.0",
     "react": "^19.0.0",

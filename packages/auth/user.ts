@@ -1,11 +1,11 @@
 'use server';
 import { createServerClient } from '@eq-ex/shared';
-import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 
 export async function getUser(): Promise<User> {
-  const { data, error } = await createServerClient(cookies()).auth.getUser();
+  const client = await createServerClient()
+  const { data, error } = await client.auth.getUser();
 
   if (error) {
     throw error;
@@ -15,7 +15,8 @@ export async function getUser(): Promise<User> {
 }
 
 export async function signOut(redirectTo = '') {
-  const { error } = await createServerClient(cookies()).auth.signOut();
+  const client = await createServerClient()
+  const { error } = await client.auth.signOut();
 
   if (error) {
     console.error(error);

@@ -1,108 +1,148 @@
-"use client";
+'use client'
 
-import { useState } from 'react';
-import { useAuth } from "@eq-ex/auth";
-import { useAuthRedirect } from "@eq-ex/auth/use-auth-redirect";
-import { Auth } from "@supabase/auth-ui-react";
-import { authUiConfig } from "@eq-ex/shared";
-import { AuthCard } from "@eq-ex/ui/components/auth-card";
+import { cn } from '@eq-ex/ui/utils/cn'
+import { createClient } from '@eq-ex/shared/client'
+import { Button } from '@eq-ex/ui/components/button'
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from '@eq-ex/ui/components/card'
+import { Input } from '@eq-ex/ui/components//input'
+import { Label } from '@eq-ex/ui/components//label'
+import Link from 'next/link'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useState } from 'react'
 
-const getUrl = () => {
-    let url =
-        process?.env?.NEXT_PUBLIC_SITE_URL ??
-        process?.env?.NEXT_PUBLIC_VERCEL_URL ??
-        "http://localhost:3000/";
-    url = url.includes("http") ? url : `https://${url}`;
-    url = url.charAt(url.length - 1) === "/" ? url : `${url}/`;
-    return url;
-};
 
-export function LoginForm() {
-    const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'reset'>('signin');
-    const { supabase } = useAuth();
-    const { redirectTo } = useAuthRedirect();
+export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
+    const [email, setEmail] = useState('')
+    const [password, setPassword] = useState('')
+    const [error, setError] = useState<string | null>(null)
+    const [isLoading, setIsLoading] = useState(false)
+    const router = useRouter()
+    const searchParams = useSearchParams()
 
-    const getCallbackUrl = (mode: string) => {
-        const baseCallback = `${getUrl()}callback`;
+    const handleLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const supabase = createClient()
+        setIsLoading(true)
+        setError(null)
 
-        if (mode === 'reset') {
-            return `${baseCallback}?type=password-reset${redirectTo !== '/' ? `&redirectTo=${encodeURIComponent(redirectTo)}` : ''}`;
+        try {
+            const redirectTo = searchParams.get('redirectTo') || '/'
+            const { error } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            })
+            if (error) throw error
+            // Update this route to redirect to an authenticated route. The user already has an active session.
+            router.push(decodeURIComponent(redirectTo))
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred')
+        } finally {
+            setIsLoading(false)
         }
+    }
 
-        return `${baseCallback}${redirectTo !== '/' ? `?redirectTo=${encodeURIComponent(redirectTo)}` : ''}`;
-    };
+    const handleSocialLogin = async (e: React.FormEvent) => {
+        e.preventDefault()
+        const supabase = createClient()
+        setIsLoading(true)
+        setError(null)
+
+        try {
+            const redirectTo = searchParams.get('redirectTo') || '/'
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: `${window.location.origin}/auth/oauth?redirectTo=${redirectTo}`,
+                    queryParams: {}
+                }
+            })
+
+            if (error) throw error
+        } catch (error: unknown) {
+            setError(error instanceof Error ? error.message : 'An error occurred')
+            setIsLoading(false)
+        }
+    }
+
 
     return (
-        <AuthCard
-            title="Equivalent Exchange"
-            description="Sign in or create an account to continue"
-        >
-            {/* Custom tabs */}
-            <div className="flex gap-4 mb-4 border-b">
-                <button
-                    onClick={() => setAuthMode('signin')}
-                    className={`pb-2 px-1 ${authMode === 'signin' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-600'}`}
-                >
-                    Sign In
-                </button>
-                <button
-                    onClick={() => setAuthMode('signup')}
-                    className={`pb-2 px-1 ${authMode === 'signup' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-600'}`}
-                >
-                    Sign Up
-                </button>
-                <button
-                    onClick={() => setAuthMode('reset')}
-                    className={`pb-2 px-1 ${authMode === 'reset' ? 'border-b-2 border-blue-500 font-medium' : 'text-gray-600'}`}
-                >
-                    Reset Password
-                </button>
+        <div className={cn('flex flex-col gap-6', className)} {...props}>
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-2xl">Login</CardTitle>
+                    <CardDescription>Enter your email below to login to your account</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <form onSubmit={handleLogin}>
+                        <div className="flex flex-col gap-6">
+                            <div className="grid gap-2">
+                                <Label htmlFor="email">Email</Label>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    placeholder="m@eq-exexample.com"
+                                    required
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                />
+                            </div>
+                            <div className="grid gap-2">
+                                <div className="flex items-center">
+                                    <Label htmlFor="password">Password</Label>
+                                    <Link
+                                        href={{ pathname: '/auth/forgot-password', query: { redirectTo: searchParams.get('redirectTo') ?? '' } }}
+                                        className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                                    >
+                                        Forgot your password?
+                                    </Link>
+                                </div>
+                                <Input
+                                    id="password"
+                                    type="password"
+                                    required
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                />
+                            </div>
+                            {error && <p className="text-sm text-red-500">{error}</p>}
+                            <Button type="submit" className="w-full" disabled={isLoading}>
+                                {isLoading ? 'Logging in...' : 'Login'}
+                            </Button>
+                        </div>
+                        <div className="mt-4 text-center text-sm">
+                            Don&apos;t have an account?{' '}
+                            <Link href={{ pathname: '/auth/sign-up', query: { redirectTo: searchParams.get('redirectTo') ?? '' } }} className="underline underline-offset-4">
+                                Sign up
+                            </Link>
+                        </div>
+                    </form>
+                </CardContent>
+            </Card>
+            or
+            <div className={cn('flex flex-col gap-6', className)} {...props}>
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="text-2xl">Welcome!</CardTitle>
+                        <CardDescription>Sign in to your account to continue</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <form onSubmit={handleSocialLogin}>
+                            <div className="flex flex-col gap-6">
+                                {error && <p className="text-sm text-destructive-500">{error}</p>}
+                                <Button type="submit" className="w-full" disabled={isLoading}>
+                                    {isLoading ? 'Logging in...' : 'Continue with Google'}
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
-
-            {authMode === 'signin' && (
-                <Auth
-                    view="sign_in"
-                    redirectTo={getCallbackUrl('signin')}
-                    supabaseClient={supabase}
-                    appearance={authUiConfig}
-                    socialLayout="horizontal"
-                    magicLink
-                    otpType="email"
-                    providers={["google"]}
-                    showLinks={false}
-                    queryParams={{ access_type: "offline", prompt: "consent" }}
-                />
-            )}
-
-            {authMode === 'signup' && (
-                <Auth
-                    view="sign_up"
-                    redirectTo={getCallbackUrl('signup')}
-                    supabaseClient={supabase}
-                    appearance={authUiConfig}
-                    socialLayout="horizontal"
-                    magicLink
-                    otpType="email"
-                    providers={["google"]}
-                    showLinks={false}
-                    queryParams={{ access_type: "offline", prompt: "consent" }}
-                />
-            )}
-
-            {authMode === 'reset' && (
-                <Auth
-                    view="forgotten_password"
-                    redirectTo={getCallbackUrl('reset')}
-                    supabaseClient={supabase}
-                    appearance={authUiConfig}
-                    socialLayout="horizontal"
-                    magicLink
-                    otpType="email"
-                    providers={["google"]}
-                    showLinks={false}
-                    queryParams={{ access_type: "offline", prompt: "consent" }}
-                />
-            )}
-        </AuthCard>
-    );
+        </div>
+    )
 }

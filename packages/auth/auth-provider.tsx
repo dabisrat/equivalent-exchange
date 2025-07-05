@@ -34,10 +34,6 @@ export function AuthProvider({
         // Get initial session
         const getInitialSession = async () => {
             const { data: { session }, error } = await supabase.auth.getSession();
-            if (!session || error) {
-                router.replace('/login' + path); // Redirect to login if no session
-            }
-
             setSession(session);
             setUser(session?.user ?? null);
             setLoading(false);
@@ -52,18 +48,6 @@ export function AuthProvider({
                 setSession(session);
                 setUser(session?.user ?? null);
                 setLoading(false);
-
-                if (event === 'SIGNED_IN' && path === '/password-reset') {
-                    return;
-                }
-
-                if (event === 'SIGNED_IN' || event === 'USER_UPDATED') {
-                    router.replace(path); // Redirect to home on sign in
-                }
-
-                if (!session || event === 'SIGNED_OUT') {
-                    router.push('/login' + path); // Redirect to login on sign out
-                }
             }
         );
 

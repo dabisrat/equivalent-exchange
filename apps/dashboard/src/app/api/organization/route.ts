@@ -17,12 +17,11 @@ const createOrganizationSchema = z.object({
 
 export async function POST(request: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = await createServerClient();
 
     // Get the current authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
@@ -43,9 +42,9 @@ export async function POST(request: Request) {
 
     if (!validationResult.success) {
       return NextResponse.json(
-        { 
-          error: "Invalid input", 
-          details: validationResult.error.errors 
+        {
+          error: "Invalid input",
+          details: validationResult.error.errors
         },
         { status: 400 }
       );
@@ -95,7 +94,7 @@ export async function POST(request: Request) {
     }
 
     return NextResponse.json(
-      { 
+      {
         message: "Organization created successfully",
         organization: newOrg
       },
@@ -113,12 +112,11 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const cookieStore = cookies();
-    const supabase = createServerClient(cookieStore);
+    const supabase = await createServerClient();
 
     // Get the current authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+
     if (authError || !user) {
       return NextResponse.json(
         { error: "Unauthorized" },
