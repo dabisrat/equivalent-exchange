@@ -22,7 +22,7 @@ export default async function RewardsCardContainer({
     }`;
   const qrCode = await toDataURL(url, {
     type: "image/webp",
-    color: { dark: "#000000FF", light: "#00000000" },
+    color: { dark: "#000000FF", light: "#d1d5e1" },
   });
 
   return (
