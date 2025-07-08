@@ -1,10 +1,24 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+const getSubdomain = (request: NextRequest): string => {
+  const host = request.headers.get('x-forwarded-host') || 
+               request.headers.get('host') || 
+               request.nextUrl.host
+
+  if (!host) return 'www'
+  
+  // Handle localhost development
+  if (host.includes('localhost') || host.includes('127.0.0.1')) return 'www'
+  
+  return host.split('.')[0] || 'www'
+}
+
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
+   const subdomain = getSubdomain(request)
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

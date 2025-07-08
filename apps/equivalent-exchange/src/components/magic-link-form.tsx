@@ -5,7 +5,7 @@ import { Button } from '@eq-ex/ui/components/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@eq-ex/ui/components/card';
 import { Input } from '@eq-ex/ui/components/input';
 import { Label } from '@eq-ex/ui/components/label';
-import { cn } from '@eq-ex/ui/utils/cn';
+import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { useState } from 'react';
 import { LuMail } from 'react-icons/lu';
@@ -50,11 +50,9 @@ export default function MagicLinkForm() {
             <Card>
                 <CardHeader>
                     <CardTitle className="text-2xl">Magic link</CardTitle>
-                    <CardDescription>Sign in with magic link</CardDescription>
+                    <CardDescription>Sign in with an emailed magic link</CardDescription>
                 </CardHeader>
                 <CardContent>
-
-
                     {
                         magicLinkSent ? (
                             <div className="text-center p-4 bg-green-50 border border-green-200 rounded-md" >
@@ -62,7 +60,7 @@ export default function MagicLinkForm() {
                                     Magic link sent! Check your email and click the link to sign in.
                                 </p>
                                 <Button
-                                    variant="ghost"
+                                    variant="secondary"
                                     size="sm"
                                     className="mt-2"
                                     onClick={() => {
@@ -77,7 +75,7 @@ export default function MagicLinkForm() {
                             <form onSubmit={handleMagicLinkLogin}>
                                 <div className="flex flex-col gap-4">
                                     <div className="grid gap-2">
-                                        <Label htmlFor="magic-email">Email for magic link</Label>
+                                        <Label htmlFor="magic-email">Email</Label>
                                         <Input
                                             id="magic-email"
                                             type="email"
@@ -87,10 +85,16 @@ export default function MagicLinkForm() {
                                             onChange={(e) => setMagicLinkEmail(e.target.value)}
                                         />
                                     </div>
-                                    <Button type="submit" variant="outline" className="w-full" disabled={isMagicLinkLoading}>
-                                        <LuMail className="mr-2 h-4 w-4" />
+                                    <Button type="submit" className="w-full" disabled={isMagicLinkLoading}>
                                         {isMagicLinkLoading ? 'Sending...' : 'Send magic link'}
+                                        <LuMail className="mr-2 h-4 w-4" />
                                     </Button>
+                                    <div className="mt-4 text-center text-sm">
+                                        Want to use a different sign in option?{' '}
+                                        <Link href={{ pathname: '/auth/login', query: { redirectTo: searchParams.get('redirectTo') ?? '' } }} className="underline underline-offset-4">
+                                            Sign in
+                                        </Link>
+                                    </div>
                                 </div>
                             </form>
                         )

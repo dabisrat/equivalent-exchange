@@ -1,9 +1,6 @@
 import RewardsCardPreview from "@app/components/rewards-card/rewards-card-preview";
-import { SiteHeader } from "@app/components/site-header";
-import {
-  getUsersRewardsCards,
-} from "@app/utils/data-access";
-import { getUser } from '@eq-ex/auth';
+import { getUsersRewardsCards } from "@app/utils/data-access";
+import { getUser } from "@eq-ex/auth";
 import {
   Carousel,
   CarouselContent,
@@ -35,15 +32,14 @@ export default async function App() {
                       <RewardsCardPreview key={card.id} card={card} />
                     </div>
                   </CarouselItem>
-                ))}
+                ))}{" "}
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
+            <CarouselPrevious className="hidden md:flex" />
+            <CarouselNext className="hidden md:flex" />
           </Carousel>
         </div>
       )}
       {!cards.length && <> no cards found </>}
     </>
   );
-
 }
