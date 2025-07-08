@@ -13,6 +13,20 @@ const createOrganizationSchema = z.object({
     .int("Max points must be an integer")
     .min(1, "Max points must be at least 1")
     .max(10000, "Max points cannot exceed 10,000"),
+  subdomain: z.string()
+    .min(3, "Subdomain must be at least 3 characters")
+    .max(50, "Subdomain must be less than 50 characters")
+    .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "Subdomain can only contain lowercase letters, numbers, and hyphens (not at start/end)")
+    .refine((val) => !['www', 'api', 'admin', 'dashboard', 'app', 'mail', 'ftp', 'blog', 'dev', 'test', 'staging', 'prod', 'production'].includes(val), 
+      "This subdomain is reserved")
+    .optional(),
+  primary_color: z.string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Primary color must be a valid hex color")
+    .default('#3b82f6'),
+  secondary_color: z.string()
+    .regex(/^#[0-9A-Fa-f]{6}$/, "Secondary color must be a valid hex color")
+    .default('#64748b'),
+  logo_url: z.string().url("Logo URL must be a valid URL").optional(),
 });
 
 export async function POST(request: Request) {
@@ -50,7 +64,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { organization_name, max_points } = validationResult.data;
+    const { organization_name, max_points, subdomain, primary_color, secondary_color, logo_url } = validationResult.data;
 
     // Check if user already has an organization
     const { data: existingOrg, error: checkError } = await supabase
@@ -74,6 +88,30 @@ export async function POST(request: Request) {
       );
     }
 
+    // Check if subdomain is already taken (if provided)
+    if (subdomain) {
+      const { data: subdomainCheck, error: subdomainError } = await supabase
+        .from('organization')
+        .select('id')
+        .eq('subdomain', subdomain)
+        .limit(1);
+
+      if (subdomainError) {
+        console.error('Error checking subdomain:', subdomainError);
+        return NextResponse.json(
+          { error: "Database error" },
+          { status: 500 }
+        );
+      }
+
+      if (subdomainCheck && subdomainCheck.length > 0) {
+        return NextResponse.json(
+          { error: "Subdomain is already taken" },
+          { status: 409 }
+        );
+      }
+    }
+
     // Create the organization with the authenticated user's email
     const { data: newOrg, error: createError } = await supabase
       .from('organization')
@@ -81,6 +119,11 @@ export async function POST(request: Request) {
         organization_name,
         email: user.email, // Use the authenticated user's email
         max_points,
+        subdomain,
+        primary_color,
+        secondary_color,
+        logo_url,
+        is_active: true,
       }])
       .select()
       .single();

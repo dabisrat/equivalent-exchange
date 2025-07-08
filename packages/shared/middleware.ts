@@ -18,7 +18,7 @@ export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
-   const subdomain = getSubdomain(request)
+  const subdomain = getSubdomain(request)
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -40,6 +40,9 @@ export async function updateSession(request: NextRequest) {
       },
     }
   )
+
+  // Add subdomain to headers for app-level access
+  supabaseResponse.headers.set('x-subdomain', subdomain);
 
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug

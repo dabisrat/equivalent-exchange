@@ -21,6 +21,10 @@ export async function checkUserHasOrganization(): Promise<boolean> {
 export async function createOrganization(data: {
     organization_name: string;
     max_points: number;
+    subdomain?: string;
+    primary_color?: string;
+    secondary_color?: string;
+    logo_url?: string;
 }) {
     try {
         const response = await fetch('/api/organization', {
