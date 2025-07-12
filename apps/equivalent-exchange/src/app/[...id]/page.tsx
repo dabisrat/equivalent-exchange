@@ -1,7 +1,7 @@
 import CraeteCard from "@app/components/createCard";
 import RewardsCardContainer from "@app/components/rewards-card/rewards-card-container";
 import { getRewardsCardId } from "@app/utils/data-access";
-import { getUser } from '@eq-ex/auth';
+import { getUser } from "@eq-ex/auth";
 import { redirect } from "next/navigation";
 
 export default async function CardPage({
@@ -11,8 +11,11 @@ export default async function CardPage({
 }) {
   const user = await getUser().catch((e) => null);
   const _params = await params;
+
   if (!user) {
-    redirect(`/auth/login?redirectTo=${encodeURIComponent('/' + _params.id.join('/'))}`);
+    redirect(
+      `/auth/login?redirectTo=${encodeURIComponent("/" + _params.id.join("/"))}`
+    );
   }
 
   const [orgId, cardId] = (await params).id;
@@ -22,8 +25,7 @@ export default async function CardPage({
   }
 
   if (!cardId) {
-    const { id: userId } = await getUser();
-    const { id: cardId } = await getRewardsCardId(orgId, userId || "").catch(
+    const { id: cardId } = await getRewardsCardId(orgId, user.id || "").catch(
       (e) => ({ id: "" })
     );
 
@@ -32,12 +34,7 @@ export default async function CardPage({
     }
 
     if (!cardId) {
-      return (
-        <div className="flex flex-col gap-4 p-4">
-          <span>no card found for {orgId}</span>
-          <CraeteCard orgId={orgId} userId={userId}></CraeteCard>
-        </div>
-      );
+      redirect("/");
     }
   }
 }

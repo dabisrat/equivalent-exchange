@@ -9,6 +9,7 @@ import { AuthProvider } from "@eq-ex/auth";
 import { headers } from "next/headers";
 import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
+import { OrganizationProvider } from "@app/contexts/organization-context";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -33,17 +34,17 @@ export default async function RootLayout({
   const organizationResult = await getOrganizationBySubdomain(subdomain);
 
   // Handle organization errors (show error page instead of normal app)
-  if (!organizationResult.success && subdomain !== 'www') {
+  if (!organizationResult.success && subdomain !== "www") {
     const errorPageTitle = `Organization Error | EQ/EX`;
-    
+
     return (
       <html lang="en" suppressHydrationWarning>
         <head>
           <title>{errorPageTitle}</title>
           <meta name="robots" content="noindex, nofollow" />
-          <meta 
-            name="description" 
-            content={`Error loading organization at ${subdomain}.yourdomain.com: ${organizationResult.message}`} 
+          <meta
+            name="description"
+            content={`Error loading organization at ${subdomain}.yourdomain.com: ${organizationResult.message}`}
           />
         </head>
         <body className={cn(fontSans.variable)}>
@@ -53,7 +54,7 @@ export default async function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <SubdomainErrorPage 
+            <SubdomainErrorPage
               error={organizationResult.error}
               subdomain={organizationResult.subdomain}
               message={organizationResult.message}
@@ -65,7 +66,9 @@ export default async function RootLayout({
   }
 
   // Normal app rendering with organization data
-  const organizationData = organizationResult.success ? organizationResult.data : null;
+  const organizationData = organizationResult.success
+    ? organizationResult.data
+    : null;
 
   // Dynamic page title based on organization
   const pageTitle = organizationData?.organization_name
@@ -139,8 +142,10 @@ export default async function RootLayout({
         >
           <CustomThemeProvider defaultTheme="system">
             <AuthProvider>
-              <SiteHeader />
-              {children}
+              <OrganizationProvider organization={organizationData}>
+                <SiteHeader />
+                {children}
+              </OrganizationProvider>
             </AuthProvider>
           </CustomThemeProvider>
         </ThemeProvider>
