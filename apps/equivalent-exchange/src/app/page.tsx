@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { useOrganization } from "@app/contexts/organization-context";
 import { useAuth } from "@eq-ex/auth";
 import { useEffect, useCallback, useRef } from "react";
-import { Skeleton } from "@eq-ex/ui/components/skeleton";
+import { Loading } from "@app/components/loading";
 
 export default function App() {
   const { user, loading } = useAuth();
@@ -43,17 +43,6 @@ export default function App() {
   }
 
   if (loading || !organization) {
-    return (
-      <div className="flex flex-col space-y-3 justify-center items-center">
-        <Skeleton className="w-[375px] h-[225px] rounded-md" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
-        </div>
-        <div className="text-center">
-          <p className="text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 }
