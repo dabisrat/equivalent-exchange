@@ -2,7 +2,6 @@
 import { getUser } from "@eq-ex/auth";
 import { createServerClient } from "@eq-ex/shared";
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
 export async function getRewardsCard(id: string) {
@@ -133,23 +132,39 @@ async function updateStampById(cardId: string, stampIndex: number) {
   }
 }
 
-export async function createRewardCard(userId: string, orgId: string) {
-  const org = await getOrganizationDetails(orgId).catch((e) => null);
+export async function createRewardCard(userId: string, organizationId: string) {
+  const org = await getOrganizationDetails(organizationId).catch(() => null)
+
   if (!org) {
-    throw new Error("organization not found");
+    throw new Error(`Organization with ID ${organizationId} not found`);
   }
-  const { data, error } = await (await createServerClient())
+  
+  const client = await (await createServerClient());
+
+  // First check if user already has a card for this organization
+  const existingCard = await getRewardsCardId(organizationId, userId).catch(() => null);
+  
+  
+  if (existingCard) {
+    // User already has a card, redirect to it instead of creating a new one
+    redirect(`/${organizationId}/${existingCard.id}`);
+  }
+
+  const { data, error } = await client
     .from("reward_card")
-    .insert({ user_id: userId, points: 0, organization_id: orgId })
-    .eq("user_id", userId)
+    .insert({
+      user_id: userId,
+      organization_id: organizationId,
+    })
     .select()
     .single();
 
   if (error) {
+    console.error("Error creating reward card:", error);
     throw error;
   }
 
-  redirect(`/${orgId}/${data.id}`);
+  redirect(`/${organizationId}/${data.id}`);
 }
 
 export async function getMaxCount(orgId: string) {

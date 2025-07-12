@@ -1,6 +1,5 @@
 import { SiteHeader } from "@app/components/site-header";
 import "./globals.css";
-import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
 import { ThemeProvider } from "@eq-ex/ui/providers/theme-provider";
 import { cn } from "@eq-ex/ui/utils/cn";
