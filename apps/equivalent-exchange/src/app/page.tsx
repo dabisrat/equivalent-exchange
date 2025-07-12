@@ -34,17 +34,14 @@ export default function App() {
   }, [user, organization]);
 
   useEffect(() => {
-    if (loading || !user || !organization) return;
-
-    if (!user) {
-      redirect(`/auth/login`);
-    }
-
     // Check if user has a card for this organization and handle redirect
     handleCardRedirect();
   }, [user, organization, handleCardRedirect]);
 
-  // Show loading state while auth or organization data is loading
+  if (!user && !loading) {
+    redirect(`/auth/login`);
+  }
+
   if (loading || !organization) {
     return (
       <div className="flex flex-col space-y-3 justify-center items-center">
@@ -59,6 +56,4 @@ export default function App() {
       </div>
     );
   }
-
-  return null; // This component only handles redirects
 }
