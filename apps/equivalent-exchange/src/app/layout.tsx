@@ -8,6 +8,7 @@ import { Inter } from "next/font/google";
 import { AuthProvider } from "@eq-ex/auth";
 import { headers } from "next/headers";
 import { getOrganizationBySubdomain } from "@app/utils/organization";
+import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -29,7 +30,42 @@ export default async function RootLayout({
   const subdomain = headersList.get("x-subdomain") || "www";
 
   // Fetch organization data based on subdomain
-  const organizationData = await getOrganizationBySubdomain(subdomain);
+  const organizationResult = await getOrganizationBySubdomain(subdomain);
+
+  // Handle organization errors (show error page instead of normal app)
+  if (!organizationResult.success && subdomain !== 'www') {
+    const errorPageTitle = `Organization Error | EQ/EX`;
+    
+    return (
+      <html lang="en" suppressHydrationWarning>
+        <head>
+          <title>{errorPageTitle}</title>
+          <meta name="robots" content="noindex, nofollow" />
+          <meta 
+            name="description" 
+            content={`Error loading organization at ${subdomain}.yourdomain.com: ${organizationResult.message}`} 
+          />
+        </head>
+        <body className={cn(fontSans.variable)}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <SubdomainErrorPage 
+              error={organizationResult.error}
+              subdomain={organizationResult.subdomain}
+              message={organizationResult.message}
+            />
+          </ThemeProvider>
+        </body>
+      </html>
+    );
+  }
+
+  // Normal app rendering with organization data
+  const organizationData = organizationResult.success ? organizationResult.data : null;
 
   // Dynamic page title based on organization
   const pageTitle = organizationData?.organization_name

@@ -316,7 +316,7 @@ export default function OrganizationSetupPage() {
                   className="mt-1"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  URL to your organization's logo image
+                  URL to your organization&apos;s logo image
                 </p>
               </div>
 

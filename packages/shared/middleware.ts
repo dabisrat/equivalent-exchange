@@ -8,10 +8,26 @@ const getSubdomain = (request: NextRequest): string => {
 
   if (!host) return 'www'
   
-  // Handle localhost development
-  if (host.includes('localhost') || host.includes('127.0.0.1')) return 'www'
+  // Handle localhost development with .localhost domains
+  if (host.includes('.localhost')) {
+    const parts = host.split('.');
+    if (parts.length >= 2) {
+      return parts[0]; // Extract subdomain from acme.localhost:3000
+    }
+  }
   
-  return host.split('.')[0] || 'www'
+  // Handle localhost development with custom domains (.dev, .local etc)
+  if (host.includes('localhost') || host.includes('127.0.0.1')) {
+    return 'www'
+  }
+  
+  // Handle custom local domains like acme.mylocal.dev
+  const parts = host.split('.');
+  if (parts.length >= 2) {
+    return parts[0];
+  }
+  
+  return 'www'
 }
 
 export async function updateSession(request: NextRequest) {
@@ -19,6 +35,8 @@ export async function updateSession(request: NextRequest) {
     request,
   })
   const subdomain = getSubdomain(request)
+  // Add subdomain to headers for app-level access
+  supabaseResponse.headers.set('x-subdomain', subdomain);
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -41,8 +59,6 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  // Add subdomain to headers for app-level access
-  supabaseResponse.headers.set('x-subdomain', subdomain);
 
   // Do not run code between createServerClient and
   // supabase.auth.getUser(). A simple mistake could make it very hard to debug
@@ -54,16 +70,6 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser()
 
-  if (
-    !user &&
-    !request.nextUrl.pathname.startsWith('/login') &&
-    !request.nextUrl.pathname.startsWith('/auth')
-  ) {
-    // no user, potentially respond by redirecting the user to the login page
-    // const url = request.nextUrl.clone()
-    // url.pathname = '/auth/login'
-    // return NextResponse.redirect(url)
-  }
 
   // IMPORTANT: You *must* return the supabaseResponse object as it is.
   // If you're creating a new response object with NextResponse.next() make sure to:
