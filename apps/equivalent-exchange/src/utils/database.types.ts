@@ -125,20 +125,30 @@ export type Database = {
           },
         ]
       }
-      stamper: {
+      organization_members: {
         Row: {
           created_at: string
           email: string | null
           name: string | null
           organization_id: string
           user_id: string
+          role: 'owner' | 'admin' | 'member'
+          is_active: boolean
+          invited_at: string | null
+          invited_by: string | null
+          last_active_at: string | null
         }
         Insert: {
           created_at?: string
           email?: string | null
           name?: string | null
-          organization_id?: string
-          user_id?: string
+          organization_id: string
+          user_id: string
+          role?: 'owner' | 'admin' | 'member'
+          is_active?: boolean
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
         }
         Update: {
           created_at?: string
@@ -146,6 +156,66 @@ export type Database = {
           name?: string | null
           organization_id?: string
           user_id?: string
+          role?: 'owner' | 'admin' | 'member'
+          is_active?: boolean
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "public_organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "public_organization_members_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      // Keep old interface for backward compatibility during migration
+      stamper: {
+        Row: {
+          created_at: string
+          email: string | null
+          name: string | null
+          organization_id: string
+          user_id: string
+          role: 'owner' | 'admin' | 'member'
+          is_active: boolean
+          invited_at: string | null
+          invited_by: string | null
+          last_active_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          name?: string | null
+          organization_id: string
+          user_id: string
+          role?: 'owner' | 'admin' | 'member'
+          is_active?: boolean
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          name?: string | null
+          organization_id?: string
+          user_id?: string
+          role?: 'owner' | 'admin' | 'member'
+          is_active?: boolean
+          invited_at?: string | null
+          invited_by?: string | null
+          last_active_at?: string | null
         }
         Relationships: [
           {

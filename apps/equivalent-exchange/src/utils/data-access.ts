@@ -189,7 +189,7 @@ async function getOrganizationDetails(orgId: string) {
     .single();
 
   if (error) {
-    console.log("error", error);
+    console.error("error", error);
     throw error;
   }
   return data;
@@ -197,13 +197,38 @@ async function getOrganizationDetails(orgId: string) {
 
 export async function canModifyCard(userId: string, orgId: string) {
   const { data, error } = await (await createServerClient())
-    .from("stamper")
-    .select("organization_id")
+    .from("organization_members")
+    .select("organization_id, role, is_active")
     .eq("user_id", userId)
     .eq("organization_id", orgId)
     .single();
 
-  return data?.organization_id === orgId;
+  return data?.organization_id === orgId && data?.is_active === true;
+}
+
+// Add new function for role checking
+export async function getOrganizationMemberRole(userId: string, orgId: string) {
+  const { data, error } = await (await createServerClient())
+    .from("organization_members")
+    .select("role, is_active")
+    .eq("user_id", userId)
+    .eq("organization_id", orgId)
+    .single();
+
+  if (error || !data?.is_active) return null;
+  return data.role;
+}
+
+// Add function to check if user is organization member
+export async function isOrganizationMember(userId: string, orgId: string) {
+  const { data, error } = await (await createServerClient())
+    .from("organization_members")
+    .select("is_active")
+    .eq("user_id", userId)
+    .eq("organization_id", orgId)
+    .single();
+
+  return data?.is_active === true;
 }
 
 export async function getStamps(cardId: string) {

@@ -136,6 +136,24 @@ export async function POST(request: Request) {
       );
     }
 
+    // Automatically add creator as organization owner
+    const { error: memberError } = await supabase
+      .from('organization_members')
+      .insert({
+        organization_id: newOrg.id,
+        user_id: user.id,
+        email: user.email,
+        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Owner',
+        role: 'owner',
+        invited_by: user.id // Self-invited
+      });
+
+    if (memberError) {
+      console.error('Error adding organization owner:', memberError);
+      // Note: We could consider rolling back the organization creation here
+      // For now, we'll log the error but still return success
+    }
+
     return NextResponse.json(
       {
         message: "Organization created successfully",
