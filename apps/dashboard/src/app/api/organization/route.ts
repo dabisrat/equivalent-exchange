@@ -1,6 +1,5 @@
-import { createServerClient } from "@eq-ex/shared";
+import { createClient as createServerClient } from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { z } from "zod";
 
 // Validation schema for organization creation
@@ -18,8 +17,7 @@ const createOrganizationSchema = z.object({
     .max(50, "Subdomain must be less than 50 characters")
     .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "Subdomain can only contain lowercase letters, numbers, and hyphens (not at start/end)")
     .refine((val) => !['www', 'api', 'admin', 'dashboard', 'app', 'mail', 'ftp', 'blog', 'dev', 'test', 'staging', 'prod', 'production'].includes(val), 
-      "This subdomain is reserved")
-    .optional(),
+      "This subdomain is reserved"),
   primary_color: z.string()
     .regex(/^#[0-9A-Fa-f]{6}$/, "Primary color must be a valid hex color")
     .default('#3b82f6'),
@@ -29,8 +27,10 @@ const createOrganizationSchema = z.object({
   logo_url: z.string().url("Logo URL must be a valid URL").optional(),
 });
 
+
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
 
     // Get the current authenticated user
@@ -67,7 +67,7 @@ export async function POST(request: Request) {
     const { organization_name, max_points, subdomain, primary_color, secondary_color, logo_url } = validationResult.data;
 
     // Check if user already has an organization
-    const { data: existingOrg, error: checkError } = await supabase
+    const { data: existingOrg, error: checkError } = await supabaseAdmin
       .from('organization')
       .select('id')
       .eq('email', user.email)
@@ -88,70 +88,63 @@ export async function POST(request: Request) {
       );
     }
 
-    // Check if subdomain is already taken (if provided)
-    if (subdomain) {
-      const { data: subdomainCheck, error: subdomainError } = await supabase
-        .from('organization')
-        .select('id')
-        .eq('subdomain', subdomain)
-        .limit(1);
+    // Check if subdomain is already taken
+    const { data: subdomainCheck, error: subdomainError } = await supabaseAdmin
+      .from('organization')
+      .select('id')
+      .eq('subdomain', subdomain)
+      .limit(1);
 
-      if (subdomainError) {
-        console.error('Error checking subdomain:', subdomainError);
-        return NextResponse.json(
-          { error: "Database error" },
-          { status: 500 }
-        );
-      }
-
-      if (subdomainCheck && subdomainCheck.length > 0) {
-        return NextResponse.json(
-          { error: "Subdomain is already taken" },
-          { status: 409 }
-        );
-      }
+    if (subdomainError) {
+      console.error('Error checking subdomain:', subdomainError);
+      return NextResponse.json(
+        { error: "Database error" },
+        { status: 500 }
+      );
     }
 
-    // Create the organization with the authenticated user's email
-    const { data: newOrg, error: createError } = await supabase
-      .from('organization')
-      .insert([{
-        organization_name,
-        email: user.email, // Use the authenticated user's email
-        max_points,
-        subdomain,
-        primary_color,
-        secondary_color,
-        logo_url,
-        is_active: true,
-      }])
-      .select()
-      .single();
+    if (subdomainCheck && subdomainCheck.length > 0) {
+      return NextResponse.json(
+        { error: "Subdomain is already taken" },
+        { status: 409 }
+      );
+    }
 
-    if (createError) {
-      console.error('Error creating organization:', createError);
+    // Use a transaction to ensure atomicity
+    const { data: transactionResult, error: transactionError } = await supabaseAdmin.rpc('create_organization_with_owner', {
+      org_name: organization_name,
+      org_email: user.email,
+      org_max_points: max_points,
+      org_subdomain: subdomain,
+      owner_user_id: user.id,
+      owner_email: user.email,
+      owner_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Owner',
+      org_primary_color: primary_color,
+      org_secondary_color: secondary_color,
+      org_logo_url: logo_url || null
+    });
+
+    if (transactionError) {
+      console.error('Error in organization creation transaction:', transactionError);
       return NextResponse.json(
         { error: "Failed to create organization" },
         { status: 500 }
       );
     }
 
-    // Automatically add creator as organization owner
-    const { error: memberError } = await supabase
-      .from('organization_members')
-      .insert({
-        organization_id: newOrg.id,
-        user_id: user.id,
-        email: user.email,
-        name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'Owner',
-        role: 'owner',
-        invited_by: user.id // Self-invited
-      });
+    // Get the created organization details
+    const { data: newOrg, error: fetchError } = await supabaseAdmin
+      .from('organization')
+      .select('id, organization_name, email, subdomain, primary_color, secondary_color, logo_url, is_active, created_at')
+      .eq('id', transactionResult)
+      .single();
 
-    if (memberError) {
-      console.error('Error adding organization owner:', memberError);
-      // Note: We could consider rolling back the organization creation here
-      // For now, we'll log the error but still return success
+    if (fetchError) {
+      console.error('Error fetching created organization:', fetchError);
+      return NextResponse.json(
+        { error: "Organization created but failed to fetch details" },
+        { status: 500 }
+      );
     }
 
     return NextResponse.json(
@@ -173,6 +166,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
+    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
 
     // Get the current authenticated user
@@ -192,10 +186,10 @@ export async function GET(request: Request) {
       );
     }
 
-    // Check if user has an organization
-    const { data: organization, error: checkError } = await supabase
+    // Check if user has an organization - only return necessary columns
+    const { data: organization, error: checkError } = await supabaseAdmin
       .from('organization')
-      .select('*')
+      .select('id, organization_name, email, subdomain, primary_color, secondary_color, logo_url, is_active, created_at')
       .eq('email', user.email)
       .limit(1);
 

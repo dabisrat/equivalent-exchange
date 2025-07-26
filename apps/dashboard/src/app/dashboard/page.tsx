@@ -1,21 +1,18 @@
-import { AppSidebar } from "@app/components/app-sidebar"
-import { ChartAreaInteractive } from "@app/components/chart-area-interactive"
-import { DataTable } from "@app/components/data-table"
-import { SectionCards } from "@app/components/section-cards"
-import { SiteHeader } from "@app/components/site-header"
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@eq-ex/ui/components/sidebar"
-import { OrganizationProtectedRoute } from "@app/components/organization-protected-route"
+import { AppSidebar } from "@app/components/app-sidebar";
+import { ChartAreaInteractive } from "@app/components/chart-area-interactive";
+import { DataTable } from "@app/components/data-table";
+import { SectionCards } from "@app/components/section-cards";
+import { SiteHeader } from "@app/components/site-header";
+import { SidebarInset, SidebarProvider } from "@eq-ex/ui/components/sidebar";
+import { MultiOrgProvider } from "@app/contexts/multi-org-context";
 
-import data from "./data.json"
-import { ChartPieDonut } from "@app/components/chart-pie-donut"
-import { ChartBarMixed } from "@app/components/chart-bar-mixed"
+import data from "./data.json";
+import { ChartPieDonut } from "@app/components/chart-pie-donut";
+import { ChartBarMixed } from "@app/components/chart-bar-mixed";
 
 export default function DashboardPage() {
   return (
-    <OrganizationProtectedRoute>
+    <MultiOrgProvider>
       <SidebarProvider
         style={
           {
@@ -48,6 +45,6 @@ export default function DashboardPage() {
           </div>
         </SidebarInset>
       </SidebarProvider>
-    </OrganizationProtectedRoute>
-  )
-} 
+    </MultiOrgProvider>
+  );
+}

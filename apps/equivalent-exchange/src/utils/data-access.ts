@@ -1,6 +1,6 @@
 "use server";
 import { getUser } from "@eq-ex/auth";
-import { createServerClient } from "@eq-ex/shared";
+import { createClient as createServerClient } from "@eq-ex/shared/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 

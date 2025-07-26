@@ -1,4 +1,21 @@
-export async function checkUserHasOrganization(): Promise<boolean> {
+export interface Organization {
+    id: string;
+    organization_name: string;
+    email: string;
+    subdomain: string;
+    primary_color: string;
+    secondary_color: string;
+    logo_url: string | null;
+    is_active: boolean;
+    created_at: string;
+}
+
+export interface OrganizationCheckResult {
+    hasOrganization: boolean;
+    organization: Organization | null;
+}
+
+export async function fetchUserOrganization(): Promise<OrganizationCheckResult> {
     try {
         const response = await fetch('/api/organization', {
             method: 'GET',
@@ -6,15 +23,18 @@ export async function checkUserHasOrganization(): Promise<boolean> {
         });
 
         if (!response.ok) {
-            console.error('Error checking organization:', response.statusText);
-            return false;
+            console.error('Error fetching organization:', response.statusText);
+            return { hasOrganization: false, organization: null };
         }
 
         const data = await response.json();
-        return data.hasOrganization;
+        return {
+            hasOrganization: data.hasOrganization,
+            organization: data.organization
+        };
     } catch (error) {
-        console.error('Error checking organization:', error);
-        return false;
+        console.error('Error fetching organization:', error);
+        return { hasOrganization: false, organization: null };
     }
 }
 

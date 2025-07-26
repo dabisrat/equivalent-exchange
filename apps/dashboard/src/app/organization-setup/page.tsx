@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@eq-ex/ui/components/button";
 import { Card } from "@eq-ex/ui/components/card";
@@ -22,13 +22,14 @@ export default function OrganizationSetupPage() {
   );
   const [formData, setFormData] = useState({
     organization_name: "",
-    max_points: 100,
+    max_points: 10,
     subdomain: "",
     primary_color: "#3b82f6",
     secondary_color: "#64748b",
     logo_url: "",
   });
   const [error, setError] = useState<string>("");
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Debounced subdomain checking
   const checkSubdomainAvailability = async (subdomain: string) => {
@@ -112,12 +113,15 @@ export default function OrganizationSetupPage() {
 
     // Check subdomain availability when subdomain changes
     if (field === "subdomain" && typeof value === "string") {
-      // Debounce the subdomain check
-      const timeoutId = setTimeout(() => {
+      // Clear existing timeout
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+
+      // Set new timeout
+      debounceTimeoutRef.current = setTimeout(() => {
         checkSubdomainAvailability(value);
       }, 500);
-
-      return () => clearTimeout(timeoutId);
     }
   };
 
@@ -183,7 +187,7 @@ export default function OrganizationSetupPage() {
                   htmlFor="organization_name"
                   className="text-sm font-medium"
                 >
-                  Organization Name *
+                  Organization Name <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="organization_name"
@@ -200,7 +204,7 @@ export default function OrganizationSetupPage() {
 
               <div>
                 <Label htmlFor="subdomain" className="text-sm font-medium">
-                  Subdomain (Optional)
+                  Subdomain <span className="text-red-500">*</span>
                 </Label>
                 <div className="mt-1 relative">
                   <Input
@@ -215,9 +219,10 @@ export default function OrganizationSetupPage() {
                     }
                     placeholder="mycompany"
                     className="pr-20"
+                    required
                   />
                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-xs text-gray-500">
-                    .yourdomain.com
+                    {formData.subdomain || "your-domain"}.eqxrewards.com
                   </div>
                 </div>
                 {isCheckingSubdomain && (
@@ -236,12 +241,12 @@ export default function OrganizationSetupPage() {
                   </p>
                 )}
                 <p className="text-xs text-gray-500 mt-1">
-                  Your organization will be accessible at
-                  subdomain.yourdomain.com
+                  Your organization will be accessible at{" "}
+                  {formData.subdomain || "your-domain"}.eqxrewards.com
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              {/* <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label
                     htmlFor="primary_color"
@@ -299,7 +304,7 @@ export default function OrganizationSetupPage() {
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               <div>
                 <Label htmlFor="logo_url" className="text-sm font-medium">
@@ -322,7 +327,7 @@ export default function OrganizationSetupPage() {
 
               <div>
                 <Label htmlFor="max_points" className="text-sm font-medium">
-                  Maximum Points *
+                  Maximum Points <span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="max_points"
@@ -334,7 +339,7 @@ export default function OrganizationSetupPage() {
                       parseInt(e.target.value) || 0
                     )
                   }
-                  placeholder="100"
+                  placeholder="10"
                   min="1"
                   className="mt-1"
                   required
@@ -356,7 +361,9 @@ export default function OrganizationSetupPage() {
             </form>
 
             <div className="mt-4 text-center">
-              <p className="text-xs text-gray-500">* Required fields</p>
+              <p className="text-xs text-gray-500">
+                <span className="text-red-500">*</span> Required fields
+              </p>
             </div>
           </Card>
         </div>

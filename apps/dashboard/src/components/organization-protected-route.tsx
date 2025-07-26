@@ -1,8 +1,29 @@
 "use client";
 
-import { useEffect } from "react";
+import React, { useEffect, createContext, useContext } from "react";
 import { useRouter } from "next/navigation";
 import { useOrganizationCheck } from "@app/hooks/use-organization-check";
+import { type Organization } from "@app/utils/organization";
+
+// Create context for organization data
+interface OrganizationContextType {
+  user: any;
+  organization: Organization | null;
+  hasOrganization: boolean;
+}
+
+const OrganizationContext = createContext<OrganizationContextType | null>(null);
+
+// Hook to use organization context
+export function useOrganizationContext() {
+  const context = useContext(OrganizationContext);
+  if (!context) {
+    throw new Error(
+      "useOrganizationContext must be used within OrganizationProtectedRoute"
+    );
+  }
+  return context;
+}
 
 interface OrganizationProtectedRouteProps {
   children: React.ReactNode;
@@ -11,7 +32,8 @@ interface OrganizationProtectedRouteProps {
 export function OrganizationProtectedRoute({
   children,
 }: OrganizationProtectedRouteProps) {
-  const { user, hasOrganization, loading } = useOrganizationCheck();
+  const { user, hasOrganization, organization, loading } =
+    useOrganizationCheck();
   const router = useRouter();
 
   useEffect(() => {
@@ -39,5 +61,16 @@ export function OrganizationProtectedRoute({
     return null; // Will redirect via useEffect
   }
 
-  return <>{children}</>;
+  // Provide organization data through context
+  return (
+    <OrganizationContext.Provider
+      value={{
+        user,
+        organization,
+        hasOrganization: hasOrganization ?? false,
+      }}
+    >
+      {children}
+    </OrganizationContext.Provider>
+  );
 }

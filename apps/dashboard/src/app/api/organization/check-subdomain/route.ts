@@ -1,4 +1,4 @@
-import { createServerClient } from "@eq-ex/shared";
+import { createClient as createServerClient } from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
@@ -19,6 +19,7 @@ const RESERVED_SUBDOMAINS = [
 
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
 
     // Get the current authenticated user
@@ -57,7 +58,7 @@ export async function POST(request: Request) {
     }
 
     // Check if subdomain is already taken
-    const { data: existingOrg, error: checkError } = await supabase
+    const { data: existingOrg, error: checkError } = await supabaseAdmin
       .from('organization')
       .select('id')
       .eq('subdomain', subdomain)

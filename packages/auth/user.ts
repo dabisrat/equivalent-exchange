@@ -1,5 +1,5 @@
 'use server';
-import { createServerClient } from '@eq-ex/shared';
+import { createClient as createServerClient } from '@eq-ex/shared/server';
 import { redirect } from 'next/navigation';
 import type { User } from '@supabase/supabase-js';
 

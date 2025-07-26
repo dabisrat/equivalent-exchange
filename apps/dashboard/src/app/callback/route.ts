@@ -1,4 +1,4 @@
-import { createServerClient } from "@eq-ex/shared";
+import { createClient as createServerClient } from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
