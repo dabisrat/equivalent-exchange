@@ -168,7 +168,7 @@ export async function createRewardCard(userId: string, organizationId: string) {
 }
 
 export async function getMaxCount(orgId: string) {
-  const { data, error } = await (await createServerClient())
+  const { data, error } = await (await createServerClient(true))
     .from("organization")
     .select("max_points")
     .eq("id", orgId)
@@ -182,7 +182,7 @@ export async function getMaxCount(orgId: string) {
 }
 
 async function getOrganizationDetails(orgId: string) {
-  const { data, error } = await (await createServerClient())
+  const { data, error } = await (await createServerClient(true))
     .from("organization")
     .select("*")
     .eq("id", orgId)

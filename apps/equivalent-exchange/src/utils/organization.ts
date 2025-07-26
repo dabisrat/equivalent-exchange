@@ -68,7 +68,7 @@ export async function getOrganizationBySubdomain(subdomain: string): Promise<Org
   }
 
   try {
-    const supabase = await createServerClient();
+    const supabase = await createServerClient(true);
     
     const { data, error } = await supabase
       .from('organization')
