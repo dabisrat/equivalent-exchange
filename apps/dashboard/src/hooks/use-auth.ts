@@ -2,9 +2,17 @@
 
 import { useEffect, useState } from 'react';
 import { createBrowserClient } from '@eq-ex/shared';
-import type { User, Session } from '@supabase/supabase-js';
+import type { User, Session, SupabaseClient } from '@supabase/supabase-js';
 
-export function useAuth() {
+interface UseAuthReturn {
+  user: User | null;
+  session: Session | null;
+  loading: boolean;
+  signOut: () => Promise<void>;
+  supabase: SupabaseClient;
+}
+
+export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);

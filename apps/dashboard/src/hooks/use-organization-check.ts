@@ -3,8 +3,17 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './use-auth';
 import { fetchUserOrganization, type Organization } from '@app/utils/organization';
+import type { User } from '@supabase/supabase-js';
 
-export function useOrganizationCheck() {
+interface UseOrganizationCheckReturn {
+    user: User | null;
+    hasOrganization: boolean | null;
+    organization: Organization | null;
+    loading: boolean;
+    refetchOrganization: () => Promise<void>;
+}
+
+export function useOrganizationCheck(): UseOrganizationCheckReturn {
     const { user, loading: authLoading } = useAuth();
     const [hasOrganization, setHasOrganization] = useState<boolean | null>(null);
     const [organization, setOrganization] = useState<Organization | null>(null);

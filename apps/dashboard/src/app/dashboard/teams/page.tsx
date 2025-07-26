@@ -31,7 +31,7 @@ export default function TeamsPage() {
                         Team Members
                       </h1>
                       <p className="text-muted-foreground">
-                        Manage your organization's team members and their
+                        Manage your organization&apos;s team members and their
                         permissions.
                       </p>
                     </div>
