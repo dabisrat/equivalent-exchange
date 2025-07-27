@@ -1,25 +1,25 @@
-'use client';
+"use client";
 
-import { usePathname } from 'next/navigation';
-import { Button } from "@eq-ex/ui/components/button"
-import { Separator } from "@eq-ex/ui/components/separator"
-import { SidebarTrigger } from "@eq-ex/ui/components/sidebar"
-import { ModeToggle } from "@eq-ex/ui/components/theme-toggle"
+import { usePathname } from "next/navigation";
+import { Button } from "@eq-ex/ui/components/button";
+import { Separator } from "@eq-ex/ui/components/separator";
+import { SidebarTrigger } from "@eq-ex/ui/components/sidebar";
+import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 
 // Route title mapping
 const routeTitles: Record<string, string> = {
-  '/dashboard': 'Dashboard',
-  '/teams': 'Team Management',
-  '/analytics': 'Analytics',
-  '/projects': 'Projects',
-  '/settings': 'Settings',
+  "/dashboard": "Dashboard",
+  "/teams": "Team Management",
+  "/analytics": "Analytics",
+  "/projects": "Projects",
+  "/settings": "Settings",
 };
 
 export function SiteHeader() {
   const pathname = usePathname();
-  
+
   // Get the title for the current route, default to 'Dashboard'
-  const currentTitle = routeTitles[pathname] || 'Dashboard';
+  const currentTitle = routeTitles[pathname] || "Dashboard";
 
   return (
     <header className="flex h-(--header-height) shrink-0 items-center gap-2 border-b transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-(--header-height)">
@@ -37,5 +37,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

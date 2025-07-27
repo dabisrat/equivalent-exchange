@@ -1,8 +1,8 @@
 "use client";
 
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react";
+import { type Icon } from "@tabler/icons-react";
+import { usePathname } from "next/navigation";
 
-import { Button } from "@eq-ex/ui/components/button";
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -21,6 +21,8 @@ export function NavMain({
     icon?: Icon;
   }[];
 }) {
+  const pathname = usePathname();
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
@@ -46,7 +48,11 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton tooltip={item.title} asChild>
+              <SidebarMenuButton 
+                tooltip={item.title} 
+                asChild
+                isActive={pathname === item.url}
+              >
                 <Link href={item.url}>
                   {item.icon && <item.icon />}
                   {item.title}
