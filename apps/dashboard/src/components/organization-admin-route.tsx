@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@app/hooks/use-auth";
+import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 import { createBrowserClient } from "@eq-ex/shared";
 
 interface OrganizationAdminRouteProps {
@@ -15,6 +16,7 @@ export function OrganizationAdminRoute({
   requiredRoles = ["owner", "admin"],
 }: OrganizationAdminRouteProps) {
   const { user, loading: authLoading } = useAuth();
+  const { activeOrganization, loading: orgLoading } = useMultiOrgContext();
   const router = useRouter();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,21 +24,27 @@ export function OrganizationAdminRoute({
 
   useEffect(() => {
     async function checkUserRole() {
-      if (authLoading) return;
+      if (authLoading || orgLoading) return;
 
       if (!user) {
         router.push("/login");
         return;
       }
 
+      if (!activeOrganization) {
+        router.push("/");
+        return;
+      }
+
       try {
         const supabase = createBrowserClient();
 
-        // Get user's role in their organization
+        // Get user's role in the ACTIVE organization
         const { data: membership, error } = await supabase
           .from("organization_members")
           .select("role, is_active")
           .eq("user_id", user.id)
+          .eq("organization_id", activeOrganization.id)
           .eq("is_active", true)
           .single();
 
@@ -68,9 +76,16 @@ export function OrganizationAdminRoute({
     }
 
     checkUserRole();
-  }, [user, authLoading, router, requiredRoles]);
+  }, [
+    user,
+    authLoading,
+    orgLoading,
+    activeOrganization,
+    router,
+    requiredRoles,
+  ]);
 
-  if (authLoading || loading) {
+  if (authLoading || orgLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
