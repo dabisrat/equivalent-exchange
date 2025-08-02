@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@app/hooks/use-auth";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
-import { createBrowserClient } from "@eq-ex/shared";
 
 interface OrganizationAdminRouteProps {
   children: React.ReactNode;
@@ -18,7 +17,6 @@ export function OrganizationAdminRoute({
   const { user, loading: authLoading } = useAuth();
   const { activeOrganization, loading: orgLoading } = useMultiOrgContext();
   const router = useRouter();
-  const [userRole, setUserRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
 
@@ -30,35 +28,24 @@ export function OrganizationAdminRoute({
         router.push("/login");
         return;
       }
-
       if (!activeOrganization) {
         router.push("/");
         return;
       }
 
       try {
-        const supabase = createBrowserClient();
+        // Use the role from activeOrganization (already fetched by MultiOrgContext)
+        const userRole = activeOrganization.role;
 
-        // Get user's role in the ACTIVE organization
-        const { data: membership, error } = await supabase
-          .from("organization_members")
-          .select("role, is_active")
-          .eq("user_id", user.id)
-          .eq("organization_id", activeOrganization.id)
-          .eq("is_active", true)
-          .single();
-
-        if (error || !membership) {
-          console.error("Error checking user role:", error);
+        if (!userRole || !activeOrganization.isActive) {
+          console.error("User not active in organization");
           router.push("/dashboard");
           return;
         }
 
-        setUserRole(membership.role);
-
         // Check if user has required role
         const hasRequiredRole = requiredRoles.includes(
-          membership.role as "owner" | "admin"
+          userRole as "owner" | "admin"
         );
 
         if (!hasRequiredRole) {

@@ -23,103 +23,6 @@ import {
 } from "@eq-ex/ui/components/sidebar";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 
-const data = {
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/dashboard",
-      icon: IconDashboard,
-    },
-    {
-      title: "Teams",
-      url: "/teams",
-      icon: IconUsers,
-    },
-  ],
-  // navClouds: [
-  //   {
-  //     title: "Capture",
-  //     icon: IconCamera,
-  //     isActive: true,
-  //     url: "#",
-  //     items: [
-  //       {
-  //         title: "Active Proposals",
-  //         url: "#",
-  //       },
-  //       {
-  //         title: "Archived",
-  //         url: "#",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Proposal",
-  //     icon: IconFileDescription,
-  //     url: "#",
-  //     items: [
-  //       {
-  //         title: "Active Proposals",
-  //         url: "#",
-  //       },
-  //       {
-  //         title: "Archived",
-  //         url: "#",
-  //       },
-  //     ],
-  //   },
-  //   {
-  //     title: "Prompts",
-  //     icon: IconFileAi,
-  //     url: "#",
-  //     items: [
-  //       {
-  //         title: "Active Proposals",
-  //         url: "#",
-  //       },
-  //       {
-  //         title: "Archived",
-  //         url: "#",
-  //       },
-  //     ],
-  //   },
-  // ],
-  // navSecondary: [
-  //   {
-  //     title: "Settings",
-  //     url: "#",
-  //     icon: IconSettings,
-  //   },
-  //   {
-  //     title: "Get Help",
-  //     url: "#",
-  //     icon: IconHelp,
-  //   },
-  //   {
-  //     title: "Search",
-  //     url: "#",
-  //     icon: IconSearch,
-  //   },
-  // ],
-  // documents: [
-  //   {
-  //     name: "Data Library",
-  //     url: "#",
-  //     icon: IconDatabase,
-  //   },
-  //   {
-  //     name: "Reports",
-  //     url: "#",
-  //     icon: IconReport,
-  //   },
-  //   {
-  //     name: "Word Assistant",
-  //     url: "#",
-  //     icon: IconFileWord,
-  //   },
-  // ],
-};
-
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, organizations, activeOrganization } = useMultiOrgContext();
 
@@ -136,6 +39,31 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         email: "",
         avatar: "",
       };
+
+  // Filter navigation items based on user role
+  const getNavItems = () => {
+    const baseItems = [
+      {
+        title: "Dashboard",
+        url: "/dashboard",
+        icon: IconDashboard,
+      },
+    ];
+
+    // Only show Teams tab for admin and owner roles
+    if (
+      activeOrganization?.role === "admin" ||
+      activeOrganization?.role === "owner"
+    ) {
+      baseItems.push({
+        title: "Teams",
+        url: "/teams",
+        icon: IconUsers,
+      });
+    }
+
+    return baseItems;
+  };
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -163,7 +91,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={data.navMain} />
+        <NavMain items={getNavItems()} />
         {/* <NavDocuments items={data.documents} /> */}
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>

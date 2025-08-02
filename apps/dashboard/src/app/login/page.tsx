@@ -1,10 +1,10 @@
-'use client';
+"use client";
 
-import { Auth } from '@supabase/auth-ui-react';
-import { createBrowserClient, authUiConfig } from '@eq-ex/shared';
-import { AuthCard } from '@eq-ex/ui/components/auth-card';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { Auth } from "@supabase/auth-ui-react";
+import { createBrowserClient, authUiConfig } from "@eq-ex/shared";
+import { AuthCard } from "@eq-ex/ui/components/auth-card";
+import { redirect, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 const getUrl = () => {
   let url =
@@ -23,19 +23,41 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const hash = window.location.hash;
+    window.location.hash = "";
+    const params = new URLSearchParams(hash.substring(1));
+    const access_token = params.get("access_token");
+    const refresh_token = params.get("refresh_token");
+
+    if (access_token && refresh_token) {
+      supabase.auth.setSession({ access_token, refresh_token });
+    }
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      // Only redirect on successful sign in, not on initial session
       if (session && event === "SIGNED_IN") {
-        router.replace('/dashboard');
+        const invitedOrg = session.user.user_metadata.invited_org;
+        if (invitedOrg) {
+          // Handle invite callback
+          fetch("/api/organization/members/invite-callback", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }).then(() => {
+            redirect("/dashboard");
+          });
+        } else {
+          router.replace("/dashboard");
+        }
       }
     });
 
     return () => {
       subscription?.unsubscribe();
     };
-  }, [supabase.auth, router]);
+  }, []);
 
   return (
     <AuthCard
@@ -45,7 +67,7 @@ export default function LoginPage() {
       <Auth
         supabaseClient={supabase}
         appearance={authUiConfig}
-        providers={['google']}
+        providers={["google"]}
         redirectTo={`${getUrl()}callback`}
         showLinks={true}
         view="sign_in"
@@ -53,4 +75,4 @@ export default function LoginPage() {
       />
     </AuthCard>
   );
-} 
+}

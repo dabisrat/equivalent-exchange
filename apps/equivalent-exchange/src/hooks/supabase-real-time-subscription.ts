@@ -31,7 +31,6 @@ export function useSupabaseRealtimeSubscription(
   });
 
   const defaultCallback = useCallback((payload: RealtimePostgresChangesPayload<any>) => {
-    console.log(`Received realtime event for table ${table}:`, payload);
   }, [table]);
 
   const {
@@ -58,8 +57,6 @@ export function useSupabaseRealtimeSubscription(
           callback
         )
         .subscribe((status, err) => {
-          console.log('📡 Realtime subscription status:', status, 'Error:', err);
-
           setStatus({
             isReady: status === 'SUBSCRIBED',
             error: err || null
@@ -75,7 +72,6 @@ export function useSupabaseRealtimeSubscription(
 
     return () => {
       if (channel) {
-        console.log('🧹 Cleaning up realtime subscription for:', table);
         channel.unsubscribe();
       }
     };

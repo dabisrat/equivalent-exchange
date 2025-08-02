@@ -1,3 +1,4 @@
+import { fetchUserOrganizationMembers } from "../utils/organization";
 import { useEffect, useState } from "react";
 
 export interface OrganizationMember {
@@ -11,28 +12,32 @@ export interface OrganizationMember {
   created_at: string;
 }
 
-export function useOrganizationMembers() {
+export function useOrganizationMembers(organization_id: string) {
   const [members, setMembers] = useState<OrganizationMember[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    async function fetchMembers() {
-      setLoading(true);
-      setError(null);
-      try {
-        const res = await fetch("/api/organization/members");
-        const data = await res.json();
-        if (!res.ok) throw new Error(data.error || "Failed to fetch members");
-        setMembers(data.members || []);
-      } catch (err: any) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+  const fetchMembers = async () => {
+    if (!organization_id) {
+      setError("organization_id is required");
+      setLoading(false);
+      return;
     }
-    fetchMembers();
-  }, []);
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await fetchUserOrganizationMembers(organization_id);
+      setMembers(data.members || []);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  return { members, loading, error };
+  useEffect(() => {
+    fetchMembers();
+  }, [organization_id]);
+
+  return { members, loading, error, refetch: fetchMembers };
 }

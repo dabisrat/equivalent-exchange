@@ -7,7 +7,7 @@ import { useAuth } from "@app/hooks/use-auth";
 import { type Organization } from "@app/utils/organization";
 
 interface OrganizationWithRole extends Organization {
-  role: 'owner' | 'admin' | 'member';
+  role: "owner" | "admin" | "member";
   isActive: boolean;
 }
 
@@ -26,7 +26,7 @@ const MultiOrgContext = createContext<MultiOrgContextType | null>(null);
 export function useMultiOrgContext() {
   const context = useContext(MultiOrgContext);
   if (!context) {
-    throw new Error('useMultiOrgContext must be used within MultiOrgProvider');
+    throw new Error("useMultiOrgContext must be used within MultiOrgProvider");
   }
   return context;
 }
@@ -38,29 +38,32 @@ interface MultiOrgProviderProps {
 export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
-  const [organizations, setOrganizations] = useState<OrganizationWithRole[]>([]);
-  const [activeOrganization, setActiveOrganization] = useState<OrganizationWithRole | null>(null);
+  const [organizations, setOrganizations] = useState<OrganizationWithRole[]>(
+    []
+  );
+  const [activeOrganization, setActiveOrganization] =
+    useState<OrganizationWithRole | null>(null);
   const [loading, setLoading] = useState(true);
 
   const fetchOrganizations = async () => {
     if (!user || authLoading) return;
-    
+
     try {
       setLoading(true);
-      const response = await fetch('/api/organizations', {
-        method: 'GET',
-        credentials: 'include',
+      const response = await fetch("/api/organizations", {
+        method: "GET",
+        credentials: "include",
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch organizations');
+        throw new Error("Failed to fetch organizations");
       }
 
       const data = await response.json();
       setOrganizations(data.organizations || []);
       setActiveOrganization(data.activeOrganization || null);
     } catch (error) {
-      console.error('Error fetching organizations:', error);
+      console.error("Error fetching organizations:", error);
       setOrganizations([]);
       setActiveOrganization(null);
     } finally {
@@ -70,23 +73,23 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
 
   const switchOrganization = async (organizationId: string) => {
     try {
-      const response = await fetch('/api/organizations', {
-        method: 'POST',
+      const response = await fetch("/api/organizations", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        credentials: 'include',
+        credentials: "include",
         body: JSON.stringify({ organizationId }),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to switch organization');
+        throw new Error("Failed to switch organization");
       }
 
       // Refetch organizations to get updated active state
       await fetchOrganizations();
     } catch (error) {
-      console.error('Error switching organization:', error);
+      console.error("Error switching organization:", error);
       throw error;
     }
   };
@@ -99,7 +102,7 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
         fetchOrganizations();
       }
     }
-  }, [user, authLoading, router]);
+  }, [user?.id, authLoading, router]);
 
   useEffect(() => {
     if (!loading && !authLoading && user) {
@@ -144,7 +147,7 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
 // Backward compatibility: Single org context that uses active organization
 export function useOrganizationContext() {
   const { activeOrganization, user, hasOrganizations } = useMultiOrgContext();
-  
+
   return {
     user,
     organization: activeOrganization,

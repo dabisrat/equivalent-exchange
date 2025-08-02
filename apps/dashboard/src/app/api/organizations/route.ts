@@ -11,19 +11,20 @@ export async function GET(request: Request) {
     const supabase = await createServerClient();
 
     // Get the current authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Get all organizations the user is a member of
     const { data: memberships, error: membershipError } = await supabaseAdmin
-      .from('organization_members')
-      .select(`
+      .from("organization_members")
+      .select(
+        `
         organization_id,
         role,
         is_active,
@@ -37,52 +38,51 @@ export async function GET(request: Request) {
           is_active,
           created_at
         )
-      `)
-      .eq('user_id', user.id)
-      .eq('is_active', true);
+      `
+      )
+      .eq("user_id", user.id)
+      .eq("is_active", true);
 
     if (membershipError) {
-      console.error('Error fetching organizations:', membershipError);
-      return NextResponse.json(
-        { error: "Database error" },
-        { status: 500 }
-      );
+      console.error("Error fetching organizations:", membershipError);
+      return NextResponse.json({ error: "Database error" }, { status: 500 });
     }
 
     // Get user's active organization preference
-    console.log('Fetching preferences for user:', user.id);
     const { data: preferences, error: preferencesError } = await supabaseAdmin
-      .from('user_preferences')
-      .select('active_organization_id')
-      .eq('user_id', user.id)
+      .from("user_preferences")
+      .select("active_organization_id")
+      .eq("user_id", user.id)
       .single();
 
-    if (preferencesError && preferencesError.code !== 'PGRST116') { // PGRST116 = no rows found, which is OK
-      console.error('Error fetching preferences:', preferencesError);
+    if (preferencesError && preferencesError.code !== "PGRST116") {
+      // PGRST116 = no rows found, which is OK
+      console.error("Error fetching preferences:", preferencesError);
     }
-    
-    console.log('User preferences:', preferences);
 
-    const organizations = memberships?.map(m => ({
-      ...(m.organization as any),
-      role: m.role,
-      isActive: (m.organization as any)?.id === preferences?.active_organization_id
-    })) || [];
+    const organizations =
+      memberships?.map((m) => ({
+        ...(m.organization as any),
+        role: m.role,
+        isActive: preferences
+          ? (m.organization as any)?.id === preferences.active_organization_id
+          : true,
+      })) || [];
 
     // If no active org set, make the first one active (or the one they own)
-    let activeOrganization = organizations.find(org => org.isActive);
+    let activeOrganization = organizations.find((org) => org.isActive);
     if (!activeOrganization && organizations.length > 0) {
-      activeOrganization = organizations.find(org => org.role === 'owner') || organizations[0];
+      activeOrganization =
+        organizations.find((org) => org.role === "owner") || organizations[0];
     }
 
     return NextResponse.json({
       organizations,
       activeOrganization,
-      hasOrganizations: organizations.length > 0
+      hasOrganizations: organizations.length > 0,
     });
-
   } catch (error) {
-    console.error('Unexpected error fetching organizations:', error);
+    console.error("Unexpected error fetching organizations:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }
@@ -98,42 +98,42 @@ export async function POST(request: Request) {
     const { organizationId } = body;
 
     // Get the current authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Verify user is a member of this organization
     const { data: membership, error: membershipError } = await supabaseAdmin
-      .from('organization_members')
-      .select('*')
-      .eq('user_id', user.id)
-      .eq('organization_id', organizationId)
-      .eq('is_active', true)
+      .from("organization_members")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("organization_id", organizationId)
+      .eq("is_active", true)
       .single();
 
     if (membershipError || !membership) {
-      return NextResponse.json(
-        { error: "Access denied" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Access denied" }, { status: 403 });
     }
 
     // Update or create user preferences
 
     const { data: upsertData, error: prefError } = await supabaseAdmin
-      .from('user_preferences')
-      .upsert({
-        user_id: user.id,
-        active_organization_id: organizationId,
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'  // This tells SupabaseAdmin: "If user_id already exists, UPDATE instead of INSERT"
-      })
+      .from("user_preferences")
+      .upsert(
+        {
+          user_id: user.id,
+          active_organization_id: organizationId,
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "user_id", // This tells SupabaseAdmin: "If user_id already exists, UPDATE instead of INSERT"
+        }
+      )
       .select();
 
     if (prefError) {
@@ -143,14 +143,11 @@ export async function POST(request: Request) {
       );
     }
 
-    console.log('Successfully upserted preferences:', upsertData);
-
     return NextResponse.json({
-      message: "Organization switched successfully"
+      message: "Organization switched successfully",
     });
-
   } catch (error) {
-    console.error('Unexpected error switching organization:', error);
+    console.error("Unexpected error switching organization:", error);
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 }

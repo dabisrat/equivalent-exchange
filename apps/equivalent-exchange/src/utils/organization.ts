@@ -87,7 +87,6 @@ export async function getOrganizationBySubdomain(subdomain: string): Promise<Org
     }
 
     if (!data.is_active) {
-      console.log('Organization inactive:', { subdomain, organizationId: data.id });
       return {
         success: false,
         error: 'INACTIVE',

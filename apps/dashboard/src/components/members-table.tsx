@@ -25,6 +25,8 @@ import {
   getSortedRowModel,
   SortingState,
 } from "@tanstack/react-table";
+// ...existing code...
+import { AddUserDialog } from "./add-user-dialog";
 import { OrganizationMember } from "@app/hooks/use-organization-members";
 import { Badge } from "@eq-ex/ui/components/badge";
 import { IconGripVertical } from "@tabler/icons-react";
@@ -36,8 +38,6 @@ import {
   TableHeader,
   TableRow,
 } from "@eq-ex/ui/components/table";
-
-
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id });
@@ -58,7 +58,8 @@ const columns: ColumnDef<OrganizationMember>[] = [
   {
     id: "drag",
     header: () => null,
-    cell: ({ row }) => row.original.user_id ? <DragHandle id={row.original.user_id} /> : null,
+    cell: ({ row }) =>
+      row.original.user_id ? <DragHandle id={row.original.user_id} /> : null,
     enableSorting: false,
     enableHiding: false,
   },
@@ -75,11 +76,18 @@ const columns: ColumnDef<OrganizationMember>[] = [
   {
     accessorKey: "role",
     header: "Role",
-    cell: ({ row }) => (
-      <Badge variant="outline" className="px-1.5">
-        {row.original.role}
-      </Badge>
-    ),
+    cell: ({ row }) => {
+      const isActive = row.original.is_active;
+      return (
+        <Badge variant="outline" className="px-1.5 flex items-center gap-2">
+          <span
+            className={`inline-block w-2 h-2 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
+            aria-label={isActive ? "Active" : "Inactive"}
+          />
+          {row.original.role}
+        </Badge>
+      );
+    },
   },
 ];
 
@@ -87,13 +95,18 @@ export function MembersTable({
   members,
   isLoading,
   isError,
+  onReload,
 }: {
   members: OrganizationMember[];
   isLoading: boolean;
   isError: boolean;
+  onReload?: () => void;
 }) {
   const [data, setData] = React.useState(members ?? []);
-  React.useEffect(() => { setData(members ?? []); }, [members]);
+  React.useEffect(() => {
+    setData(members);
+  }, [members]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const sortableId = React.useId();
   const sensors = useSensors(
@@ -170,6 +183,11 @@ export function MembersTable({
 
   return (
     <div className="overflow-hidden rounded-lg border">
+      <div className="flex items-center justify-between px-4 py-2 border-b bg-muted/40">
+        <h3 className="text-lg font-semibold">Members</h3>
+        <AddUserDialog onSuccess={onReload} />
+      </div>
+      {/* Table and DnD */}
       <DndContext
         collisionDetection={closestCenter}
         modifiers={[restrictToVerticalAxis]}
