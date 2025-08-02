@@ -4,6 +4,7 @@ import "./globals.css";
 
 import { ThemeProvider } from "next-themes";
 import { CustomThemeProvider } from "@eq-ex/ui/providers/custom-theme-provider";
+import { Toaster } from "@eq-ex/ui/components/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -38,6 +39,7 @@ export default function RootLayout({
         >
           <CustomThemeProvider defaultTheme="system">
             {children}
+            <Toaster />
           </CustomThemeProvider>
         </ThemeProvider>
       </body>

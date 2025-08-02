@@ -9,6 +9,7 @@ import {
   DialogDescription,
 } from "@eq-ex/ui/components/dialog";
 import { addOrganizationMember } from "../utils/organization";
+import { toast } from "sonner";
 
 export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
   const { organization } = useOrganizationContext();
@@ -29,7 +30,7 @@ export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
     setError(null);
     setLoading(true);
     try {
-      const { error: apiError } = await addOrganizationMember({
+      const { error: apiError, status } = await addOrganizationMember({
         email,
         name,
         role,
@@ -40,6 +41,17 @@ export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
         setError(apiError.message || "Failed to add user.");
         setLoading(false);
         return;
+      }
+
+      // Show appropriate success notification based on status
+      if (status === "invited") {
+        toast.success("Invitation sent!", {
+          description: `${email} has been invited and should check their email to join the organization.`,
+        });
+      } else if (status === "added") {
+        toast.success("Member added!", {
+          description: `${email} has been added to the organization.`,
+        });
       }
 
       setOpen(false);

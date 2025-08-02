@@ -88,7 +88,7 @@ export async function addOrganizationMember({ email, name, role, organization_id
     if (!response.ok) {
       throw new Error(result.error || 'Failed to add organization member');
     }
-    return { error: null, member: result.member };
+    return { error: null, member: result.member, status: result.status };
   } catch (error: any) {
     return { error: error.message || 'Unexpected error', member: null };
   }
