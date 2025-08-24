@@ -1,10 +1,11 @@
-import { createClient } from "@supabase/supabase-js";
-import { createClient as createServerClient } from "@eq-ex/shared/server";
+import {
+  createClient as createServerClient,
+  supabaseAdmin,
+} from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 // Service role client (bypasses RLS)
-const supabaseAdmin = await createServerClient(true);
 
 // Validation schema for adding members
 const addMemberSchema = z.object({

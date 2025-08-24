@@ -2,12 +2,14 @@
 // GET /api/organizations - Get all organizations for current user
 // POST /api/organizations/switch - Switch active organization
 
-import { createClient as createServerClient } from "@eq-ex/shared/server";
+import {
+  createClient as createServerClient,
+  supabaseAdmin,
+} from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 
 export async function GET(request: Request) {
   try {
-    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
 
     // Get the current authenticated user
@@ -92,7 +94,6 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
     const body = await request.json();
     const { organizationId } = body;

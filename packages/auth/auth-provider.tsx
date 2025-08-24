@@ -4,12 +4,13 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { createBrowserClient } from "@eq-ex/shared";
 import type { User, Session, SupabaseClient } from "@supabase/supabase-js";
 import { useParams, useRouter } from "next/navigation";
+import { Database } from "@eq-ex/shared/utils/database.types";
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  supabase: SupabaseClient;
+  supabase: SupabaseClient<Database>;
   signOut: () => Promise<void>;
 }
 

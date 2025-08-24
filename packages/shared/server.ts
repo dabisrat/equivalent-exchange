@@ -1,25 +1,26 @@
-import { createServerClient } from '@supabase/ssr'
-import { createClient as createSupabaseClient } from '@supabase/supabase-js'
-import { cookies } from 'next/headers'
+import { createServerClient } from "@supabase/ssr";
+import {
+  createClient as createSupabaseClient,
+  SupabaseClient,
+} from "@supabase/supabase-js";
+import { cookies } from "next/headers";
+import type { Database } from "./utils/database.types";
 
-export async function createClient(useAdmin = false) {
-  if (useAdmin)  {
-    return createServiceRoleClient()
-  }
-  const cookieStore = await cookies()
-  return createServerClient(
+export async function createClient() {
+  const cookieStore = await cookies();
+  return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
         getAll() {
-          return cookieStore.getAll()
+          return cookieStore.getAll();
         },
         setAll(cookiesToSet) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
               cookieStore.set(name, value, options)
-            )
+            );
           } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing
@@ -28,12 +29,12 @@ export async function createClient(useAdmin = false) {
         },
       },
     }
-  )
+  ) as unknown as SupabaseClient<Database>;
 }
 
 // Create a pure service role client that bypasses RLS
 function createServiceRoleClient() {
-  return createSupabaseClient(
+  return createSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
     {
@@ -41,7 +42,9 @@ function createServiceRoleClient() {
         autoRefreshToken: false,
         persistSession: false,
         detectSessionInUrl: false,
-      }
+      },
     }
-  )
+  );
 }
+
+export const supabaseAdmin = createServiceRoleClient();

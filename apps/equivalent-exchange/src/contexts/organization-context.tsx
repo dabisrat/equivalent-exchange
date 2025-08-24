@@ -4,11 +4,11 @@ import { createContext, useContext, ReactNode } from "react";
 
 export interface Organization {
   id: string;
-  organization_name: string;
-  subdomain: string;
-  primary_color: string;
-  secondary_color: string;
-  logo_url?: string;
+  organization_name: string | null;
+  subdomain: string | null;
+  primary_color: string | null;
+  secondary_color: string | null;
+  logo_url?: string | null;
 }
 
 interface OrganizationContextType {

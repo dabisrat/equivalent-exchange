@@ -1,6 +1,9 @@
 "use server";
 import { getUser } from "@eq-ex/auth";
-import { createClient as createServerClient } from "@eq-ex/shared/server";
+import {
+  createClient as createServerClient,
+  supabaseAdmin,
+} from "@eq-ex/shared/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -63,13 +66,15 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
-  revalidatePath('/');
+  revalidatePath("/");
 }
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
 
-  let { data, error } = await (await createServerClient()).rpc("incrementpoints", {
+  let { data, error } = await (
+    await createServerClient()
+  ).rpc("incrementpoints", {
     card_id,
   });
 
@@ -80,13 +85,15 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   if (error) {
     throw error;
   }
-  revalidatePath('/');
+  revalidatePath("/");
 }
 
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
 
-  const { data, error } = await (await createServerClient()).rpc("decrementpoints", {
+  const { data, error } = await (
+    await createServerClient()
+  ).rpc("decrementpoints", {
     card_id,
   });
 
@@ -98,11 +105,11 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
     throw error;
   }
 
-  revalidatePath('/');
+  revalidatePath("/");
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
-  const client = await (await createServerClient());
+  const client = await await createServerClient();
 
   const card = await getRewardsCard(cardId);
   const maxCount = await getMaxCount(card.organization_id);
@@ -133,18 +140,19 @@ async function updateStampById(cardId: string, stampIndex: number) {
 }
 
 export async function createRewardCard(userId: string, organizationId: string) {
-  const org = await getOrganizationDetails(organizationId).catch(() => null)
+  const org = await getOrganizationDetails(organizationId).catch(() => null);
 
   if (!org) {
     throw new Error(`Organization with ID ${organizationId} not found`);
   }
-  
-  const client = await (await createServerClient());
+
+  const client = await await createServerClient();
 
   // First check if user already has a card for this organization
-  const existingCard = await getRewardsCardId(organizationId, userId).catch(() => null);
-  
-  
+  const existingCard = await getRewardsCardId(organizationId, userId).catch(
+    () => null
+  );
+
   if (existingCard) {
     // User already has a card, redirect to it instead of creating a new one
     redirect(`/${organizationId}/${existingCard.id}`);
@@ -168,7 +176,7 @@ export async function createRewardCard(userId: string, organizationId: string) {
 }
 
 export async function getMaxCount(orgId: string) {
-  const { data, error } = await (await createServerClient(true))
+  const { data, error } = await supabaseAdmin
     .from("organization")
     .select("max_points")
     .eq("id", orgId)
@@ -182,7 +190,7 @@ export async function getMaxCount(orgId: string) {
 }
 
 async function getOrganizationDetails(orgId: string) {
-  const { data, error } = await (await createServerClient(true))
+  const { data, error } = await supabaseAdmin
     .from("organization")
     .select("*")
     .eq("id", orgId)

@@ -83,19 +83,19 @@ export default async function RootLayout({
             <meta name="organization-id" content={organizationData.id} />
             <meta
               name="organization-name"
-              content={organizationData.organization_name}
+              content={organizationData.organization_name ?? ""}
             />
             <meta
               name="organization-subdomain"
-              content={organizationData.subdomain}
+              content={organizationData.subdomain ?? ""}
             />
             <meta
               name="organization-primary-color"
-              content={organizationData.primary_color}
+              content={organizationData.primary_color || ""}
             />
             <meta
               name="organization-secondary-color"
-              content={organizationData.secondary_color}
+              content={organizationData.secondary_color || ""}
             />
             <meta
               name="organization-logo-url"

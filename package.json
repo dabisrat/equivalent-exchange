@@ -20,7 +20,7 @@
     "test-all": "pnpm -r test",
     "lint-all": "pnpm -r lint",
     "update-types-remote": "supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > apps/equivalent-exchange/src/utils/database.types.ts",
-    "update-types-local": "supabase gen types --lang=typescript --local > apps/equivalent-exchange/src/utils/database.types.ts",
+    "update-types-local": "supabase gen types --lang=typescript --local > packages/shared/utils/database.types.ts",
     "db-data-dump": "supabase db dump --data-only -f supabase/seed.sql",
     "db-data-upload": "psql -h localhost -U postgres -p 54322 -f supabase/seed.sql",
     "db-diff-migration": "supabase db diff --use-migra -f local_schema_change",
@@ -40,5 +40,12 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "@eslint/eslintrc": "^3.3.1",
     "prettier": "^3.5.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "react-hook-form": "^7.58.1",
+      "@hookform/resolvers": "^5.1.1",
+      "zod": "^3.25.67"
+    }
   }
 }

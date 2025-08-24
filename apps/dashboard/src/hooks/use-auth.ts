@@ -1,15 +1,16 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { createBrowserClient } from '@eq-ex/shared';
-import type { User, Session, SupabaseClient } from '@supabase/supabase-js';
+import { useEffect, useState } from "react";
+import { createBrowserClient } from "@eq-ex/shared";
+import type { User, Session, SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@eq-ex/shared/utils/database.types";
 
 interface UseAuthReturn {
   user: User | null;
   session: Session | null;
   loading: boolean;
   signOut: () => Promise<void>;
-  supabase: SupabaseClient;
+  supabase: SupabaseClient<Database>;
 }
 
 export function useAuth(): UseAuthReturn {
@@ -21,7 +22,9 @@ export function useAuth(): UseAuthReturn {
   useEffect(() => {
     // Get initial session
     const getInitialSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
@@ -30,13 +33,13 @@ export function useAuth(): UseAuthReturn {
     getInitialSession();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (event, session) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
 
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
@@ -50,6 +53,6 @@ export function useAuth(): UseAuthReturn {
     session,
     loading,
     signOut,
-    supabase,
+    supabase: supabase as SupabaseClient<Database>,
   };
-} 
+}

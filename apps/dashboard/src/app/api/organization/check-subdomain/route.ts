@@ -1,35 +1,60 @@
-import { createClient as createServerClient } from "@eq-ex/shared/server";
+import {
+  createClient as createServerClient,
+  supabaseAdmin,
+} from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
 // Validation schema for subdomain check
 const subdomainCheckSchema = z.object({
-  subdomain: z.string()
+  subdomain: z
+    .string()
     .min(3, "Subdomain must be at least 3 characters")
     .max(50, "Subdomain must be less than 50 characters")
-    .regex(/^[a-z0-9][a-z0-9-]*[a-z0-9]$/, "Subdomain can only contain lowercase letters, numbers, and hyphens (not at start/end)")
+    .regex(
+      /^[a-z0-9][a-z0-9-]*[a-z0-9]$/,
+      "Subdomain can only contain lowercase letters, numbers, and hyphens (not at start/end)"
+    ),
 });
 
 // Reserved subdomains that cannot be used
 const RESERVED_SUBDOMAINS = [
-  'www', 'api', 'admin', 'dashboard', 'app', 'mail', 'ftp', 'blog', 
-  'dev', 'test', 'staging', 'prod', 'production', 'support', 'help',
-  'docs', 'status', 'cdn', 'assets', 'static', 'files', 'uploads'
+  "www",
+  "api",
+  "admin",
+  "dashboard",
+  "app",
+  "mail",
+  "ftp",
+  "blog",
+  "dev",
+  "test",
+  "staging",
+  "prod",
+  "production",
+  "support",
+  "help",
+  "docs",
+  "status",
+  "cdn",
+  "assets",
+  "static",
+  "files",
+  "uploads",
 ];
 
 export async function POST(request: Request) {
   try {
-    const supabaseAdmin = await createServerClient(true);
     const supabase = await createServerClient();
 
     // Get the current authenticated user
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse and validate request body
@@ -41,7 +66,7 @@ export async function POST(request: Request) {
         {
           available: false,
           error: "Invalid subdomain format",
-          details: validationResult.error.errors
+          details: validationResult.error.errors,
         },
         { status: 400 }
       );
@@ -53,23 +78,23 @@ export async function POST(request: Request) {
     if (RESERVED_SUBDOMAINS.includes(subdomain.toLowerCase())) {
       return NextResponse.json({
         available: false,
-        error: "This subdomain is reserved and cannot be used"
+        error: "This subdomain is reserved and cannot be used",
       });
     }
 
     // Check if subdomain is already taken
     const { data: existingOrg, error: checkError } = await supabaseAdmin
-      .from('organization')
-      .select('id')
-      .eq('subdomain', subdomain)
+      .from("organization")
+      .select("id")
+      .eq("subdomain", subdomain)
       .limit(1);
 
     if (checkError) {
-      console.error('Error checking subdomain availability:', checkError);
+      console.error("Error checking subdomain availability:", checkError);
       return NextResponse.json(
-        { 
+        {
           available: false,
-          error: "Database error" 
+          error: "Database error",
         },
         { status: 500 }
       );
@@ -80,17 +105,16 @@ export async function POST(request: Request) {
     return NextResponse.json({
       available: isAvailable,
       subdomain: subdomain,
-      message: isAvailable 
-        ? "Subdomain is available" 
-        : "Subdomain is already taken"
+      message: isAvailable
+        ? "Subdomain is available"
+        : "Subdomain is already taken",
     });
-
   } catch (error) {
-    console.error('Unexpected error checking subdomain:', error);
+    console.error("Unexpected error checking subdomain:", error);
     return NextResponse.json(
-      { 
+      {
         available: false,
-        error: "Internal server error" 
+        error: "Internal server error",
       },
       { status: 500 }
     );

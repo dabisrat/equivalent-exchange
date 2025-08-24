@@ -1,4 +1,7 @@
-import { createClient as createServerClient } from "@eq-ex/shared/server";
+import {
+  createClient as createServerClient,
+  supabaseAdmin,
+} from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 
 export async function POST() {
@@ -27,8 +30,6 @@ export async function POST() {
         { status: 400 }
       );
     }
-
-    const supabaseAdmin = await createServerClient(true);
 
     // Activate the member
     const { error: updateError } = await supabaseAdmin

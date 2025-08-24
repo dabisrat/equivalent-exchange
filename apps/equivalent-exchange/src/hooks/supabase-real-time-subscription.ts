@@ -19,8 +19,6 @@ type SubscriptionOptions = {
   event?: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
 };
 
-const supabaseClient = createBrowserClient();
-
 export function useSupabaseRealtimeSubscription(
   table: string,
   options: SubscriptionOptions = {}
@@ -30,13 +28,15 @@ export function useSupabaseRealtimeSubscription(
     error: null,
   });
 
-  const defaultCallback = useCallback((payload: RealtimePostgresChangesPayload<any>) => {
-  }, [table]);
+  const defaultCallback = useCallback(
+    (payload: RealtimePostgresChangesPayload<any>) => {},
+    [table]
+  );
 
   const {
     callback = defaultCallback,
     filter = "",
-    event = REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL
+    event = REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL,
   } = options;
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function useSupabaseRealtimeSubscription(
         .on(
           REALTIME_LISTEN_TYPES.POSTGRES_CHANGES as any,
           {
-            schema: 'public',
+            schema: "public",
             table,
             event,
             filter,
@@ -58,15 +58,15 @@ export function useSupabaseRealtimeSubscription(
         )
         .subscribe((status, err) => {
           setStatus({
-            isReady: status === 'SUBSCRIBED',
-            error: err || null
+            isReady: status === "SUBSCRIBED",
+            error: err || null,
           });
         });
     } catch (error) {
-      console.error('💥 Realtime subscription setup error:', error);
+      console.error("💥 Realtime subscription setup error:", error);
       setStatus({
         isReady: false,
-        error: error as Error
+        error: error as Error,
       });
     }
 
