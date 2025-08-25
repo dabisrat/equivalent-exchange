@@ -9,7 +9,7 @@ import {
 // 1. Database types (source of truth)
 export type OrganizationTable = Tables<"organization">;
 export type OrganizationInsert = TablesInsert<"organization">;
-
+export const MAX_POINTS = 100;
 // 2. Full entity schema (matches database structure exactly)
 export const organizationSchema = z.object({
   id: commonValidations.id,
@@ -29,17 +29,17 @@ export const createOrganizationSchema = z.object({
   organization_name: z
     .string()
     .min(1, "Organization name is required")
-    .max(100, "Organization name must be less than 100 characters")
+    .max(MAX_POINTS, "Organization name must be less than 100 characters")
     .trim(),
   max_points: z
     .number()
     .int("Max points must be an integer")
     .min(1, "Max points must be at least 1")
-    .max(100, "Max points cannot exceed 100"),
+    .max(MAX_POINTS, "Max points cannot exceed 100"),
   subdomain: createSlugValidator(reservedWords),
   primary_color: commonValidations.hexColor.default("#3b82f6"),
   secondary_color: commonValidations.hexColor.default("#64748b"),
-  logo_url: commonValidations.url.optional(),
+  logo_url: z.union([commonValidations.url, z.literal("")]).optional(),
 }) satisfies z.ZodType<
   Pick<
     OrganizationInsert,
