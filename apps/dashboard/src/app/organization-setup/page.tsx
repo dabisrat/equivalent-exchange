@@ -16,7 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@eq-ex/ui/components/form";
-import { createOrganization as createOrganizationAction } from "@app/data-access/actions/organizations";
+import { createOrganization } from "@app/data-access/actions/organizations";
 import { useAuth } from "@app/hooks/use-auth";
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 import { LogOut } from "lucide-react";
@@ -127,7 +127,7 @@ export default function OrganizationSetupPage() {
         logo_url: data.logo_url || undefined,
       };
 
-      const result = await createOrganizationAction(organizationData);
+      const result = await createOrganization(organizationData);
 
       if (result.success) {
         // Redirect to dashboard after successful setup

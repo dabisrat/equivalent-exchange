@@ -70,6 +70,7 @@ export default function LoginPage() {
         providers={["google"]}
         redirectTo={`${getUrl()}callback`}
         showLinks={true}
+        magicLink={true}
         view="sign_in"
         theme="dark"
       />

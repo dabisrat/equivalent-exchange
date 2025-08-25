@@ -27,7 +27,7 @@ export default function ResetPasswordPage() {
   return (
     <AuthCard
       title="Reset Password"
-      description="Enter your email to receive a password reset link"
+      description="Enter a new password for your account"
     >
       <Auth
         supabaseClient={supabase}
