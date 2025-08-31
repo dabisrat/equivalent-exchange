@@ -1,4 +1,4 @@
-import { useOrganizationContext } from "@app/contexts/multi-org-context";
+import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 import * as React from "react";
 import {
   Dialog,
@@ -12,7 +12,7 @@ import { addOrganizationMember } from "../utils/organization";
 import { toast } from "sonner";
 
 export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
-  const { organization } = useOrganizationContext();
+  const { activeOrganization: organization } = useMultiOrgContext();
   const organization_id = organization?.id ?? "";
   const [open, setOpen] = React.useState(false);
   const [email, setEmail] = React.useState("");

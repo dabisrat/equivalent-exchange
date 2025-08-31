@@ -8,6 +8,11 @@ export type OrganizationMembersInsert = TablesInsert<"organization_members">;
 // Define the role type based on the expected values
 export const organizationRole = ["owner", "admin", "member"] as const;
 
+// Define roles that have permission to manage organization members
+export const rolesWithMemberManagementPermission = organizationRole.filter(
+  (role) => role !== "member"
+) as readonly ("owner" | "admin")[];
+
 export const organizationMembers = z.object({
   created_at: commonValidations.timestamp,
   email: commonValidations.email.nullable(),

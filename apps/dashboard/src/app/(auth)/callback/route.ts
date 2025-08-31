@@ -8,12 +8,19 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-sign-in-with-code-exchange
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  const type = requestUrl.searchParams.get("type");
+  let type = requestUrl.searchParams.get("type");
   if (code) {
     const supabase = await createServerClient();
     const {
       data: { session, user },
     } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (session) {
+      const payload = JSON.parse(atob(session.access_token.split(".")[1]));
+      if (payload.amr.some((method: any) => method.method === "recovery")) {
+        type = "password-reset";
+      }
+    }
 
     if (type === "password-reset" && session && user) {
       return NextResponse.redirect(requestUrl.origin + "/reset-password");
@@ -22,4 +29,4 @@ export async function GET(request: Request) {
 
   // URL to redirect to after sign in process completes
   return NextResponse.redirect(requestUrl.origin + "/dashboard");
-} 
+}

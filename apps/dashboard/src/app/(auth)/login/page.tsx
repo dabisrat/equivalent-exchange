@@ -65,7 +65,7 @@ export default function LoginPage() {
       description="Sign in or create an account to access your dashboard"
     >
       <Auth
-        supabaseClient={supabase}
+        supabaseClient={supabase as any}
         appearance={authUiConfig}
         providers={["google"]}
         redirectTo={`${getUrl()}callback`}

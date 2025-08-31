@@ -12,7 +12,8 @@ const routeTitles: Record<string, string> = {
   "/teams": "Team Management",
   "/analytics": "Analytics",
   "/projects": "Projects",
-  "/settings": "Settings",
+  "/account": " Profile",
+  "/account/billing": "Subscription & Billing",
 };
 
 export function SiteHeader() {

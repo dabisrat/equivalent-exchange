@@ -7,3 +7,7 @@ export type Result<D, E = string> = Success<D> | Failure<E>;
 
 // Async Result type
 export type AsyncResult<D, E = string> = Promise<Result<D, E>>;
+
+export type GetDataType<T> = T extends { success: true; data: infer D }
+  ? D
+  : never;

@@ -1,18 +1,20 @@
-// Enhanced context that supports multiple organizations
 "use client";
 
 import React, { useEffect, createContext, useContext, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@app/hooks/use-auth";
-import { type Organization } from "@app/utils/organization";
+import { switchOrganization as switchOrganizationAction } from "@app/data-access/actions/organizations";
+import { getUsersOrganizations } from "@app/data-access/queries/organizations";
+import { GetDataType } from "@app/schemas/responses";
+import { User } from "@supabase/supabase-js";
 
-interface OrganizationWithRole extends Organization {
-  role: "owner" | "admin" | "member";
-  isActive: boolean;
-}
+type OrganizationsData = GetDataType<
+  Awaited<ReturnType<typeof getUsersOrganizations>>
+>;
+type OrganizationWithRole = OrganizationsData["organizations"][number];
 
 interface MultiOrgContextType {
-  user: any;
+  user: User;
   organizations: OrganizationWithRole[];
   activeOrganization: OrganizationWithRole | null;
   hasOrganizations: boolean;
@@ -22,14 +24,6 @@ interface MultiOrgContextType {
 }
 
 const MultiOrgContext = createContext<MultiOrgContextType | null>(null);
-
-export function useMultiOrgContext() {
-  const context = useContext(MultiOrgContext);
-  if (!context) {
-    throw new Error("useMultiOrgContext must be used within MultiOrgProvider");
-  }
-  return context;
-}
 
 interface MultiOrgProviderProps {
   children: React.ReactNode;
@@ -46,6 +40,7 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
   const [loading, setLoading] = useState(true);
 
   const fetchOrganizations = async () => {
+    // TODO: move this to a server action
     if (!user || authLoading) return;
 
     try {
@@ -73,24 +68,19 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
 
   const switchOrganization = async (organizationId: string) => {
     try {
-      const response = await fetch("/api/organizations", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ organizationId }),
-      });
+      setLoading(true);
+      const results = await switchOrganizationAction(organizationId);
 
-      if (!response.ok) {
-        throw new Error("Failed to switch organization");
+      if (!results.success) {
+        throw new Error(results.message || "Failed to switch organization");
       }
-
       // Refetch organizations to get updated active state
       await fetchOrganizations();
     } catch (error) {
       console.error("Error switching organization:", error);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -144,13 +134,10 @@ export function MultiOrgProvider({ children }: MultiOrgProviderProps) {
   );
 }
 
-// Backward compatibility: Single org context that uses active organization
-export function useOrganizationContext() {
-  const { activeOrganization, user, hasOrganizations } = useMultiOrgContext();
-
-  return {
-    user,
-    organization: activeOrganization,
-    hasOrganization: hasOrganizations,
-  };
+export function useMultiOrgContext() {
+  const context = useContext(MultiOrgContext);
+  if (!context) {
+    throw new Error("useMultiOrgContext must be used within MultiOrgProvider");
+  }
+  return context;
 }

@@ -5,6 +5,7 @@ import {
   getStripe,
   getOrCreateStripeCustomerForUser,
 } from "@eq-ex/shared/stripe";
+import { Button } from "@eq-ex/ui/components/button";
 
 async function getData() {
   const supabase = await createClient();
@@ -51,7 +52,7 @@ export default async function BillingPage() {
       mode: "subscription",
       customer: customerId,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${base}/success`,
+      success_url: `${base}/api/stripe/success`,
       cancel_url: `${base}/account/billing?status=canceled`,
       allow_promotion_codes: true,
     });
@@ -98,21 +99,11 @@ export default async function BillingPage() {
       <div className="space-x-2">
         {!isPro ? (
           <form action={createCheckout}>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-black text-white"
-            >
-              Upgrade to Pro
-            </button>
+            <Button type="submit">Upgrade to Pro</Button>
           </form>
         ) : (
           <form action={openPortal}>
-            <button
-              type="submit"
-              className="px-4 py-2 rounded bg-black text-white"
-            >
-              Manage Billing
-            </button>
+            <Button type="submit">Manage Billing</Button>
           </form>
         )}
       </div>

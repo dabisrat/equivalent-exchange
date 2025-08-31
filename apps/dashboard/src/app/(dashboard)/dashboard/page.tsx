@@ -6,7 +6,7 @@ import { ChartBarMixed } from "@app/components/chart-bar-mixed";
 
 import data from "./data.json";
 
-export default function DashboardPage() {
+export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
       <SectionCards />

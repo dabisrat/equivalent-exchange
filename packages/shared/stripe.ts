@@ -1,5 +1,5 @@
 import Stripe from "stripe";
-import { createClient } from "./server";
+import { createClient, supabaseAdmin } from "./server";
 
 let stripeSingleton: Stripe | null = null;
 
@@ -28,9 +28,7 @@ export async function getOrCreateStripeCustomerForUser(params: {
   userId: string;
   email: string | null;
 }): Promise<string> {
-  const supabase = await createClient();
-
-  const { data: existing } = await supabase
+  const { data: existing } = await supabaseAdmin
     .from("user_subscriptions")
     .select("stripe_customer_id")
     .eq("user_id", params.userId)
@@ -44,7 +42,7 @@ export async function getOrCreateStripeCustomerForUser(params: {
     metadata: { userId: params.userId },
   });
 
-  await supabase.from("user_subscriptions").upsert(
+  await supabaseAdmin.from("user_subscriptions").upsert(
     {
       user_id: params.userId,
       stripe_customer_id: customer.id,
@@ -59,8 +57,7 @@ export async function getOrCreateStripeCustomerForUser(params: {
 export async function mapCustomerToUser(
   customerId: string
 ): Promise<string | null> {
-  const supabase = await createClient();
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from("user_subscriptions")
     .select("user_id")
     .eq("stripe_customer_id", customerId)
@@ -72,7 +69,6 @@ export async function syncStripeDataForCustomer(
   customerId: string
 ): Promise<SyncResult> {
   const stripe = getStripe();
-  const supabase = await createClient();
 
   const subs = await stripe.subscriptions.list({
     customer: customerId,
@@ -85,7 +81,7 @@ export async function syncStripeDataForCustomer(
     // No active subscription; store none if we can map user
     const userId = await mapCustomerToUser(customerId);
     if (userId) {
-      await supabase
+      await supabaseAdmin
         .from("user_subscriptions")
         .upsert(
           { user_id: userId, stripe_customer_id: customerId, status: "none" },
@@ -118,7 +114,7 @@ export async function syncStripeDataForCustomer(
 
   const userId = await mapCustomerToUser(customerId);
   if (userId) {
-    await supabase.from("user_subscriptions").upsert(
+    await supabaseAdmin.from("user_subscriptions").upsert(
       {
         user_id: userId,
         stripe_customer_id: customerId,

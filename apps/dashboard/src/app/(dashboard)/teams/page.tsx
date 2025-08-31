@@ -3,12 +3,13 @@
 import { OrganizationAdminRoute } from "@app/components/organization-admin-route";
 import { MembersTable } from "@app/components/members-table";
 import { useOrganizationMembers } from "@app/hooks/use-organization-members";
-import { useOrganizationContext } from "@app/contexts/multi-org-context";
+import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 
 export default function TeamsPage() {
-  const { organization } = useOrganizationContext();
+  const { activeOrganization: organization } = useMultiOrgContext();
   const organization_id = organization?.id ?? "";
-  const { members, loading, error, refetch } = useOrganizationMembers(organization_id);
+  const { members, loading, error, refetch } =
+    useOrganizationMembers(organization_id);
   return (
     <OrganizationAdminRoute>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
