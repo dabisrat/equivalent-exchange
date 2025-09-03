@@ -46,7 +46,7 @@ export function useSupabaseRealtimeSubscription(
     try {
       console.log("Setting up Realtime subscription...");
       channel = supabase
-        .channel(table === "*" ? "public" : `public:${table}`)
+        .channel("public")
         .on(
           REALTIME_LISTEN_TYPES.POSTGRES_CHANGES as any,
           {
