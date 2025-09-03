@@ -88,10 +88,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const { resolvedTheme } = useTheme();
 
   const triggerConfetti = useConfettiEffect();
-
+  console.log("RewardsCard render", { card, maxPoints, canModify });
   const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
     callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
-      console.log(payload);
+      console.log("call back method payload =", payload);
       const newStamp = payload.new as Stamp;
       if (newStamp && isValidStamp(newStamp)) {
         setState((prev) => ({

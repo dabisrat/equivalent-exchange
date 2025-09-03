@@ -41,6 +41,7 @@ export function useSupabaseRealtimeSubscription(
 
   useEffect(() => {
     let channel: RealtimeChannel;
+    console.log("Setting up Realtime subscription...", "use efftect ran");
     const supabase = createBrowserClient(); // Make sure this is your client creation function
 
     try {
@@ -57,6 +58,7 @@ export function useSupabaseRealtimeSubscription(
           callback
         )
         .subscribe((status, err) => {
+          console.log("Subscription status:", status, err);
           setStatus({
             isReady: status === "SUBSCRIBED",
             error: err || null,
@@ -71,7 +73,9 @@ export function useSupabaseRealtimeSubscription(
     }
 
     return () => {
+      console.log("use effect cleanup");
       if (channel) {
+        console.log("Unsubscribing from Realtime channel...");
         channel.unsubscribe();
       }
     };
