@@ -44,21 +44,19 @@ export function useSupabaseRealtimeSubscription(
     const supabase = createBrowserClient(); // Make sure this is your client creation function
 
     try {
-      console.log("Setting up Realtime subscription...");
       channel = supabase
-        .channel("public")
+        .channel(table === "*" ? "public" : `eq_ex_public:${table}`)
         .on(
-          REALTIME_LISTEN_TYPES.POSTGRES_CHANGES as any,
+          "postgres_changes" as any,
           {
             schema: "public",
+            event: "*",
             table,
-            event,
             filter,
           },
           callback
         )
         .subscribe((status, err) => {
-          console.log("Subscription status:", status);
           setStatus({
             isReady: status === "SUBSCRIBED",
             error: err || null,
@@ -74,11 +72,10 @@ export function useSupabaseRealtimeSubscription(
 
     return () => {
       if (channel) {
-        console.log("Unsubscribing from Realtime channel...");
         channel.unsubscribe();
       }
     };
-  }, []);
+  }, [table, filter, event, callback]);
 
   return status;
 }
