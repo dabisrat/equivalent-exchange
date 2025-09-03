@@ -74,10 +74,11 @@ export function useSupabaseRealtimeSubscription(
 
     return () => {
       if (channel) {
+        console.log("Unsubscribing from Realtime channel...");
         channel.unsubscribe();
       }
     };
-  }, [table, filter, event]);
+  }, [table, filter, event, callback]);
 
   return status;
 }

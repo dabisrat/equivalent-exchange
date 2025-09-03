@@ -90,7 +90,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const triggerConfetti = useConfettiEffect();
 
   const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
-    callback: (payload: RealtimePostgresChangesPayload<Stamp>) => {
+    callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
       console.log(payload);
       const newStamp = payload.new as Stamp;
       if (newStamp && isValidStamp(newStamp)) {
@@ -102,7 +102,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           },
         }));
       }
-    },
+    }, []),
     filter: `reward_card_id=eq.${card.id}`,
   });
 
