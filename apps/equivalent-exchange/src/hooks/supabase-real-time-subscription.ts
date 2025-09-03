@@ -44,6 +44,7 @@ export function useSupabaseRealtimeSubscription(
     const supabase = createBrowserClient(); // Make sure this is your client creation function
 
     try {
+      console.log("Setting up Realtime subscription...");
       channel = supabase
         .channel(table === "*" ? "public" : `public:${table}`)
         .on(
@@ -57,6 +58,7 @@ export function useSupabaseRealtimeSubscription(
           callback
         )
         .subscribe((status, err) => {
+          console.log("Subscription status:", status);
           setStatus({
             isReady: status === "SUBSCRIBED",
             error: err || null,

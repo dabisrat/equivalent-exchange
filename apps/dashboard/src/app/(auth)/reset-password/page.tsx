@@ -30,7 +30,7 @@ export default function ResetPasswordPage() {
       description="Enter a new password for your account"
     >
       <Auth
-        supabaseClient={supabase}
+        supabaseClient={supabase as any}
         showLinks={false}
         magicLink={false}
         appearance={authUiConfig}

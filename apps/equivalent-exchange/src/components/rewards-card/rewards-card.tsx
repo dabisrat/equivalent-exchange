@@ -31,7 +31,7 @@ interface CardState {
 
 const GRID_LAYOUT = {
   COLS: 6,
-  SPECIAL_INDICES: [0, 5]
+  SPECIAL_INDICES: [0, 5],
 };
 
 const ANIMATION_DURATION = 0.3;
@@ -63,14 +63,14 @@ const useConfettiEffect = () => {
       });
     };
 
-    [0, 100, 200].forEach(delay => setTimeout(shoot, delay));
+    [0, 100, 200].forEach((delay) => setTimeout(shoot, delay));
   }, []);
 
   return triggerConfetti;
 };
 
 const isValidStamp = (stamp: any): stamp is Stamp => {
-  return stamp && typeof stamp === 'object' && 'stamp_index' in stamp;
+  return stamp && typeof stamp === "object" && "stamp_index" in stamp;
 };
 
 const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
@@ -89,24 +89,22 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   const triggerConfetti = useConfettiEffect();
 
-  const { isReady, error } = useSupabaseRealtimeSubscription(
-    "stamp",
-    {
-      callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
-        const newStamp = payload.new as Stamp;
-        if (newStamp && isValidStamp(newStamp)) {
-          setState(prev => ({
-            ...prev,
-            points: {
-              ...prev.points,
-              [newStamp.stamp_index]: newStamp
-            }
-          }));
-        }
-      }, []),
-      filter: `reward_card_id=eq.${card.id}`
-    }
-  );
+  const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
+    callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
+      console.log(payload);
+      const newStamp = payload.new as Stamp;
+      if (newStamp && isValidStamp(newStamp)) {
+        setState((prev) => ({
+          ...prev,
+          points: {
+            ...prev.points,
+            [newStamp.stamp_index]: newStamp,
+          },
+        }));
+      }
+    }, []),
+    filter: `reward_card_id=eq.${card.id}`,
+  });
 
   useEffect(() => {
     const loadStamps = async () => {
@@ -119,9 +117,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           },
           {}
         );
-        setState(prev => ({ ...prev, points: stamps }));
+        setState((prev) => ({ ...prev, points: stamps }));
       } catch (error) {
-        console.error('Failed to load stamps:', error);
+        console.error("Failed to load stamps:", error);
       } finally {
         setIsLoading(false);
       }
@@ -132,10 +130,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   const handleFlip = useCallback(() => {
     if (!state.isAnimating) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         isFlipped: !prev.isFlipped,
-        isAnimating: true
+        isAnimating: true,
       }));
     }
   }, [state.isAnimating]);
@@ -149,7 +147,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
       await redeemRewards(card.id);
       triggerConfetti();
     } catch (error) {
-      console.error('Failed to redeem rewards:', error);
+      console.error("Failed to redeem rewards:", error);
     }
   }, [card.id, triggerConfetti]);
 
@@ -176,13 +174,15 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           initial={false}
           animate={{ rotateY: state.isFlipped ? 180 : 360 }}
           transition={{ duration: ANIMATION_DURATION }}
-          onAnimationComplete={() => setState(prev => ({ ...prev, isAnimating: false }))}
+          onAnimationComplete={() =>
+            setState((prev) => ({ ...prev, isAnimating: false }))
+          }
         >
           {/* Front card content */}
           <div
             className="flip-card-front w-full h-full bg-cover border text-white rounded-lg p-4"
             style={{
-              backgroundImage: `url(${resolvedTheme === 'light' ? front.src : frontDark.src})`,
+              backgroundImage: `url(${resolvedTheme === "light" ? front.src : frontDark.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
@@ -196,7 +196,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           <div
             className="flip-card-back w-full h-full bg-cover border text-white rounded-lg"
             style={{
-              backgroundImage: `url(${resolvedTheme === 'light' ? back.src : backDark.src})`,
+              backgroundImage: `url(${resolvedTheme === "light" ? back.src : backDark.src})`,
               backgroundSize: "100% 100%",
               backgroundRepeat: "no-repeat",
             }}
@@ -213,8 +213,11 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 .map((_, i) => (
                   <div
                     key={i}
-                    className={`justify-self-center ${GRID_LAYOUT.SPECIAL_INDICES.includes(i) ? 'row-span-2 self-center' : ''
-                      }`}
+                    className={`justify-self-center ${
+                      GRID_LAYOUT.SPECIAL_INDICES.includes(i)
+                        ? "row-span-2 self-center"
+                        : ""
+                    }`}
                   >
                     <PunchNode
                       punched={state.points[i]?.stamped || false}
@@ -229,9 +232,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         </motion.div>
       </div>
       {maxPoints === getTotalPoints() && canModify && (
-        <Button onClick={handleRedeem}>
-          Redeem Points
-        </Button>
+        <Button onClick={handleRedeem}>Redeem Points</Button>
       )}
     </div>
   );
