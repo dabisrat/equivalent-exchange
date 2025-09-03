@@ -77,7 +77,7 @@ export function useSupabaseRealtimeSubscription(
         channel.unsubscribe();
       }
     };
-  }, [table, filter, event, callback]);
+  }, [table, filter, event]);
 
   return status;
 }
