@@ -69,6 +69,9 @@ export function useSupabaseRealtimeSubscription(
           },
           callback
         )
+        .on("system", {}, (payload) => {
+          console.log("System event:", payload);
+        })
         .subscribe((status, err) => {
           console.log("Subscription status:", status, err);
           setStatus({
