@@ -8,7 +8,8 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 export async function getRewardsCard(id: string) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("reward_card")
     .select()
     .eq("id", id)
@@ -21,7 +22,8 @@ export async function getRewardsCard(id: string) {
 }
 
 export async function getUsersRewardsCards(id: string) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("reward_card")
     .select()
     .eq("user_id", id);
@@ -33,7 +35,8 @@ export async function getUsersRewardsCards(id: string) {
 }
 
 export async function getRewardsCardId(orgId: string, userId: string) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("reward_card")
     .select("id")
     .eq("organization_id", orgId)
@@ -71,10 +74,8 @@ export async function redeemRewards(cardId: string) {
 
 export async function addRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
-
-  let { data, error } = await (
-    await createServerClient()
-  ).rpc("incrementpoints", {
+  const supabase = await createServerClient();
+  let { data, error } = await supabase.rpc("incrementpoints", {
     card_id,
   });
 
@@ -91,9 +92,9 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
 export async function removeRewardPoints(card_id: string, stampIndex: number) {
   await updateStampById(card_id, stampIndex);
 
-  const { data, error } = await (
-    await createServerClient()
-  ).rpc("decrementpoints", {
+  const supabase = await createServerClient();
+
+  const { data, error } = await supabase.rpc("decrementpoints", {
     card_id,
   });
 
@@ -109,7 +110,7 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
 }
 
 async function updateStampById(cardId: string, stampIndex: number) {
-  const client = await await createServerClient();
+  const client = await createServerClient();
 
   const card = await getRewardsCard(cardId);
   const maxCount = await getMaxCount(card.organization_id);
