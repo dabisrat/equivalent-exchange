@@ -46,8 +46,8 @@ export function useSupabaseRealtimeSubscription(
     console.log("Setting up Realtime subscription...", "use efftect ran");
     try {
       supabase.auth.getUser().then(({ data: user }) => {
+        console.log(user);
         if (!user) {
-          console.log(user);
           console.warn("User not authenticated. Cannot set up subscription.");
           setStatus({
             isReady: false,
