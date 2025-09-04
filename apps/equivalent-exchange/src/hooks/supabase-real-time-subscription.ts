@@ -39,14 +39,26 @@ export function useSupabaseRealtimeSubscription(
     event = REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL,
   } = options;
 
+  const supabase = createBrowserClient();
+
   useEffect(() => {
     let channel: RealtimeChannel;
     console.log("Setting up Realtime subscription...", "use efftect ran");
-    const supabase = createBrowserClient(); // Make sure this is your client creation function
-
     try {
+      supabase.auth.getUser().then(({ data: user }) => {
+        if (!user) {
+          console.log(user);
+          console.warn("User not authenticated. Cannot set up subscription.");
+          setStatus({
+            isReady: false,
+            error: new Error("User not authenticated"),
+          });
+          return;
+        }
+      });
+
       channel = supabase
-        .channel(table === "*" ? "public" : `eq_ex_public:${table}`)
+        .channel(`test-channel-${table}`)
         .on(
           "postgres_changes" as any,
           {
@@ -76,10 +88,10 @@ export function useSupabaseRealtimeSubscription(
       console.log("use effect cleanup");
       if (channel) {
         console.log("Unsubscribing from Realtime channel...");
-        channel.unsubscribe();
+        supabase.removeChannel(channel);
       }
     };
-  }, [table, filter, event, callback]);
+  }, [table, filter, event, callback, supabase]);
 
   return status;
 }
