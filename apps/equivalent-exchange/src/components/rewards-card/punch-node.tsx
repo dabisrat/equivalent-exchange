@@ -1,8 +1,5 @@
 "use client";
-import {
-  addRewardPoints,
-  removeRewardPoints,
-} from "@app/utils/data-access";
+import { updateStampById } from "@app/utils/data-access";
 import { MouseEvent, useState } from "react";
 import { MdCircle, MdStars } from "react-icons/md";
 
@@ -28,10 +25,7 @@ export default function PunchNode({
     }
 
     setLoading(true);
-    (!punched
-      ? addRewardPoints(cardId, index)
-      : removeRewardPoints(cardId, index)
-    ).finally(() => setLoading(false));
+    updateStampById(cardId, index).finally(() => setLoading(false));
   }
 
   return (

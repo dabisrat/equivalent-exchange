@@ -51,8 +51,14 @@ export async function getRewardsCardId(orgId: string, userId: string) {
 
 export async function redeemRewards(cardId: string) {
   const user = await getUser();
-  const client = await createServerClient();
-  const { data, error } = await client
+  const card = await getRewardsCard(cardId);
+  const canModify = await canModifyCard(user.id, card.organization_id);
+
+  if (!canModify) {
+    throw new Error("User does not have permission to modify this card");
+  }
+
+  const { data, error } = await supabaseAdmin
     .from("stamp")
     .update({ stamped: false, stamper_id: user.id })
     .eq("reward_card_id", cardId);
@@ -61,7 +67,7 @@ export async function redeemRewards(cardId: string) {
     throw error;
   }
 
-  const { data: d, error: e } = await client
+  const { data: d, error: e } = await supabaseAdmin
     .from("reward_card")
     .update({ points: 0 })
     .eq("id", cardId);
@@ -72,8 +78,7 @@ export async function redeemRewards(cardId: string) {
   revalidatePath("/");
 }
 
-export async function addRewardPoints(card_id: string, stampIndex: number) {
-  await updateStampById(card_id, stampIndex);
+async function addRewardPoints(card_id: string) {
   const supabase = await createServerClient();
   let { data, error } = await supabase.rpc("incrementpoints", {
     card_id,
@@ -89,9 +94,7 @@ export async function addRewardPoints(card_id: string, stampIndex: number) {
   revalidatePath("/");
 }
 
-export async function removeRewardPoints(card_id: string, stampIndex: number) {
-  await updateStampById(card_id, stampIndex);
-
+async function removeRewardPoints(card_id: string) {
   const supabase = await createServerClient();
 
   const { data, error } = await supabase.rpc("decrementpoints", {
@@ -109,33 +112,39 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
   revalidatePath("/");
 }
 
-async function updateStampById(cardId: string, stampIndex: number) {
-  const client = await createServerClient();
+export async function updateStampById(cardId: string, stampIndex: number) {
   const card = await getRewardsCard(cardId);
   const maxCount = await getMaxCount(card.organization_id);
 
-  // indexes less then 1 are invalid and caught by database constraints
   if (stampIndex > maxCount) {
     throw new Error("stamp index out of range");
   }
 
   const user = await getUser();
+  const canModify = await canModifyCard(user.id, card.organization_id);
+
+  if (!canModify) {
+    throw new Error("User does not have permission to modify this card");
+  }
+
   const stamp = await getStamp(cardId, stampIndex);
 
   if (stamp) {
-    await client
+    await supabaseAdmin
       .from("stamp")
       .update({ stamped: !stamp.stamped, stamper_id: user.id })
       .eq("stamp_index", stamp.stamp_index)
       .eq("reward_card_id", stamp.reward_card_id);
+    stamp.stamped ? removeRewardPoints(cardId) : addRewardPoints(cardId);
   } else {
-    await client.from("stamp").insert([
+    await supabaseAdmin.from("stamp").insert([
       {
         reward_card_id: cardId,
         stamp_index: stampIndex,
         stamped: true,
       },
     ]);
+    addRewardPoints(cardId);
   }
 }
 
