@@ -1,4 +1,3 @@
-import CraeteCard from "@app/components/createCard";
 import RewardsCardContainer from "@app/components/rewards-card/rewards-card-container";
 import { getRewardsCardId } from "@app/utils/data-access";
 import { getUser } from "@eq-ex/auth";
