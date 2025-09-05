@@ -14,41 +14,39 @@ interface SubscriptionStatus {
 }
 
 type SubscriptionOptions = {
-  callback?: (payload: RealtimePostgresChangesPayload<any>) => void;
+  callback: (payload: RealtimePostgresChangesPayload<any>) => void;
   filter?: string;
   event?: REALTIME_POSTGRES_CHANGES_LISTEN_EVENT;
 };
 
 export function useSupabaseRealtimeSubscription(
   table: string,
-  options: SubscriptionOptions = {}
+  options: SubscriptionOptions
 ): SubscriptionStatus {
   const [status, setStatus] = useState<SubscriptionStatus>({
     isReady: false,
     error: null,
   });
 
-  const defaultCallback = useCallback(
-    (payload: RealtimePostgresChangesPayload<any>) => {},
-    [table]
-  );
-
   const {
-    callback = defaultCallback,
+    callback,
     filter = "",
     event = REALTIME_POSTGRES_CHANGES_LISTEN_EVENT.ALL,
   } = options;
 
   const supabase = createBrowserClient();
+  supabase.auth.getSession().then((res) => {
+    supabase.realtime.setAuth(res.data.session?.access_token || "");
+  });
 
   useEffect(() => {
     let channel: RealtimeChannel;
     console.log("Setting up Realtime subscription...", "use efftect ran");
     try {
       channel = supabase
-        .channel(`test-channel-${table}`)
+        .channel(`equivalent-exchange-${table}`)
         .on(
-          "postgres_changes" as any,
+          "postgres_changes",
           {
             schema: "public",
             event: "*",
