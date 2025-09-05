@@ -111,7 +111,6 @@ export async function removeRewardPoints(card_id: string, stampIndex: number) {
 
 async function updateStampById(cardId: string, stampIndex: number) {
   const client = await createServerClient();
-
   const card = await getRewardsCard(cardId);
   const maxCount = await getMaxCount(card.organization_id);
 
@@ -205,12 +204,19 @@ async function getOrganizationDetails(orgId: string) {
 }
 
 export async function canModifyCard(userId: string, orgId: string) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("organization_members")
     .select("organization_id, role, is_active")
     .eq("user_id", userId)
     .eq("organization_id", orgId)
+    .eq("is_active", true)
     .single();
+
+  if (error) {
+    console.error("error checking if user can modify card", error);
+    return false;
+  }
 
   return data?.organization_id === orgId && data?.is_active === true;
 }

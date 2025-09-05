@@ -45,18 +45,6 @@ export function useSupabaseRealtimeSubscription(
     let channel: RealtimeChannel;
     console.log("Setting up Realtime subscription...", "use efftect ran");
     try {
-      supabase.auth.getUser().then(({ data: user }) => {
-        console.log(user);
-        if (!user) {
-          console.warn("User not authenticated. Cannot set up subscription.");
-          setStatus({
-            isReady: false,
-            error: new Error("User not authenticated"),
-          });
-          return;
-        }
-      });
-
       channel = supabase
         .channel(`test-channel-${table}`)
         .on(
