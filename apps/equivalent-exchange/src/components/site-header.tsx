@@ -36,7 +36,7 @@ export function SiteHeader() {
             </Link>
           </div>
         </div>
-        <div className="flex gap-2 items-center justify-between">
+        <div className="flex gap-2 items-center">
           <ModeToggle />
           {user && <LogoutButton></LogoutButton>}
         </div>

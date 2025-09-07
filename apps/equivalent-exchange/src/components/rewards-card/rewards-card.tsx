@@ -13,7 +13,9 @@ import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
 import { PropsWithChildren, useCallback, useEffect, useState } from "react";
+import { useOrganization } from "@app/contexts/organization-context";
 import PunchNode from "./punch-node";
+import Link from "next/link";
 
 type Stamp = Tables<"stamp">;
 
@@ -80,18 +82,19 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   children,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
+  const [isRedeeming, setIsRedeeming] = useState(false);
   const [state, setState] = useState<CardState>({
     isFlipped: false,
     isAnimating: false,
     points: {},
   });
   const { resolvedTheme } = useTheme();
+  const { organization } = useOrganization();
 
   const triggerConfetti = useConfettiEffect();
   console.log("RewardsCard render", { card, maxPoints, canModify });
   const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
     callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
-      console.log("call back method payload =", payload);
       const newStamp = payload.new as Stamp;
       if (newStamp && isValidStamp(newStamp)) {
         setState((prev) => ({
@@ -128,6 +131,14 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     loadStamps();
   }, [card.id]);
 
+  // Auto-flip the card after loading
+  useEffect(() => {
+    if (!isLoading && isReady) {
+      const timer = setTimeout(handleFlip, 200);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, isReady]);
+
   const handleFlip = useCallback(() => {
     if (!state.isAnimating) {
       setState((prev) => ({
@@ -144,10 +155,13 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   const handleRedeem = useCallback(async () => {
     try {
+      setIsRedeeming(true);
       await redeemRewards(card.id);
       triggerConfetti();
     } catch (error) {
       console.error("Failed to redeem rewards:", error);
+    } finally {
+      setIsRedeeming(false);
     }
   }, [card.id, triggerConfetti]);
 
@@ -180,28 +194,77 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         >
           {/* Front card content */}
           <div
-            className="flip-card-front w-full h-full bg-cover border text-white rounded-lg p-4"
-            style={{
-              backgroundImage: `url(${resolvedTheme === "light" ? front.src : frontDark.src})`,
-              backgroundSize: "100% 100%",
-              backgroundRepeat: "no-repeat",
-            }}
+            className="flip-card-front w-full h-full bg-cover border rounded-lg relative overflow-hidden"
+            // style={{
+            //   backgroundImage: `url(${resolvedTheme === "light" ? front.src : frontDark.src})`,
+            //   backgroundSize: "100% 100%",
+            //   backgroundRepeat: "no-repeat",
+            // }}
           >
-            <div className="absolute top-1 right-2 text-[#b89f3d]">
+            {/* Progress indicator */}
+            <div className="absolute top-2 right-3  font-bold text-lg">
               {getTotalPoints()}
+            </div>
+
+            {/* Main content container */}
+            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
+              {/* Company Logo */}
+              <div className="mb-3">
+                {organization?.logo_url ? (
+                  <img
+                    src={organization.logo_url}
+                    alt={`${organization.organization_name} logo`}
+                    className="w-12 h-12 object-contain drop-shadow-lg"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-lg flex items-center justify-center drop-shadow-lg">
+                    <span className="text-xl font-bold">
+                      {organization?.organization_name?.charAt(0) || "R"}
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* Business Name - Larger and more prominent */}
+              <h2 className="text-2xl font-bold mb-1 ">
+                {organization?.organization_name?.toUpperCase() ||
+                  "YOUR BUSINESS"}
+              </h2>
+              <h3 className="mb-6 text-sm">REWARDS</h3>
+
+              {/* Rewards Requirements - Larger text */}
+              <div className="text-xs">
+                <p className="mb-2">
+                  CAPTURE {maxPoints} stamps & GET A FREE REWARD
+                </p>
+              </div>
+
+              <Link
+                href="https://eqxrewards.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Visit eqxrewards.com"
+                className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_2px_rgba(0,0,0,0.35)] drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
+                style={{
+                  fontFamily:
+                    "var(--font-brand, var(--font-display, ui-serif))",
+                }}
+              >
+                your business url here
+              </Link>
             </div>
           </div>
 
           {/* Back card content */}
           <div
-            className="flip-card-back w-full h-full bg-cover border text-white rounded-lg"
-            style={{
-              backgroundImage: `url(${resolvedTheme === "light" ? back.src : backDark.src})`,
-              backgroundSize: "100% 100%",
-              backgroundRepeat: "no-repeat",
-            }}
+            className="flip-card-back w-full h-full bg-cover border rounded-lg"
+            // style={{
+            //   backgroundImage: `url(${resolvedTheme === "light" ? back.src : backDark.src})`,
+            //   backgroundSize: "100% 100%",
+            //   backgroundRepeat: "no-repeat",
+            // }}
           >
-            <div className="absolute top-1 left-2 text-[#b89f3d]">
+            <div className="absolute top-2 left-3 font-bold text-lg">
               {getTotalPoints()}
             </div>
             <div className="grid grid-cols-6 h-full p-4">
@@ -224,6 +287,8 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                       cardId={card.id}
                       canModify={canModify}
                       index={state.points[i]?.stamp_index || i}
+                      // config prop is now optional - will use default if not provided
+                      // config={getPunchNodeConfig(i, maxPoints)}
                     />
                   </div>
                 ))}
@@ -232,7 +297,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         </motion.div>
       </div>
       {maxPoints === getTotalPoints() && canModify && (
-        <Button onClick={handleRedeem}>Redeem Points</Button>
+        <Button disabled={isRedeeming} onClick={handleRedeem}>
+          Redeem Points
+        </Button>
       )}
     </div>
   );
