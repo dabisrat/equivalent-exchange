@@ -16,9 +16,14 @@ import {
   useState,
 } from "react";
 import { useOrganization } from "@app/contexts/organization-context";
-import PunchNode from "./punch-node";
+import PunchNode from "./punch-node"; // still used on front layout counting
 import Link from "next/link";
 import { cn } from "@eq-ex/ui/utils/cn";
+import {
+  BackLayoutOptions,
+  BackLayoutVariant,
+  renderBackLayout,
+} from "./layout";
 
 type Stamp = Tables<"stamp">;
 
@@ -26,6 +31,9 @@ interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
   canModify: boolean;
+  /** Controls relative layout of top content slot and stamp grid on back */
+  layoutVariant?: BackLayoutVariant;
+  layoutOptions?: BackLayoutOptions;
 }
 
 interface CardState {
@@ -77,6 +85,8 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   card,
   maxPoints,
   canModify,
+  layoutVariant = "vertical",
+  layoutOptions,
   children,
 }) => {
   const [isLoading, setIsLoading] = useState(true);
@@ -285,47 +295,34 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               ref={backRef}
               className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm"
             >
-              <div className="absolute top-2 left-3 font-bold text-lg">
-                {getTotalPoints()}
-              </div>
-
-              <Link
-                href="https://eqxrewards.com"
-                target="_blank"
-                title="Visit eqxrewards.com"
-                className={cn(
-                  buttonVariants({ variant: "link" }),
-                  "absolute top-2 right-3 z-10 p-0 items-start"
-                )}
-                onClick={(e) => e.stopPropagation()}
-              >
-                order online
-              </Link>
-
-              <div className="p-4 flex flex-col">
-                {/* Top section with custom content */}
-                <div className="flex items-center justify-center mb-4">
-                  {children}
+              <div className="p-3 flex flex-col">
+                <div className="flex items-start justify-between mb-0.5">
+                  <div className="font-bold text-lg leading-none pl-1 pt-0.5">
+                    {getTotalPoints()}
+                  </div>
+                  <Link
+                    href="https://eqxrewards.com"
+                    target="_blank"
+                    title="Visit eqxrewards.com"
+                    className={cn(
+                      buttonVariants({ variant: "link" }),
+                      "p-0 items-start h-[25px]"
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    order online
+                  </Link>
                 </div>
-
-                {/* Stamps grid */}
-                <div className="flex flex-row flex-wrap justify-around mb-4">
-                  {Array(maxPoints)
-                    .fill(null)
-                    .map((_, i) => (
-                      <div key={i}>
-                        <PunchNode
-                          punched={state.points[i]?.stamped || false}
-                          cardId={card.id}
-                          canModify={canModify}
-                          index={state.points[i]?.stamp_index || i}
-                        />
-                      </div>
-                    ))}
-                </div>
-
-                {/* Bottom message */}
-                <div className="mt-auto flex justify-center">
+                {renderBackLayout({
+                  variant: layoutVariant,
+                  options: layoutOptions,
+                  maxPoints,
+                  points: state.points as any,
+                  cardId: card.id,
+                  canModify,
+                  children,
+                })}
+                <div className="mt-2 flex justify-center">
                   <p className="text-xs text-center opacity-75 px-4">
                     Terms and conditions apply.
                   </p>
