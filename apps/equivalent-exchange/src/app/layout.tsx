@@ -9,7 +9,6 @@ import { headers } from "next/headers";
 import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 import { OrganizationProvider } from "@app/contexts/organization-context";
-// import { generateThemeCSS } from "@app/utils/color-utils";
 
 const fontSans = Inter({
   subsets: ["latin"],

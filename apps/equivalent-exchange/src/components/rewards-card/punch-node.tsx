@@ -54,7 +54,7 @@ const DEFAULT_CONFIG: PunchNodeConfig = {
   id: "default-free",
   name: "Free Tier Default",
   type: "standard",
-  size: { punched: "medium", unpunched: "small", loading: "medium" },
+  size: { punched: "medium", unpunched: "medium", loading: "medium" },
   colors: { punched: "#6b7280", unpunched: "#6b7280", loading: "#6b7280" },
   icons: {
     punched: "RiExchangeFill",

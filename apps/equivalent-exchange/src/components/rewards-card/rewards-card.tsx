@@ -1,21 +1,27 @@
 "use client";
-import backDark from "@app/assests/back-dark.svg";
-import back from "@app/assests/back.svg";
-import frontDark from "@app/assests/front-dark.svg";
-import front from "@app/assests/front.svg";
 import { useSupabaseRealtimeSubscription } from "@app/hooks/supabase-real-time-subscription";
 import { getStamps, redeemRewards } from "@app/utils/data-access";
 import { Tables } from "@app/utils/database.types";
-import { Button } from "@eq-ex/ui/components/button";
+import { Button, buttonVariants } from "@eq-ex/ui/components/button";
 import { Skeleton } from "@eq-ex/ui/components/skeleton";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import { useTheme } from "next-themes";
-import { PropsWithChildren, useCallback, useEffect, useState } from "react";
+import {
+  PropsWithChildren,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useOrganization } from "@app/contexts/organization-context";
 import PunchNode from "./punch-node";
 import Link from "next/link";
+import { Card } from "@eq-ex/ui/components/card";
+import { cn } from "@eq-ex/ui/utils/cn";
+import { div } from "framer-motion/client";
 
 type Stamp = Tables<"stamp">;
 
@@ -30,11 +36,6 @@ interface CardState {
   isAnimating: boolean;
   points: Record<number, Stamp>;
 }
-
-const GRID_LAYOUT = {
-  COLS: 6,
-  SPECIAL_INDICES: [0, 5],
-};
 
 const ANIMATION_DURATION = 0.3;
 
@@ -92,7 +93,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const { organization } = useOrganization();
 
   const triggerConfetti = useConfettiEffect();
-  console.log("RewardsCard render", { card, maxPoints, canModify });
   const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
     callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
       const newStamp = payload.new as Stamp;
@@ -125,19 +125,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         console.error("Failed to load stamps:", error);
       } finally {
         setIsLoading(false);
+        setTimeout(handleFlip, 200);
       }
     };
 
     loadStamps();
   }, [card.id]);
-
-  // Auto-flip the card after loading
-  useEffect(() => {
-    if (!isLoading && isReady) {
-      const timer = setTimeout(handleFlip, 200);
-      return () => clearTimeout(timer);
-    }
-  }, [isLoading, isReady]);
 
   const handleFlip = useCallback(() => {
     if (!state.isAnimating) {
@@ -165,6 +158,43 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     }
   }, [card.id, triggerConfetti]);
 
+  // Refs for measuring faces
+  const frontRef = useRef<HTMLDivElement | null>(null);
+  const backRef = useRef<HTMLDivElement | null>(null);
+  const [cardHeight, setCardHeight] = useState<number>(225);
+
+  const measure = useCallback(() => {
+    const frontH = frontRef.current?.offsetHeight ?? 0;
+    const backH = backRef.current?.offsetHeight ?? 0;
+    const activeH = state.isFlipped ? backH : frontH;
+    const next = Math.max(activeH, 225);
+    if (next !== cardHeight) setCardHeight(next);
+  }, [state.isFlipped, cardHeight]);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [
+    measure,
+    state.points,
+    organization?.organization_name,
+    organization?.logo_url,
+    maxPoints,
+    children,
+  ]);
+
+  useEffect(() => {
+    const ro = new ResizeObserver(() => measure());
+    if (frontRef.current) ro.observe(frontRef.current);
+    if (backRef.current) ro.observe(backRef.current);
+    return () => ro.disconnect();
+  }, [measure]);
+
+  // Post-flip refine measurement after animation ends
+  useEffect(() => {
+    const id = setTimeout(() => measure(), ANIMATION_DURATION * 1000 + 30);
+    return () => clearTimeout(id);
+  }, [state.isFlipped, measure]);
+
   if (isLoading || !isReady) {
     return (
       <div className="flex flex-col space-y-3 justify-center items-center">
@@ -178,130 +208,144 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }
 
   return (
-    <div className="flex flex-col gap-3 h-full items-center justify-center">
-      <div
-        className="flip-card p-2 w-[375px] h-[225px] rounded-md cursor-pointer"
-        onClick={handleFlip}
-      >
+    <>
+      <div className="flex flex-col items-center">
         <motion.div
-          className="flip-card-inner h-full"
+          className="mt-2 w-[375px] perspective-1000 cursor-pointer relative"
+          onClick={handleFlip}
           initial={false}
-          animate={{ rotateY: state.isFlipped ? 180 : 360 }}
-          transition={{ duration: ANIMATION_DURATION }}
-          onAnimationComplete={() =>
-            setState((prev) => ({ ...prev, isAnimating: false }))
-          }
+          animate={{ height: cardHeight }}
+          style={{ minHeight: 225 }}
+          transition={{ height: { duration: 0.25 } }}
         >
-          {/* Front card content */}
-          <div
-            className="flip-card-front w-full h-full bg-cover border rounded-lg relative overflow-hidden"
-            // style={{
-            //   backgroundImage: `url(${resolvedTheme === "light" ? front.src : frontDark.src})`,
-            //   backgroundSize: "100% 100%",
-            //   backgroundRepeat: "no-repeat",
-            // }}
+          <motion.div
+            className="flip-card-inner relative"
+            initial={false}
+            animate={{ rotateY: state.isFlipped ? 180 : 0 }}
+            transition={{ duration: ANIMATION_DURATION }}
+            onAnimationComplete={() =>
+              setState((prev) => ({ ...prev, isAnimating: false }))
+            }
           >
-            {/* Progress indicator */}
-            <div className="absolute top-2 right-3  font-bold text-lg">
-              {getTotalPoints()}
-            </div>
-
-            {/* Main content container */}
-            <div className="flex flex-col items-center justify-center h-full p-4 text-center">
-              {/* Company Logo */}
-              <div className="mb-3">
-                {organization?.logo_url ? (
-                  <img
-                    src={organization.logo_url}
-                    alt={`${organization.organization_name} logo`}
-                    className="w-12 h-12 object-contain drop-shadow-lg"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-lg flex items-center justify-center drop-shadow-lg">
-                    <span className="text-xl font-bold">
-                      {organization?.organization_name?.charAt(0) || "R"}
-                    </span>
-                  </div>
-                )}
+            <div
+              ref={frontRef}
+              className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm"
+            >
+              {/* Progress indicator */}
+              <div className="absolute top-2 right-3 font-bold text-lg">
+                {getTotalPoints()}
               </div>
 
-              {/* Business Name - Larger and more prominent */}
-              <h2 className="text-2xl font-bold mb-1 ">
-                {organization?.organization_name?.toUpperCase() ||
-                  "YOUR BUSINESS"}
-              </h2>
-              <h3 className="mb-6 text-sm">REWARDS</h3>
+              {/* Main content container */}
+              <div className="flex flex-col items-center justify-center p-4 text-center">
+                {/* Company Logo */}
+                <div className="mb-3">
+                  {organization?.logo_url ? (
+                    <img
+                      src={organization.logo_url}
+                      alt={`${organization.organization_name} logo`}
+                      className="w-12 h-12 object-contain drop-shadow-lg"
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-lg flex items-center justify-center drop-shadow-lg">
+                      <span className="text-xl font-bold">
+                        {organization?.organization_name?.charAt(0) || "R"}
+                      </span>
+                    </div>
+                  )}
+                </div>
 
-              {/* Rewards Requirements - Larger text */}
-              <div className="text-xs">
-                <p className="mb-2">
-                  CAPTURE {maxPoints} stamps & GET A FREE REWARD
-                </p>
+                {/* Business Name - Larger and more prominent */}
+                <h2 className="text-2xl font-bold mb-1">
+                  {organization?.organization_name?.toUpperCase() ||
+                    "YOUR BUSINESS"}
+                </h2>
+                <h3 className="mb-6 text-sm">REWARDS</h3>
+
+                {/* Rewards Requirements - Larger text */}
+                <div className="text-xs">
+                  <p className="mb-2">
+                    Collect {maxPoints} stamps & get a free reward!
+                  </p>
+                </div>
+
+                <Link
+                  href="https://eqxrewards.com"
+                  target="_blank"
+                  title="Visit eqxrewards.com"
+                  className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_2px_rgba(0,0,0,0.35)] drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
+                  style={{
+                    fontFamily:
+                      "var(--font-brand, var(--font-display, ui-serif))",
+                  }}
+                >
+                  your business url here
+                </Link>
+              </div>
+            </div>
+
+            <div
+              ref={backRef}
+              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm"
+            >
+              <div className="absolute top-2 left-3 font-bold text-lg">
+                {getTotalPoints()}
               </div>
 
               <Link
                 href="https://eqxrewards.com"
                 target="_blank"
-                rel="noopener noreferrer"
                 title="Visit eqxrewards.com"
-                className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_2px_rgba(0,0,0,0.35)] drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
-                style={{
-                  fontFamily:
-                    "var(--font-brand, var(--font-display, ui-serif))",
-                }}
+                className={cn(
+                  buttonVariants({ variant: "link" }),
+                  "absolute top-2 right-3 z-10"
+                )}
+                onClick={(e) => e.stopPropagation()}
               >
-                your business url here
+                order online
               </Link>
-            </div>
-          </div>
 
-          {/* Back card content */}
-          <div
-            className="flip-card-back w-full h-full bg-cover border rounded-lg"
-            // style={{
-            //   backgroundImage: `url(${resolvedTheme === "light" ? back.src : backDark.src})`,
-            //   backgroundSize: "100% 100%",
-            //   backgroundRepeat: "no-repeat",
-            // }}
-          >
-            <div className="absolute top-2 left-3 font-bold text-lg">
-              {getTotalPoints()}
-            </div>
-            <div className="grid grid-cols-6 h-full p-4">
-              <div className="justify-self-center row-start-2 col-start-2 col-span-4 row-span-3">
-                {children}
+              <div className="p-4 flex flex-col">
+                {/* Top section with custom content */}
+                <div className="flex items-center justify-center mb-4">
+                  {children}
+                </div>
+
+                {/* Stamps grid */}
+                <div className="flex flex-row flex-wrap justify-around mb-4">
+                  {Array(maxPoints)
+                    .fill(null)
+                    .map((_, i) => (
+                      <div key={i}>
+                        <PunchNode
+                          punched={state.points[i]?.stamped || false}
+                          cardId={card.id}
+                          canModify={canModify}
+                          index={state.points[i]?.stamp_index || i}
+                        />
+                      </div>
+                    ))}
+                </div>
+
+                {/* Bottom message */}
+                <div className="mt-auto flex justify-center">
+                  <p className="text-xs text-center opacity-75 px-4">
+                    Terms and conditions apply.
+                  </p>
+                </div>
               </div>
-              {Array(maxPoints)
-                .fill(null)
-                .map((_, i) => (
-                  <div
-                    key={i}
-                    className={`justify-self-center ${
-                      GRID_LAYOUT.SPECIAL_INDICES.includes(i)
-                        ? "row-span-2 self-center"
-                        : ""
-                    }`}
-                  >
-                    <PunchNode
-                      punched={state.points[i]?.stamped || false}
-                      cardId={card.id}
-                      canModify={canModify}
-                      index={state.points[i]?.stamp_index || i}
-                      // config prop is now optional - will use default if not provided
-                      // config={getPunchNodeConfig(i, maxPoints)}
-                    />
-                  </div>
-                ))}
             </div>
-          </div>
+          </motion.div>
         </motion.div>
+        {maxPoints === getTotalPoints() && canModify && (
+          <div className="pt-4 flex flex-col items-center">
+            <Button disabled={isRedeeming} onClick={handleRedeem}>
+              Redeem Points
+            </Button>
+          </div>
+        )}
       </div>
-      {maxPoints === getTotalPoints() && canModify && (
-        <Button disabled={isRedeeming} onClick={handleRedeem}>
-          Redeem Points
-        </Button>
-      )}
-    </div>
+    </>
   );
 };
 

@@ -242,29 +242,13 @@
    3D Flip Card Animation System
    Used for interactive card components that flip to show back content
 */
-.flip-card {
-  perspective: 1000px;
-  /* 3D perspective for flip effect */
-}
 
 .flip-card-inner {
+  /* position: relative; */
   transition: transform 0.6s;
   /* Smooth flip animation */
   transform-style: preserve-3d;
   /* Maintain 3D transforms */
-}
-
-.flip-card-front,
-.flip-card-back {
-  position: absolute;
-  /* Stack front/back on top of each other */
-  backface-visibility: hidden;
-  /* Hide back side when not facing viewer */
-}
-
-.flip-card-back {
-  transform: rotateY(180deg);
-  /* Start back side rotated 180 degrees */
 }
 
 /* 
@@ -278,6 +262,24 @@
 
   100% {
     background-position: 100% 100%;
+  }
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+
+  .transform-style-preserve-3d {
+    transform-style: preserve-3d;
+  }
+
+  .backface-hidden {
+    backface-visibility: hidden;
+  }
+
+  .rotate-y-180 {
+    transform: rotateY(180deg);
   }
 }
 
