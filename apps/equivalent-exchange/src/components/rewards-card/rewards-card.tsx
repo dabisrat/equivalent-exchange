@@ -123,7 +123,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }, [state.points]);
 
   const handleRedeem = useCallback(async () => {
-    if (!canModify || isRedeeming) return;
+    if (isRedeeming) return;
 
     try {
       setIsRedeeming(true);
@@ -134,7 +134,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     } finally {
       setIsRedeeming(false);
     }
-  }, [card.id, triggerConfetti]);
+  }, [card.id, triggerConfetti, isRedeeming]);
 
   const measure = useCallback(() => {
     const frontH = frontRef.current?.offsetHeight ?? 0;
@@ -334,7 +334,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             </div>
           </motion.div>
         </motion.div>
-        {maxPoints === getTotalPoints() && canModify && (
+        {maxPoints <= getTotalPoints() && canModify && (
           <div className="pt-4 flex flex-col items-center">
             <Button disabled={isRedeeming} onClick={handleRedeem}>
               Redeem Points
