@@ -7,7 +7,6 @@ import { Skeleton } from "@eq-ex/ui/components/skeleton";
 import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
-import { useTheme } from "next-themes";
 import {
   PropsWithChildren,
   useCallback,
@@ -19,9 +18,7 @@ import {
 import { useOrganization } from "@app/contexts/organization-context";
 import PunchNode from "./punch-node";
 import Link from "next/link";
-import { Card } from "@eq-ex/ui/components/card";
 import { cn } from "@eq-ex/ui/utils/cn";
-import { div } from "framer-motion/client";
 
 type Stamp = Tables<"stamp">;
 
@@ -89,7 +86,9 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     isAnimating: false,
     points: {},
   });
-  const { resolvedTheme } = useTheme();
+  const frontRef = useRef<HTMLDivElement | null>(null);
+  const backRef = useRef<HTMLDivElement | null>(null);
+  const [cardHeight, setCardHeight] = useState<number>(225);
   const { organization } = useOrganization();
 
   const triggerConfetti = useConfettiEffect();
@@ -108,6 +107,42 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     }, []),
     filter: `reward_card_id=eq.${card.id}`,
   });
+
+  const handleFlip = useCallback(() => {
+    if (!state.isAnimating) {
+      setState((prev) => ({
+        ...prev,
+        isFlipped: !prev.isFlipped,
+        isAnimating: true,
+      }));
+    }
+  }, [state.isAnimating]);
+
+  const getTotalPoints = useCallback(() => {
+    return Object.values(state.points).filter((point) => point.stamped).length;
+  }, [state.points]);
+
+  const handleRedeem = useCallback(async () => {
+    if (!canModify || isRedeeming) return;
+
+    try {
+      setIsRedeeming(true);
+      await redeemRewards(card.id);
+      triggerConfetti();
+    } catch (error) {
+      console.error("Failed to redeem rewards:", error);
+    } finally {
+      setIsRedeeming(false);
+    }
+  }, [card.id, triggerConfetti]);
+
+  const measure = useCallback(() => {
+    const frontH = frontRef.current?.offsetHeight ?? 0;
+    const backH = backRef.current?.offsetHeight ?? 0;
+    const activeH = state.isFlipped ? backH : frontH;
+    const next = Math.max(activeH, 225);
+    if (next !== cardHeight) setCardHeight(next);
+  }, [state.isFlipped, cardHeight]);
 
   useEffect(() => {
     const loadStamps = async () => {
@@ -132,56 +167,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     loadStamps();
   }, [card.id]);
 
-  const handleFlip = useCallback(() => {
-    if (!state.isAnimating) {
-      setState((prev) => ({
-        ...prev,
-        isFlipped: !prev.isFlipped,
-        isAnimating: true,
-      }));
-    }
-  }, [state.isAnimating]);
-
-  const getTotalPoints = useCallback(() => {
-    return Object.values(state.points).filter((point) => point.stamped).length;
-  }, [state.points]);
-
-  const handleRedeem = useCallback(async () => {
-    try {
-      setIsRedeeming(true);
-      await redeemRewards(card.id);
-      triggerConfetti();
-    } catch (error) {
-      console.error("Failed to redeem rewards:", error);
-    } finally {
-      setIsRedeeming(false);
-    }
-  }, [card.id, triggerConfetti]);
-
-  // Refs for measuring faces
-  const frontRef = useRef<HTMLDivElement | null>(null);
-  const backRef = useRef<HTMLDivElement | null>(null);
-  const [cardHeight, setCardHeight] = useState<number>(225);
-
-  const measure = useCallback(() => {
-    const frontH = frontRef.current?.offsetHeight ?? 0;
-    const backH = backRef.current?.offsetHeight ?? 0;
-    const activeH = state.isFlipped ? backH : frontH;
-    const next = Math.max(activeH, 225);
-    if (next !== cardHeight) setCardHeight(next);
-  }, [state.isFlipped, cardHeight]);
-
-  useLayoutEffect(() => {
-    measure();
-  }, [
-    measure,
-    state.points,
-    organization?.organization_name,
-    organization?.logo_url,
-    maxPoints,
-    children,
-  ]);
-
   useEffect(() => {
     const ro = new ResizeObserver(() => measure());
     if (frontRef.current) ro.observe(frontRef.current);
@@ -194,6 +179,17 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     const id = setTimeout(() => measure(), ANIMATION_DURATION * 1000 + 30);
     return () => clearTimeout(id);
   }, [state.isFlipped, measure]);
+
+  useLayoutEffect(() => {
+    measure();
+  }, [
+    measure,
+    state.points,
+    organization?.organization_name,
+    organization?.logo_url,
+    maxPoints,
+    children,
+  ]);
 
   if (isLoading || !isReady) {
     return (
@@ -278,6 +274,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                     fontFamily:
                       "var(--font-brand, var(--font-display, ui-serif))",
                   }}
+                  onClick={(e) => e.stopPropagation()}
                 >
                   your business url here
                 </Link>
@@ -298,7 +295,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 title="Visit eqxrewards.com"
                 className={cn(
                   buttonVariants({ variant: "link" }),
-                  "absolute top-2 right-3 z-10"
+                  "absolute top-2 right-3 z-10 p-0 items-start"
                 )}
                 onClick={(e) => e.stopPropagation()}
               >
