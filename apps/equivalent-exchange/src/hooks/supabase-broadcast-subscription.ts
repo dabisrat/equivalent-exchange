@@ -60,18 +60,7 @@ export function useBroadcastSubscription(
     async function setupSubscription() {
       try {
         const supabase = createClient();
-
-        const {
-          data: { session },
-          error: authError,
-        } = await supabase.auth.getSession();
-        if (authError) {
-          throw new Error(`Auth error: ${authError.message}`);
-        }
-
-        if (session?.access_token) {
-          await supabase.realtime.setAuth(session.access_token);
-        }
+        await supabase.realtime.setAuth();
 
         channel = supabase.channel(topic, {
           config: {
