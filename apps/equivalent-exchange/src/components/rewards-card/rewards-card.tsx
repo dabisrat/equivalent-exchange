@@ -1,5 +1,6 @@
 "use client";
 import { useSupabaseRealtimeSubscription } from "@app/hooks/supabase-real-time-subscription";
+import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscription";
 import { getStamps, redeemRewards } from "@app/utils/data-access";
 import { Tables } from "@app/utils/database.types";
 import { Button, buttonVariants } from "@eq-ex/ui/components/button";
@@ -16,7 +17,6 @@ import {
   useState,
 } from "react";
 import { useOrganization } from "@app/contexts/organization-context";
-import PunchNode from "./punch-node"; // still used on front layout counting
 import Link from "next/link";
 import { cn } from "@eq-ex/ui/utils/cn";
 import {
@@ -31,7 +31,6 @@ interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
   canModify: boolean;
-  /** Controls relative layout of top content slot and stamp grid on back */
   layoutVariant?: BackLayoutVariant;
   layoutOptions?: BackLayoutOptions;
 }
@@ -102,10 +101,38 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const { organization } = useOrganization();
 
   const triggerConfetti = useConfettiEffect();
-  const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
-    callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
-      const newStamp = payload.new as Stamp;
-      if (newStamp && isValidStamp(newStamp)) {
+  // const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
+  //   callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
+  //     const newStamp = payload.new as Stamp;
+  //     if (newStamp && isValidStamp(newStamp)) {
+  //       setState((prev) => ({
+  //         ...prev,
+  //         points: {
+  //           ...prev.points,
+  //           [newStamp.stamp_index]: newStamp,
+  //         },
+  //       }));
+  //     }
+  //   }, []),
+  //   filter: `reward_card_id=eq.${card.id}`,
+  // });
+
+  // Use card-specific subscription for stamps belonging to this card
+  const { isReady } = useBroadcastSubscription("stamp", {
+    topic: `card:${card.id}:stamp`,
+    callback: useCallback((payload: any) => {
+      let stampData;
+      if (payload.record) {
+        stampData = payload.record;
+      } else if (payload.payload?.record) {
+        stampData = payload.payload.record;
+      } else {
+        console.log("Unknown payload structure:", payload);
+        return;
+      }
+
+      if (stampData && isValidStamp(stampData)) {
+        const newStamp = stampData as Stamp;
         setState((prev) => ({
           ...prev,
           points: {
@@ -115,7 +142,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
         }));
       }
     }, []),
-    filter: `reward_card_id=eq.${card.id}`,
+    events: ["INSERT", "UPDATE"],
   });
 
   const handleFlip = useCallback(() => {
