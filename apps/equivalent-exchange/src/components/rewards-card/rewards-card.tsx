@@ -176,8 +176,13 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
       {}
     );
     setState((prev) => ({ ...prev, points: stampsByIndex }));
-    setTimeout(handleFlip, 200);
   }, [stamps]);
+
+  useEffect(() => {
+    if (isReady && !state.isFlipped) {
+      setTimeout(() => handleFlip, 200);
+    }
+  }, [isReady, state.isFlipped]);
 
   useEffect(() => {
     const ro = new ResizeObserver(() => measure());
