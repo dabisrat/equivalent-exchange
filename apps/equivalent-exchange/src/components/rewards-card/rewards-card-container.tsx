@@ -2,8 +2,9 @@ import {
   canModifyCard,
   getMaxCount,
   getRewardsCard,
+  getStamps,
 } from "@app/utils/data-access";
-import { getUser } from '@eq-ex/auth';
+import { getUser } from "@eq-ex/auth";
 import { headers } from "next/headers";
 import Image from "next/image";
 import { toDataURL } from "qrcode";
@@ -14,16 +15,23 @@ export default async function RewardsCardContainer({
 }: {
   cardId: string;
 }) {
-  const user = await getUser(); //TODO I should do this at the top level and pass the user
-  const card = await getRewardsCard(cardId); //TODO I should do this at the top level and pass the card
-  const maxPoints = await getMaxCount(card.organization_id); // same as above
-  const canModify = await canModifyCard(user.id, card.organization_id); // same as above
-  const url = `https://${(await headers()).get("host")}/${card.organization_id}/${card.id
-    }`;
-  const qrCode = await toDataURL(url, {
-    type: "image/webp",
-    color: { dark: "#000000FF", light: "#d1d5e1" },
-  });
+  const [user, card, stamps, headerData] = await Promise.all([
+    getUser(),
+    getRewardsCard(cardId),
+    getStamps(cardId),
+    headers(),
+  ]);
+
+  const url = `https://${headerData.get("host")}/${card.organization_id}/${card.id}`;
+
+  const [maxPoints, canModify, qrCode] = await Promise.all([
+    getMaxCount(card.organization_id),
+    canModifyCard(user.id, card.organization_id),
+    toDataURL(url, {
+      type: "image/webp",
+      color: { dark: "#000000FF", light: "#d1d5e1" },
+    }),
+  ]);
 
   return (
     <>
@@ -32,8 +40,15 @@ export default async function RewardsCardContainer({
           You are viewing another users card{" "}
         </div>
       )}
-      <RewardsCard card={card} maxPoints={maxPoints} canModify={canModify}>
-        <Image src={qrCode} alt="card-url-code" width="100" height="100" />
+      <RewardsCard
+        card={card}
+        maxPoints={maxPoints}
+        canModify={canModify}
+        stamps={stamps}
+      >
+        {(user.id === card.user_id || canModify) && (
+          <Image src={qrCode} alt="card-url-code" width="100" height="100" />
+        )}
       </RewardsCard>
     </>
   );

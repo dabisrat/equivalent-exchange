@@ -1,7 +1,7 @@
 "use client";
 import { useSupabaseRealtimeSubscription } from "@app/hooks/supabase-real-time-subscription";
 import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscription";
-import { getStamps, redeemRewards } from "@app/utils/data-access";
+import { redeemRewards } from "@app/utils/data-access";
 import { Tables } from "@app/utils/database.types";
 import { Button, buttonVariants } from "@eq-ex/ui/components/button";
 import { Skeleton } from "@eq-ex/ui/components/skeleton";
@@ -31,6 +31,7 @@ interface RewardsCardProps {
   card: Tables<"reward_card">;
   maxPoints: number;
   canModify: boolean;
+  stamps: Stamp[];
   layoutVariant?: BackLayoutVariant;
   layoutOptions?: BackLayoutOptions;
 }
@@ -84,11 +85,11 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   card,
   maxPoints,
   canModify,
+  stamps,
   layoutVariant = "vertical",
   layoutOptions,
   children,
 }) => {
-  const [isLoading, setIsLoading] = useState(true);
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [state, setState] = useState<CardState>({
     isFlipped: false,
@@ -101,21 +102,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const { organization } = useOrganization();
 
   const triggerConfetti = useConfettiEffect();
-  // const { isReady, error } = useSupabaseRealtimeSubscription("stamp", {
-  //   callback: useCallback((payload: RealtimePostgresChangesPayload<Stamp>) => {
-  //     const newStamp = payload.new as Stamp;
-  //     if (newStamp && isValidStamp(newStamp)) {
-  //       setState((prev) => ({
-  //         ...prev,
-  //         points: {
-  //           ...prev.points,
-  //           [newStamp.stamp_index]: newStamp,
-  //         },
-  //       }));
-  //     }
-  //   }, []),
-  //   filter: `reward_card_id=eq.${card.id}`,
-  // });
 
   // Use card-specific subscription for stamps belonging to this card
   const { isReady } = useBroadcastSubscription("stamp", {
@@ -181,27 +167,17 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }, [state.isFlipped, cardHeight]);
 
   useEffect(() => {
-    const loadStamps = async () => {
-      try {
-        const stampsArray = await getStamps(card.id);
-        const stamps = stampsArray.reduce(
-          (memo: Record<number, Stamp>, stamp) => {
-            memo[stamp.stamp_index] = stamp;
-            return memo;
-          },
-          {}
-        );
-        setState((prev) => ({ ...prev, points: stamps }));
-      } catch (error) {
-        console.error("Failed to load stamps:", error);
-      } finally {
-        setIsLoading(false);
-        setTimeout(handleFlip, 200);
-      }
-    };
-
-    loadStamps();
-  }, [card.id]);
+    // Initialize points from the passed-in stamps
+    const stampsByIndex = stamps.reduce(
+      (memo: Record<number, Stamp>, stamp: Stamp) => {
+        memo[stamp.stamp_index] = stamp;
+        return memo;
+      },
+      {}
+    );
+    setState((prev) => ({ ...prev, points: stampsByIndex }));
+    setTimeout(handleFlip, 200);
+  }, [stamps]);
 
   useEffect(() => {
     const ro = new ResizeObserver(() => measure());
@@ -227,7 +203,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     children,
   ]);
 
-  if (isLoading || !isReady) {
+  if (!isReady) {
     return (
       <div className="flex flex-col space-y-3 justify-center items-center">
         <Skeleton className="w-[375px] h-[225px] rounded-md" />
@@ -305,7 +281,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                   href="https://eqxrewards.com"
                   target="_blank"
                   title="Visit eqxrewards.com"
-                  className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_2px_rgba(0,0,0,0.35)] drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
+                  className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
                   style={{
                     fontFamily:
                       "var(--font-brand, var(--font-display, ui-serif))",
