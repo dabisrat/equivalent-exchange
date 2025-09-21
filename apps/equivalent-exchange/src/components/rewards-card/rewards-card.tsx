@@ -150,7 +150,6 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
       setState((prev) => ({
         ...prev,
         isFlipped: !prev.isFlipped,
-        isAnimating: true,
       }));
     }
   }, [state.isAnimating]);
