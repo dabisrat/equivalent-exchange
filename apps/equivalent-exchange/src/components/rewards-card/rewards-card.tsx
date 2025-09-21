@@ -180,9 +180,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   useEffect(() => {
     if (isReady && !state.isFlipped) {
-      setTimeout(handleFlip, 200);
+      const timeout = setTimeout(handleFlip, 200);
+      return () => clearTimeout(timeout);
     }
-  }, [isReady, state.isFlipped]);
+  }, [isReady]);
 
   useEffect(() => {
     const ro = new ResizeObserver(() => measure());
