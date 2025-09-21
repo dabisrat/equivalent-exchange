@@ -180,7 +180,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   useEffect(() => {
     if (isReady && !state.isFlipped) {
-      setTimeout(() => handleFlip, 200);
+      setTimeout(handleFlip, 200);
     }
   }, [isReady, state.isFlipped]);
 
