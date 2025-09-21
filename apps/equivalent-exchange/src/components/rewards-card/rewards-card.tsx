@@ -211,7 +211,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
   if (!isReady) {
     return (
-      <div className="flex flex-col space-y-3 justify-center items-center">
+      <div className="flex flex-col space-y-3 justify-center items-center mt-2">
         <Skeleton className="w-[375px] h-[225px] rounded-md" />
         <div className="space-y-2">
           <Skeleton className="h-4 w-[250px]" />

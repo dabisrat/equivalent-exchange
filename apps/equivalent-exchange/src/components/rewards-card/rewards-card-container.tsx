@@ -9,14 +9,16 @@ import { headers } from "next/headers";
 import Image from "next/image";
 import { toDataURL } from "qrcode";
 import RewardsCard from "./rewards-card";
+import type { User } from "@supabase/supabase-js";
 
 export default async function RewardsCardContainer({
   cardId,
+  user,
 }: {
   cardId: string;
+  user: User;
 }) {
-  const [user, card, stamps, headerData] = await Promise.all([
-    getUser(),
+  const [card, stamps, headerData] = await Promise.all([
     getRewardsCard(cardId),
     getStamps(cardId),
     headers(),

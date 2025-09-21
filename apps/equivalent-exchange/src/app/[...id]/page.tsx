@@ -1,7 +1,9 @@
+import { Loading } from "@app/components/loading";
 import RewardsCardContainer from "@app/components/rewards-card/rewards-card-container";
 import { getRewardsCardId } from "@app/utils/data-access";
 import { getUser } from "@eq-ex/auth";
 import { redirect } from "next/navigation";
+import { Suspense } from "react";
 
 export default async function CardPage({
   params,
@@ -20,7 +22,11 @@ export default async function CardPage({
   const [orgId, cardId] = (await params).id;
 
   if (cardId) {
-    return <RewardsCardContainer cardId={cardId} />;
+    return (
+      <Suspense fallback={<Loading />}>
+        <RewardsCardContainer cardId={cardId} user={user} />
+      </Suspense>
+    );
   }
 
   if (!cardId) {
