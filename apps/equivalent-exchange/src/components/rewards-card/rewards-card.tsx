@@ -1,11 +1,9 @@
 "use client";
-import { useSupabaseRealtimeSubscription } from "@app/hooks/supabase-real-time-subscription";
 import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscription";
-import { redeemRewards } from "@app/utils/data-access";
+import { redeemRewards } from "@app/data-access/actions/rewards-card";
 import { Tables } from "@app/utils/database.types";
 import { Button, buttonVariants } from "@eq-ex/ui/components/button";
 import { Skeleton } from "@eq-ex/ui/components/skeleton";
-import { RealtimePostgresChangesPayload } from "@supabase/supabase-js";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import {

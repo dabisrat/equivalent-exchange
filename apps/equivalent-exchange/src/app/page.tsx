@@ -1,6 +1,7 @@
 "use client";
 
-import { createRewardCard, getRewardsCardId } from "@app/utils/data-access";
+import { createRewardCard } from "@app/data-access/actions/rewards-card";
+import { getRewardsCardId } from "@app/utils/data-access";
 import { redirect } from "next/navigation";
 import { useOrganization } from "@app/contexts/organization-context";
 import { useAuth } from "@eq-ex/auth";

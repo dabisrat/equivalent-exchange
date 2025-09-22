@@ -1,10 +1,12 @@
 import {
   canModifyCard,
   getMaxCount,
+} from "@app/data-access/queries/organization";
+import {
   getRewardsCard,
   getStamps,
-} from "@app/utils/data-access";
-import { getUser } from "@eq-ex/auth";
+} from "@app/data-access/queries/rewards-card";
+
 import { headers } from "next/headers";
 import Image from "next/image";
 import { toDataURL } from "qrcode";

@@ -1,5 +1,5 @@
 "use client";
-import { updateStampById } from "@app/utils/data-access";
+import { updateStampById } from "@app/data-access/actions/rewards-card";
 import { MouseEvent, useState } from "react";
 import {
   MdCircle,
