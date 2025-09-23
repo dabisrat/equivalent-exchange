@@ -19,7 +19,7 @@ export async function getUsersRewardsCards(id: string) {
   const supabase = await createServerClient();
   const { data, error } = await supabase
     .from("reward_card")
-    .select()
+    .select("*")
     .eq("user_id", id);
 
   if (error) {
@@ -29,7 +29,8 @@ export async function getUsersRewardsCards(id: string) {
 }
 
 export async function getStamps(cardId: string) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("stamp")
     .select("*")
     .eq("reward_card_id", cardId);

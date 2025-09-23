@@ -61,7 +61,8 @@ async function getOrganizationDetails(orgId: string) {
 }
 // don't export this method!
 async function getStamp(cardId: string, stampIndex: number) {
-  const { data, error } = await (await createServerClient())
+  const supabase = await createServerClient();
+  const { data, error } = await supabase
     .from("stamp")
     .select("*")
     .eq("reward_card_id", cardId)

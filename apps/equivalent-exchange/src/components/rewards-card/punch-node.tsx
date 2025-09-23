@@ -37,9 +37,9 @@ const ICONS = {
 } as const;
 
 const SIZES = {
-  small: 24,
-  medium: 32,
-  large: 40,
+  small: 16,
+  medium: 24,
+  large: 32,
 } as const;
 
 const ANIMATIONS = {
@@ -54,7 +54,7 @@ const DEFAULT_CONFIG: PunchNodeConfig = {
   id: "default-free",
   name: "Free Tier Default",
   type: "standard",
-  size: { punched: "medium", unpunched: "medium", loading: "medium" },
+  size: { punched: "large", unpunched: "medium", loading: "large" },
   colors: { punched: "#6b7280", unpunched: "#6b7280", loading: "#6b7280" },
   icons: {
     punched: "RiExchangeFill",
@@ -124,11 +124,11 @@ export default function PunchNode({
   return (
     <div
       className={`flex justify-center items-center cursor-pointer ${animationClass}`}
-      style={{ width: size, height: size, animationDuration }}
+      style={{ width: "32px", height: "32px", animationDuration }}
       onClick={handleClick}
       title={`${config.name} - ${config.type}`}
     >
-      <IconComponent color={color} size={size} />
+      <IconComponent color={color} fontSize={size} />
     </div>
   );
 }

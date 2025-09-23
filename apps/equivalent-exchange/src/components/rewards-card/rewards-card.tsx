@@ -1,4 +1,8 @@
 "use client";
+// import backDark from "@app/assests/back-dark.svg";
+// import back from "@app/assests/back.svg";
+// import frontDark from "@app/assests/front-dark.svg";
+// import front from "@app/assests/front.svg";
 import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscription";
 import { redeemRewards } from "@app/data-access/actions/rewards-card";
 import { Tables } from "@app/utils/database.types";
@@ -22,6 +26,7 @@ import {
   BackLayoutVariant,
   renderBackLayout,
 } from "./layout";
+import { useTheme } from "next-themes";
 
 type Stamp = Tables<"stamp">;
 
@@ -98,6 +103,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const backRef = useRef<HTMLDivElement | null>(null);
   const [cardHeight, setCardHeight] = useState<number>(225);
   const { organization } = useOrganization();
+  const { resolvedTheme } = useTheme();
 
   const triggerConfetti = useConfettiEffect();
 
@@ -241,7 +247,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           >
             <div
               ref={frontRef}
-              className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm"
+              className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm min-h-[225px]"
             >
               {/* Progress indicator */}
               <div className="absolute top-2 right-3 font-bold text-lg">
@@ -299,7 +305,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
             <div
               ref={backRef}
-              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm"
+              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm min-h-[225px]"
             >
               <div className="p-3 flex flex-col">
                 <div className="flex items-start justify-between mb-0.5">
