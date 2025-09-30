@@ -1,51 +1,7 @@
 import React, { PropsWithChildren } from "react";
 import { cn } from "@eq-ex/ui/utils/cn";
 import PunchNode from "./punch-node";
-
-const config = {
-  id: "default-free",
-  name: "Free Tier Default",
-  type: "standard",
-  size: {
-    punched: "large",
-    unpunched: "small",
-    loading: "large",
-  },
-  colors: {
-    punched: "#b89f3d",
-    unpunched: "#b89f3d",
-    loading: "#6b7280",
-  },
-  icons: {
-    punched: "MdStars",
-    unpunched: "MdCircle",
-    loading: "MdStars",
-  },
-  animation: { enabled: true, loading: { type: "spin" } },
-};
-
-const cardConfig = {
-  variant: "custom",
-  options: {
-    customGrid: {
-      containerClasses: "grid grid-cols-6 h-full",
-      contentClasses:
-        "justify-self-center row-start-2 col-start-2 col-span-4 row-span-3 p-1",
-      punchNodes: [
-        { index: 0, classes: "justify-self-center row-span-2 self-center" }, // Top left
-        { index: 1, classes: "justify-self-center" }, // Top center
-        { index: 2, classes: "justify-self-center" }, // Top right
-        { index: 3, classes: "justify-self-center" }, // Left top
-        { index: 4, classes: "justify-self-center" }, // Right top
-        { index: 5, classes: "justify-self-center row-span-2 self-center" }, // Left bottom
-        { index: 6, classes: "justify-self-center" }, // Right bottom
-        { index: 7, classes: "justify-self-center" }, // Bottom left
-        { index: 8, classes: "justify-self-center" }, // Bottom center
-        { index: 9, classes: "justify-self-center" }, // Bottom right
-      ],
-    },
-  },
-};
+import { PunchNodeConfig } from "@eq-ex/shared/schemas/card-config";
 
 export type BackLayoutVariant =
   | "vertical"
@@ -85,6 +41,7 @@ interface RenderParams {
   points: Record<number, { stamped?: boolean | null; stamp_index?: number }>;
   cardId: string;
   canModify: boolean;
+  punchNodeConfig?: PunchNodeConfig;
   children: React.ReactNode;
 }
 
@@ -138,8 +95,16 @@ function renderGrid(
 }
 
 export function renderBackLayout(params: RenderParams) {
-  const { variant, options, children, maxPoints, points, cardId, canModify } =
-    params;
+  const {
+    variant,
+    options,
+    children,
+    maxPoints,
+    points,
+    cardId,
+    canModify,
+    punchNodeConfig,
+  } = params;
   const merged: Required<Omit<BackLayoutOptions, "customGrid">> & {
     customGrid?: BackLayoutOptions["customGrid"];
   } = {
@@ -271,6 +236,7 @@ export function renderBackLayout(params: RenderParams) {
                 cardId={cardId}
                 canModify={canModify}
                 index={points[punchNode.index]?.stamp_index || punchNode.index}
+                config={punchNodeConfig}
               />
             </div>
           ))}

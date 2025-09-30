@@ -17,6 +17,8 @@ export interface CardFrontConfig {
   offer_description: string;
   /** Optional link to organization's website */
   website_link?: string;
+  /** Optional background image URL or file path */
+  background_image?: string;
 }
 
 /**
@@ -27,6 +29,8 @@ export interface CardBackConfig {
   website_link?: string;
   /** Optional additional card description or terms */
   description?: string;
+  /** Optional background image URL or file path */
+  background_image?: string;
 }
 
 /**
@@ -133,6 +137,8 @@ export interface CardLayoutConfig {
     customGrid?: {
       /** Tailwind classes for the grid container */
       containerClasses?: string;
+      /** Tailwind classes for positioning the content */
+      contentClasses?: string;
       /** Define each punch node's position */
       punchNodes: Array<{
         /** Which punch node (0-based) */
@@ -140,8 +146,6 @@ export interface CardLayoutConfig {
         /** Tailwind classes for positioning this punch node */
         classes: string;
       }>;
-      /** Tailwind classes for positioning the content */
-      contentClasses?: string;
     };
   };
 }

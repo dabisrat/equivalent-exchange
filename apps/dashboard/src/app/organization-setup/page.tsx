@@ -43,8 +43,6 @@ export default function OrganizationSetupPage() {
       organization_name: "",
       max_points: 10,
       subdomain: "",
-      primary_color: "#3b82f6",
-      secondary_color: "#64748b",
       logo_url: "",
     },
   });
@@ -291,6 +289,25 @@ export default function OrganizationSetupPage() {
                       </FormControl>
                       <FormDescription className="text-xs text-gray-500">
                         Maximum points that can be awarded
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="primary_color"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-sm font-medium">
+                        Primary Color (Optional)
+                      </FormLabel>
+                      <FormControl>
+                        <Input type="color" {...field} />
+                      </FormControl>
+                      <FormDescription className="text-xs text-gray-500">
+                        Choose your organization&apos;s primary color
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

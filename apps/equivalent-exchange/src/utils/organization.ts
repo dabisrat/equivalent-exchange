@@ -2,6 +2,7 @@ import {
   createClient as createServerClient,
   supabaseAdmin,
 } from "@eq-ex/shared/server";
+import { OrganizationCardConfig } from "@eq-ex/shared/schemas/card-config";
 
 export type OrganizationData = {
   id: string;
@@ -11,6 +12,7 @@ export type OrganizationData = {
   secondary_color: string | null;
   logo_url: string | null;
   is_active: boolean | null;
+  card_config: OrganizationCardConfig | null;
 };
 
 export type OrganizationLookupResult =
@@ -98,7 +100,7 @@ export async function getOrganizationBySubdomain(
     const { data, error } = await supabaseAdmin
       .from("organization")
       .select(
-        "id, organization_name, subdomain, primary_color, secondary_color, logo_url, is_active"
+        "id, organization_name, subdomain, primary_color, secondary_color, logo_url, is_active, card_config"
       )
       .eq("subdomain", subdomain)
       .single();
@@ -125,7 +127,10 @@ export async function getOrganizationBySubdomain(
 
     return {
       success: true,
-      data,
+      data: {
+        ...data,
+        card_config: data.card_config as OrganizationCardConfig | null,
+      },
     };
   } catch (error) {
     console.error("Database error fetching organization:", {

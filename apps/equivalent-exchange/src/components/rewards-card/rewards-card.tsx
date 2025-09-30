@@ -275,31 +275,36 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
                 {/* Business Name - Larger and more prominent */}
                 <h2 className="text-2xl font-bold mb-1">
-                  {organization?.organization_name?.toUpperCase() ||
-                    "YOUR BUSINESS"}
+                  {organization?.card_config?.card_front_config?.company_name ||
+                    organization?.organization_name?.toUpperCase()}
                 </h2>
                 <h3 className="mb-6 text-sm">REWARDS</h3>
 
                 {/* Rewards Requirements - Larger text */}
                 <div className="text-xs">
                   <p className="mb-2">
-                    Collect {maxPoints} stamps & get a free reward!
+                    {organization?.card_config?.card_front_config
+                      ?.offer_description ||
+                      `Collect ${maxPoints} stamps & get a free reward!`}
                   </p>
                 </div>
 
-                <Link
-                  href="https://eqxrewards.com"
-                  target="_blank"
-                  title="Visit eqxrewards.com"
-                  className="text-xs font-semibold italic tracking-wide bg-gradient-to-r from-sky-600 via-blue-500 to-yellow-400 dark:from-sky-400 dark:via-blue-300 dark:to-amber-300 bg-clip-text text-transparent hover:brightness-110 focus:outline-none focus:ring-1 focus:ring-sky-500/60 rounded-sm transition drop-shadow-[0_0_4px_rgba(160,200,255,0.35)] [font-feature-settings:'ss01','ss02'] font-serif selection:bg-sky-200 selection:text-sky-900"
-                  style={{
-                    fontFamily:
-                      "var(--font-brand, var(--font-display, ui-serif))",
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  your business url here
-                </Link>
+                {organization?.card_config?.card_front_config?.website_link && (
+                  <Link
+                    href={
+                      organization.card_config.card_front_config.website_link
+                    }
+                    target="_blank"
+                    title="Visit website"
+                    className={cn(
+                      buttonVariants({ variant: "link" }),
+                      "p-0 items-start h-[25px]"
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Visit us online
+                  </Link>
+                )}
               </div>
             </div>
 
@@ -309,34 +314,52 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             >
               <div className="p-3 flex flex-col">
                 <div className="flex items-start justify-between mb-0.5">
+                  {/* Points Display */}
                   <div className="font-bold text-lg leading-none pl-1 pt-0.5">
                     {getTotalPoints()}
                   </div>
-                  <Link
-                    href="https://eqxrewards.com"
-                    target="_blank"
-                    title="Visit eqxrewards.com"
-                    className={cn(
-                      buttonVariants({ variant: "link" }),
-                      "p-0 items-start h-[25px]"
-                    )}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    order online
-                  </Link>
+
+                  {/* Store Link */}
+                  {organization?.card_config?.card_back_config
+                    ?.website_link && (
+                    <Link
+                      href={
+                        organization.card_config.card_back_config.website_link
+                      }
+                      target="_blank"
+                      title="Visit website"
+                      className={cn(
+                        buttonVariants({ variant: "link" }),
+                        "p-0 items-start h-[25px]"
+                      )}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Order online
+                    </Link>
+                  )}
                 </div>
+
+                {/* card qr-code and punch nodes */}
                 {renderBackLayout({
-                  variant: layoutVariant,
-                  options: layoutOptions,
+                  variant:
+                    organization?.card_config?.card_layout_config?.variant ||
+                    layoutVariant,
+                  options:
+                    organization?.card_config?.card_layout_config?.options ||
+                    layoutOptions,
                   maxPoints,
                   points: state.points as any,
                   cardId: card.id,
                   canModify,
+                  punchNodeConfig: organization?.card_config?.punch_node_config,
                   children,
                 })}
+
+                {/* Terms - Smaller and lighter text */}
                 <div className="mt-2 flex justify-center">
                   <p className="text-xs text-center opacity-75 px-4">
-                    Terms and conditions apply.
+                    {organization?.card_config?.card_back_config.description ??
+                      "Terms and conditions apply."}
                   </p>
                 </div>
               </div>

@@ -9,6 +9,7 @@ import { headers } from "next/headers";
 import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 import { OrganizationProvider } from "@app/contexts/organization-context";
+import { generateThemeCSS } from "@app/utils/color-utils";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -68,7 +69,10 @@ export default async function RootLayout({
   const organizationData = organizationResult.success
     ? organizationResult.data
     : null;
-
+  console.log(
+    organizationData?.primary_color,
+    organizationData?.secondary_color
+  );
   // Dynamic page title based on organization
   const pageTitle = organizationData?.organization_name
     ? `${organizationData.organization_name} | EQ/EX`
@@ -105,16 +109,16 @@ export default async function RootLayout({
         <title>{pageTitle}</title>
 
         {/* Dynamic CSS custom properties for organization branding */}
-        {/* {organizationData && (
+        {organizationData && (
           <style
             dangerouslySetInnerHTML={{
               __html: generateThemeCSS(
-                organizationData.primary_color,
-                organizationData.secondary_color
+                organizationData.primary_color || "",
+                "neutral"
               ),
             }}
           />
-        )} */}
+        )}
       </head>
       <body className={cn(fontSans.variable)}>
         <ThemeProvider

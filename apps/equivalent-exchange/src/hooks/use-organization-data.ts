@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 export type OrganizationData = {
   id: string;
@@ -12,29 +12,30 @@ export type OrganizationData = {
 } | null;
 
 export function useOrganizationData(): OrganizationData {
-  const [organizationData, setOrganizationData] = useState<OrganizationData>(null);
+  const [organizationData, setOrganizationData] =
+    useState<OrganizationData>(null);
 
   useEffect(() => {
     // Extract organization data from document meta tags (set by server-side layout)
     const getMetaContent = (name: string): string => {
       const meta = document.querySelector(`meta[name="${name}"]`);
-      return meta?.getAttribute('content') || '';
+      return meta?.getAttribute("content") || "";
     };
 
-    const id = getMetaContent('organization-id');
-    const organizationName = getMetaContent('organization-name');
-    const subdomain = getMetaContent('organization-subdomain');
-    const primaryColor = getMetaContent('organization-primary-color');
-    const secondaryColor = getMetaContent('organization-secondary-color');
-    const logoUrl = getMetaContent('organization-logo-url');
+    const id = getMetaContent("organization-id");
+    const organizationName = getMetaContent("organization-name");
+    const subdomain = getMetaContent("organization-subdomain");
+    const primaryColor = getMetaContent("organization-primary-color");
+    const secondaryColor = getMetaContent("organization-secondary-color");
+    const logoUrl = getMetaContent("organization-logo-url");
 
     if (id && organizationName) {
       setOrganizationData({
         id,
         organizationName,
         subdomain,
-        primaryColor: primaryColor || '#3b82f6',
-        secondaryColor: secondaryColor || '#64748b',
+        primaryColor: primaryColor,
+        secondaryColor: secondaryColor,
         logoUrl,
       });
     } else {

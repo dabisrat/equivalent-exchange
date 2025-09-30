@@ -50,12 +50,22 @@ const ANIMATIONS = {
   flip: "animate-flip",
 } as const;
 
+const COLOR_CLASSES = {
+  punched: "text-primary",
+  unpunched: "text-muted-foreground",
+  loading: "text-accent",
+} as const;
+
 const DEFAULT_CONFIG: PunchNodeConfig = {
   id: "default-free",
   name: "Free Tier Default",
   type: "standard",
   size: { punched: "large", unpunched: "medium", loading: "large" },
-  colors: { punched: "#6b7280", unpunched: "#6b7280", loading: "#6b7280" },
+  colors: {
+    punched: "#4F46E5", // Indigo-600
+    unpunched: "#9CA3AF", // Gray-400
+    loading: "#10B981", // Emerald-500
+  },
   icons: {
     punched: "RiExchangeFill",
     unpunched: "MdCircle",
@@ -91,11 +101,6 @@ export default function PunchNode({
     (state === "punched" && config.icons.punched) ||
     config.icons.unpunched;
 
-  const color =
-    (state === "loading" && config.colors.loading) ||
-    (state === "punched" && config.colors.punched) ||
-    config.colors.unpunched;
-
   const sizeKey =
     (state === "loading" && config.size.loading) ||
     (state === "punched" && config.size.punched) ||
@@ -108,8 +113,10 @@ export default function PunchNode({
     config.animation?.enabled &&
     config.animation[state as keyof typeof config.animation];
   const animationClass =
-    animationConfig && typeof animationConfig === "object"
-      ? ANIMATIONS[animationConfig.type]
+    animationConfig &&
+    typeof animationConfig === "object" &&
+    animationConfig.type in ANIMATIONS
+      ? ANIMATIONS[animationConfig.type as keyof typeof ANIMATIONS]
       : "";
   const animationDuration =
     animationConfig &&
@@ -123,12 +130,12 @@ export default function PunchNode({
 
   return (
     <div
-      className={`flex justify-center items-center cursor-pointer ${animationClass}`}
+      className={`flex justify-center items-center cursor-pointer ${animationClass} ${COLOR_CLASSES[state]}`}
       style={{ width: "32px", height: "32px", animationDuration }}
       onClick={handleClick}
       title={`${config.name} - ${config.type}`}
     >
-      <IconComponent color={color} fontSize={size} />
+      <IconComponent color="currentColor" fontSize={size} />
     </div>
   );
 }

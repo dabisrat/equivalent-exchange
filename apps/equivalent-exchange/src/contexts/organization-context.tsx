@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, ReactNode } from "react";
+import { OrganizationCardConfig } from "@eq-ex/shared/schemas/card-config";
 
 export interface Organization {
   id: string;
@@ -9,6 +10,7 @@ export interface Organization {
   primary_color: string | null;
   secondary_color: string | null;
   logo_url?: string | null;
+  card_config: OrganizationCardConfig | null;
 }
 
 interface OrganizationContextType {

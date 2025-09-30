@@ -22,6 +22,7 @@ export const organizationSchema = z.object({
   primary_color: commonValidations.hexColor.nullable(),
   secondary_color: commonValidations.hexColor.nullable(),
   subdomain: z.string().nullable(),
+  card_config: z.record(z.any()).nullable(),
 }) satisfies z.ZodType<OrganizationTable>;
 
 // 3. Input validation schemas (for API boundaries)
@@ -37,8 +38,8 @@ export const createOrganizationSchema = z.object({
     .min(1, "Max points must be at least 1")
     .max(MAX_POINTS, "Max points cannot exceed 100"),
   subdomain: createSlugValidator(reservedWords),
-  primary_color: commonValidations.hexColor.default("#3b82f6"),
-  secondary_color: commonValidations.hexColor.default("#64748b"),
+  primary_color: commonValidations.hexColor.optional(),
+  secondary_color: commonValidations.hexColor.optional(),
   logo_url: z.union([commonValidations.url, z.literal("")]).optional(),
 }) satisfies z.ZodType<
   Pick<
