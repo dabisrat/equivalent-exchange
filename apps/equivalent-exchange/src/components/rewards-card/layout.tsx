@@ -2,6 +2,8 @@ import React, { PropsWithChildren } from "react";
 import { cn } from "@eq-ex/ui/utils/cn";
 import PunchNode from "./punch-node";
 import { PunchNodeConfig } from "@eq-ex/shared/schemas/card-config";
+// Import safelist to ensure grid classes are included in production build
+import "@app/components/rewards-card/grid-safelist";
 
 export type BackLayoutVariant =
   | "vertical"
