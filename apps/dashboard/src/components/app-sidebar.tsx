@@ -5,6 +5,7 @@ import {
   IconDashboard,
   IconInnerShadowTop,
   IconUsers,
+  IconPalette,
 } from "@tabler/icons-react";
 
 // import { NavDocuments } from "@app/components/nav-documents";
@@ -50,7 +51,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       },
     ];
 
-    // Only show Teams tab for admin and owner roles
+    // Only show Teams and Card Design tabs for admin and owner roles
     if (
       activeOrganization?.role === "admin" ||
       activeOrganization?.role === "owner"
@@ -59,6 +60,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Teams",
         url: "/teams",
         icon: IconUsers,
+      });
+      baseItems.push({
+        title: "Card Design",
+        url: "/card-design",
+        icon: IconPalette,
       });
     }
 

@@ -248,6 +248,28 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             <div
               ref={frontRef}
               className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm min-h-[225px]"
+              style={{
+                ...(() => {
+                  const frontConfig =
+                    organization?.card_config?.card_front_config;
+                  if (!frontConfig) return {};
+
+                  const isDark = resolvedTheme === "dark";
+                  const backgroundUrl = isDark
+                    ? frontConfig.dark_background_image ||
+                      frontConfig.background_image
+                    : frontConfig.background_image;
+
+                  return backgroundUrl
+                    ? {
+                        backgroundImage: `url(${backgroundUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }
+                    : {};
+                })(),
+              }}
             >
               {/* Progress indicator */}
               <div className="absolute top-2 right-3 font-bold text-lg">
@@ -255,76 +277,48 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               </div>
 
               {/* Main content container */}
-              <div className="flex flex-col items-center justify-center p-4 text-center">
-                {/* Company Logo */}
-                <div className="mb-3">
-                  {organization?.logo_url ? (
-                    <img
-                      src={organization.logo_url}
-                      alt={`${organization.organization_name} logo`}
-                      className="w-12 h-12 object-contain drop-shadow-lg"
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-lg flex items-center justify-center drop-shadow-lg">
-                      <span className="text-xl font-bold">
-                        {organization?.organization_name?.charAt(0) || "R"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {/* Business Name - Larger and more prominent */}
-                <h2 className="text-2xl font-bold mb-1">
-                  {organization?.card_config?.card_front_config?.company_name ||
-                    organization?.organization_name?.toUpperCase()}
-                </h2>
-                <h3 className="mb-6 text-sm">REWARDS</h3>
-
-                {/* Rewards Requirements - Larger text */}
-                <div className="text-xs">
-                  <p className="mb-2">
-                    {organization?.card_config?.card_front_config
-                      ?.offer_description ||
-                      `Collect ${maxPoints} stamps & get a free reward!`}
-                  </p>
-                </div>
-
-                {organization?.card_config?.card_front_config?.website_link && (
-                  <Link
-                    href={
-                      organization.card_config.card_front_config.website_link
-                    }
-                    target="_blank"
-                    title="Visit website"
-                    className={cn(
-                      buttonVariants({ variant: "link" }),
-                      "p-0 items-start h-[25px]"
+              {!organization?.card_config?.card_front_config
+                .background_image && (
+                <div className="flex flex-col items-center justify-center p-4 text-center">
+                  {/* Company Logo */}
+                  <div className="mb-3">
+                    {organization?.logo_url ? (
+                      <img
+                        src={organization.logo_url}
+                        alt={`${organization.organization_name} logo`}
+                        className="w-12 h-12 object-contain drop-shadow-lg"
+                      />
+                    ) : (
+                      <div className="w-12 h-12 rounded-lg flex items-center justify-center drop-shadow-lg">
+                        <span className="text-xl font-bold">
+                          {organization?.organization_name?.charAt(0) || "R"}
+                        </span>
+                      </div>
                     )}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    Visit us online
-                  </Link>
-                )}
-              </div>
-            </div>
-
-            <div
-              ref={backRef}
-              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm min-h-[225px]"
-            >
-              <div className="p-3 flex flex-col">
-                <div className="flex items-start justify-between mb-0.5">
-                  {/* Points Display */}
-                  <div className="font-bold text-lg leading-none pl-1 pt-0.5">
-                    {getTotalPoints()}
                   </div>
 
-                  {/* Store Link */}
-                  {organization?.card_config?.card_back_config
+                  {/* Business Name - Larger and more prominent */}
+                  <h2 className="text-2xl font-bold mb-1">
+                    {organization?.card_config?.card_front_config
+                      ?.company_name ||
+                      organization?.organization_name?.toUpperCase()}
+                  </h2>
+                  <h3 className="mb-6 text-sm">REWARDS</h3>
+
+                  {/* Rewards Requirements - Larger text */}
+                  <div className="text-xs">
+                    <p className="mb-2">
+                      {organization?.card_config?.card_front_config
+                        ?.offer_description ||
+                        `Collect ${maxPoints} stamps & get a free reward!`}
+                    </p>
+                  </div>
+
+                  {organization?.card_config?.card_front_config
                     ?.website_link && (
                     <Link
                       href={
-                        organization.card_config.card_back_config.website_link
+                        organization.card_config.card_front_config.website_link
                       }
                       target="_blank"
                       title="Visit website"
@@ -334,34 +328,85 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                       )}
                       onClick={(e) => e.stopPropagation()}
                     >
-                      Order online
+                      Visit us online
                     </Link>
                   )}
                 </div>
+              )}
+            </div>
 
-                {/* card qr-code and punch nodes */}
-                {renderBackLayout({
-                  variant:
-                    organization?.card_config?.card_layout_config?.variant ||
-                    layoutVariant,
-                  options:
-                    organization?.card_config?.card_layout_config?.options ||
-                    layoutOptions,
-                  maxPoints,
-                  points: state.points as any,
-                  cardId: card.id,
-                  canModify,
-                  punchNodeConfig: organization?.card_config?.punch_node_config,
-                  children,
-                })}
+            <div
+              ref={backRef}
+              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm min-h-[225px] p-3"
+              style={{
+                ...(() => {
+                  const backConfig =
+                    organization?.card_config?.card_back_config;
+                  if (!backConfig) return {};
 
-                {/* Terms - Smaller and lighter text */}
-                <div className="mt-2 flex justify-center">
-                  <p className="text-xs text-center opacity-75 px-4">
-                    {organization?.card_config?.card_back_config.description ??
-                      "Terms and conditions apply."}
-                  </p>
+                  const isDark = resolvedTheme === "dark";
+                  const backgroundUrl = isDark
+                    ? backConfig.dark_background_image ||
+                      backConfig.background_image
+                    : backConfig.background_image;
+
+                  return backgroundUrl
+                    ? {
+                        backgroundImage: `url(${backgroundUrl})`,
+                        backgroundSize: "cover",
+                        backgroundPosition: "center",
+                        backgroundRepeat: "no-repeat",
+                      }
+                    : {};
+                })(),
+              }}
+            >
+              <div className="flex items-start justify-between mb-0.5">
+                {/* Points Display */}
+                <div className="font-bold text-lg leading-none pl-1 pt-0.5">
+                  {getTotalPoints()}
                 </div>
+
+                {/* Store Link */}
+                {organization?.card_config?.card_back_config?.website_link && (
+                  <Link
+                    href={
+                      organization.card_config.card_back_config.website_link
+                    }
+                    target="_blank"
+                    title="Visit website"
+                    className={cn(
+                      buttonVariants({ variant: "link" }),
+                      "p-0 items-start h-[25px]"
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Order online
+                  </Link>
+                )}
+              </div>
+
+              {renderBackLayout({
+                variant:
+                  organization?.card_config?.card_layout_config?.variant ||
+                  layoutVariant,
+                options:
+                  organization?.card_config?.card_layout_config?.options ||
+                  layoutOptions,
+                maxPoints,
+                points: state.points as any,
+                cardId: card.id,
+                canModify,
+                punchNodeConfig: organization?.card_config?.punch_node_config,
+                children,
+              })}
+
+              {/* Terms - Smaller and lighter text */}
+              <div className="mt-2 flex justify-center">
+                <p className="text-xs text-center opacity-75 px-4">
+                  {organization?.card_config?.card_back_config.description ??
+                    "Terms and conditions apply."}
+                </p>
               </div>
             </div>
           </motion.div>

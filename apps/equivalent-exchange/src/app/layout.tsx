@@ -69,10 +69,7 @@ export default async function RootLayout({
   const organizationData = organizationResult.success
     ? organizationResult.data
     : null;
-  console.log(
-    organizationData?.primary_color,
-    organizationData?.secondary_color
-  );
+
   // Dynamic page title based on organization
   const pageTitle = organizationData?.organization_name
     ? `${organizationData.organization_name} | EQ/EX`

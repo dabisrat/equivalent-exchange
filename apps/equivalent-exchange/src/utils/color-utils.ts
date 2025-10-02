@@ -46,7 +46,7 @@ function shiftHue(h: number, shift: number) {
 
 export function generateThemeCSS(
   baseHex: string,
-  variant: "neutral" | "tinted" = "neutral"
+  variant: "neutral" | "tinted" | "fill" | "saturated" = "neutral"
 ): string {
   if (!baseHex) return "";
 
@@ -182,10 +182,128 @@ export function generateThemeCSS(
   --chart-5: ${toHSL(chartColors[4])};
 }`;
 
+  // === Variant 3: Fill background ===
+  const lightFill = `
+:root {
+  --background: ${toHSL({ h, s: s * 0.3, l: 97 })};
+  --foreground: hsl(0 0% 5%);
+  --card: ${toHSL({ h, s: s * 0.4, l: 95 })};
+  --card-foreground: hsl(0 0% 5%);
+  --popover: ${toHSL({ h, s: s * 0.4, l: 95 })};
+  --popover-foreground: hsl(0 0% 5%);
+  --primary: ${toHSL({ h, s, l })};
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: ${toHSL({ h, s: s * 0.5, l: 90 })};
+  --secondary-foreground: hsl(0 0% 10%);
+  --muted: ${toHSL({ h, s: s * 0.4, l: 88 })};
+  --muted-foreground: hsl(0 0% 45%);
+  --accent: ${toHSL({ h, s: s * 0.6, l: 85 })};
+  --accent-foreground: hsl(0 0% 10%);
+  --destructive: hsl(0 100% 40%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: ${toHSL({ h, s: s * 0.5, l: 80 })};
+  --input: ${toHSL({ h, s: s * 0.5, l: 80 })};
+  --ring: ${toHSL({ h, s, l })};
+  --chart-1: ${toHSL(chartColors[0])};
+  --chart-2: ${toHSL(chartColors[1])};
+  --chart-3: ${toHSL(chartColors[2])};
+  --chart-4: ${toHSL(chartColors[3])};
+  --chart-5: ${toHSL(chartColors[4])};
+}`;
+
+  const darkFill = `
+.dark {
+  --background: ${toHSL({ h, s: s * 0.4, l: 8 })};
+  --foreground: hsl(0 0% 98%);
+  --card: ${toHSL({ h, s: s * 0.5, l: 12 })};
+  --card-foreground: hsl(0 0% 98%);
+  --popover: ${toHSL({ h, s: s * 0.5, l: 15 })};
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: ${toHSL({ h, s, l: Math.min(l + 20, 95) })};
+  --primary-foreground: hsl(0 0% 10%);
+  --secondary: ${toHSL({ h, s: s * 0.6, l: 18 })};
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: ${toHSL({ h, s: s * 0.5, l: 20 })};
+  --muted-foreground: hsl(0 0% 63%);
+  --accent: ${toHSL({ h, s: s * 0.7, l: 25 })};
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 100% 65%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: ${toHSL({ h, s: s * 0.6, l: 22 })};
+  --input: ${toHSL({ h, s: s * 0.6, l: 25 })};
+  --ring: ${toHSL({ h, s, l: Math.min(l + 20, 95) })};
+  --chart-1: ${toHSL(chartColors[0])};
+  --chart-2: ${toHSL(chartColors[1])};
+  --chart-3: ${toHSL(chartColors[2])};
+  --chart-4: ${toHSL(chartColors[3])};
+  --chart-5: ${toHSL(chartColors[4])};
+}`;
+
+  // === Variant 4: Saturated background ===
+  const lightSaturated = `
+:root {
+  --background: ${toHSL({ h, s: s * 0.8, l: 85 })};
+  --foreground: hsl(0 0% 5%);
+  --card: ${toHSL({ h, s: s * 0.9, l: 80 })};
+  --card-foreground: hsl(0 0% 5%);
+  --popover: ${toHSL({ h, s: s * 0.9, l: 80 })};
+  --popover-foreground: hsl(0 0% 5%);
+  --primary: ${toHSL({ h, s, l })};
+  --primary-foreground: hsl(0 0% 98%);
+  --secondary: ${toHSL({ h, s, l: 70 })};
+  --secondary-foreground: hsl(0 0% 10%);
+  --muted: ${toHSL({ h, s: s * 0.9, l: 75 })};
+  --muted-foreground: hsl(0 0% 45%);
+  --accent: ${toHSL({ h, s, l: 65 })};
+  --accent-foreground: hsl(0 0% 10%);
+  --destructive: hsl(0 100% 40%);
+  --destructive-foreground: hsl(0 0% 100%);
+  --border: ${toHSL({ h, s, l: 60 })};
+  --input: ${toHSL({ h, s, l: 60 })};
+  --ring: ${toHSL({ h, s, l })};
+  --chart-1: ${toHSL(chartColors[0])};
+  --chart-2: ${toHSL(chartColors[1])};
+  --chart-3: ${toHSL(chartColors[2])};
+  --chart-4: ${toHSL(chartColors[3])};
+  --chart-5: ${toHSL(chartColors[4])};
+}`;
+
+  const darkSaturated = `
+.dark {
+  --background: ${toHSL({ h, s, l: 12 })};
+  --foreground: hsl(0 0% 98%);
+  --card: ${toHSL({ h, s, l: 18 })};
+  --card-foreground: hsl(0 0% 98%);
+  --popover: ${toHSL({ h, s, l: 20 })};
+  --popover-foreground: hsl(0 0% 98%);
+  --primary: ${toHSL({ h, s, l: Math.min(l + 20, 95) })};
+  --primary-foreground: hsl(0 0% 10%);
+  --secondary: ${toHSL({ h, s, l: 25 })};
+  --secondary-foreground: hsl(0 0% 98%);
+  --muted: ${toHSL({ h, s, l: 28 })};
+  --muted-foreground: hsl(0 0% 63%);
+  --accent: ${toHSL({ h, s, l: 35 })};
+  --accent-foreground: hsl(0 0% 98%);
+  --destructive: hsl(0 100% 65%);
+  --destructive-foreground: hsl(0 0% 98%);
+  --border: ${toHSL({ h, s, l: 30 })};
+  --input: ${toHSL({ h, s, l: 32 })};
+  --ring: ${toHSL({ h, s, l: Math.min(l + 20, 95) })};
+  --chart-1: ${toHSL(chartColors[0])};
+  --chart-2: ${toHSL(chartColors[1])};
+  --chart-3: ${toHSL(chartColors[2])};
+  --chart-4: ${toHSL(chartColors[3])};
+  --chart-5: ${toHSL(chartColors[4])};
+}`;
+
   // Return based on variant
   if (variant === "neutral") {
     return `${lightNeutral}\n${darkNeutral}`;
-  } else {
+  } else if (variant === "tinted") {
     return `${lightTinted}\n${darkTinted}`;
+  } else if (variant === "fill") {
+    return `${lightFill}\n${darkFill}`;
+  } else {
+    return `${lightSaturated}\n${darkSaturated}`;
   }
 }

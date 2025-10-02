@@ -52,7 +52,7 @@ const ANIMATIONS = {
 
 const COLOR_CLASSES = {
   punched: "text-primary",
-  unpunched: "text-muted-foreground",
+  unpunched: "text-primary",
   loading: "text-accent",
 } as const;
 
@@ -61,11 +61,6 @@ const DEFAULT_CONFIG: PunchNodeConfig = {
   name: "Free Tier Default",
   type: "standard",
   size: { punched: "large", unpunched: "medium", loading: "large" },
-  colors: {
-    punched: "#4F46E5", // Indigo-600
-    unpunched: "#9CA3AF", // Gray-400
-    loading: "#10B981", // Emerald-500
-  },
   icons: {
     punched: "RiExchangeFill",
     unpunched: "MdCircle",

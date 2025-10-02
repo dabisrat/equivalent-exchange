@@ -10,15 +10,17 @@
  */
 export interface CardFrontConfig {
   /** Organization logo image URL or file path */
-  logo: string;
+  logo?: string;
   /** Organization/company name (displayed prominently) */
-  company_name: string;
+  company_name?: string;
   /** Description of the reward offer (e.g., "Buy 9 Get 1 Free") */
-  offer_description: string;
+  offer_description?: string;
   /** Optional link to organization's website */
   website_link?: string;
   /** Optional background image URL or file path */
   background_image?: string;
+  /** Optional dark mode background image URL or file path */
+  dark_background_image?: string;
 }
 
 /**
@@ -31,6 +33,8 @@ export interface CardBackConfig {
   description?: string;
   /** Optional background image URL or file path */
   background_image?: string;
+  /** Optional dark mode background image URL or file path */
+  dark_background_image?: string;
 }
 
 /**
@@ -53,7 +57,7 @@ export interface PunchNodeConfig {
     loading?: "small" | "medium" | "large";
   };
   /** Color configuration for different states */
-  colors: {
+  colors?: {
     /** CSS color when stamped */
     punched: string;
     /** CSS color when not stamped */
