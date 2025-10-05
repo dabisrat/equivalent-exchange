@@ -62,7 +62,8 @@ function renderGrid(
   points: RenderParams["points"],
   cardId: string,
   canModify: boolean,
-  justify: BackLayoutOptions["gridJustify"]
+  justify: BackLayoutOptions["gridJustify"],
+  punchNodeConfig?: PunchNodeConfig
 ) {
   const justifyClass =
     justify === "around"
@@ -89,6 +90,7 @@ function renderGrid(
               cardId={cardId}
               canModify={canModify}
               index={points[i]?.stamp_index || i}
+              config={punchNodeConfig}
             />
           </div>
         ))}
@@ -134,7 +136,8 @@ export function renderBackLayout(params: RenderParams) {
     points,
     cardId,
     canModify,
-    effectiveJustify
+    effectiveJustify,
+    punchNodeConfig
   );
   const top = (
     <div className="flex items-center justify-center">{children}</div>

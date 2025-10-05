@@ -13,6 +13,7 @@ import {
   MdFavoriteBorder,
 } from "react-icons/md";
 import { RiExchangeFill } from "react-icons/ri";
+import { FaRegLemon, FaLemon } from "react-icons/fa6";
 import { PunchNodeConfig } from "@eq-ex/shared/utils/shared.types";
 
 interface PunchNodeProps {
@@ -34,6 +35,8 @@ const ICONS = {
   MdFavorite,
   MdFavoriteBorder,
   RiExchangeFill,
+  FaRegLemon,
+  FaLemon,
 } as const;
 
 const SIZES = {

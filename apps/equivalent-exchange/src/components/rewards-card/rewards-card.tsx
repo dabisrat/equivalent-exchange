@@ -99,12 +99,12 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     isAnimating: false,
     points: {},
   });
+  const [cardHeight, setCardHeight] = useState<number>(225);
   const frontRef = useRef<HTMLDivElement | null>(null);
   const backRef = useRef<HTMLDivElement | null>(null);
-  const [cardHeight, setCardHeight] = useState<number>(225);
+
   const { organization } = useOrganization();
   const { resolvedTheme } = useTheme();
-
   const triggerConfetti = useConfettiEffect();
 
   // Use card-specific subscription for stamps belonging to this card

@@ -105,7 +105,7 @@ export function generateThemeCSS(
   --card-foreground: hsl(0 0% 98%);
   --popover: hsl(0 0% 15%);
   --popover-foreground: hsl(0 0% 98%);
-  --primary: ${toHSL({ h, s, l: Math.min(l + 20, 95) })};
+  --primary: ${toHSL({ h, s, l })};
   --primary-foreground: hsl(0 0% 10%);
   --secondary: hsl(0 0% 15%);
   --secondary-foreground: hsl(0 0% 98%);
