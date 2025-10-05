@@ -33,7 +33,10 @@ export default async function RewardsCardContainer({
     canModifyCard(user.id, card.organization_id),
     toDataURL(url, {
       type: "image/webp",
-      color: { dark: "#000000FF", light: "#d1d5e1" },
+      color: {
+        dark: "#000000FF",
+        light: "#FFFFFF", // transparent background #00000000 vs #FFFFFF white background
+      },
     }),
   ]);
 

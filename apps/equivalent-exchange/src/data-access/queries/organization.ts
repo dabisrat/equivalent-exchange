@@ -30,16 +30,16 @@ export async function canModifyCard(userId: string, orgId: string) {
   return data?.is_active === true;
 }
 
-// Add new function for role checking
-export async function getOrganizationMemberRole(userId: string, orgId: string) {
-  const supabase = await createServerClient();
-  const { data, error } = await supabase
-    .from("organization_members")
-    .select("role, is_active")
-    .eq("user_id", userId)
-    .eq("organization_id", orgId)
+export async function getOrganizationPrimaryColor(orgId: string) {
+  const { data, error } = await supabaseAdmin
+    .from("organization")
+    .select("primary_color")
+    .eq("id", orgId)
     .single();
 
-  if (error || !data?.is_active) return null;
-  return data.role;
+  if (error) {
+    throw error;
+  }
+
+  return data.primary_color;
 }
