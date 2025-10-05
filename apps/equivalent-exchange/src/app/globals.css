@@ -81,6 +81,7 @@
   --tracking-wider: calc(var(--tracking-normal) + 0.05em);
   --tracking-widest: calc(var(--tracking-normal) + 0.1em);
   --animate-flip: flip 1s ease-in-out infinite;
+  --animate-fill: fill var(--duration, 2.5s) ease-in-out infinite;
   
 @keyframes flip {
   0% {
@@ -91,6 +92,18 @@
   }
   100% {
     transform: rotateY(360deg);
+  }
+}
+
+@keyframes fill {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  50% {
+    clip-path: inset(0% 0 0 0);
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
   }
 }
 }

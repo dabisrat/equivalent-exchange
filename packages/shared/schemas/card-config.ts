@@ -81,7 +81,7 @@ export interface PunchNodeConfig {
     /** Optional loading animation configuration */
     loading?: {
       /** Animation type */
-      type: "spin" | "pulse" | "bounce" | "flip" | "ping";
+      type: "spin" | "pulse" | "bounce" | "flip" | "ping" | "fill";
       /** Optional animation duration in milliseconds */
       duration?: number;
     };
