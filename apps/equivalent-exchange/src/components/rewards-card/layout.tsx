@@ -7,8 +7,6 @@ import "@app/components/rewards-card/grid-safelist";
 
 export type BackLayoutVariant =
   | "vertical"
-  | "vertical-condensed"
-  | "vertical-separated"
   | "grid-first"
   | "two-column"
   | "two-column-reverse"
@@ -53,7 +51,7 @@ const defaultOptions: Required<Omit<BackLayoutOptions, "customGrid">> & {
   gap: 10,
   topWidth: 40,
   gridWidth: 60,
-  gridJustify: "around",
+  gridJustify: "start",
   overlay: { backdrop: true, blur: true, dimGrid: true },
 };
 
@@ -62,42 +60,26 @@ function renderGrid(
   points: RenderParams["points"],
   cardId: string,
   canModify: boolean,
-  justify: BackLayoutOptions["gridJustify"],
   punchNodeConfig?: PunchNodeConfig
 ) {
-  const justifyClass =
-    justify === "around"
-      ? "justify-around"
-      : justify === "between"
-        ? "justify-between"
-        : justify === "center"
-          ? "justify-center"
-          : justify === "start"
-            ? "justify-start"
-            : justify === "end"
-              ? "justify-end"
-              : justify === "evenly"
-                ? "justify-evenly"
-                : "justify-around";
+  // Use CSS Grid for all layouts for consistent spacing
   return (
-    <div className={cn("flex flex-row flex-wrap", justifyClass)}>
+    <div className="grid grid-cols-[repeat(auto-fit,minmax(32px,1fr))] justify-items-center">
       {Array(maxPoints)
         .fill(null)
         .map((_, i) => (
-          <div key={i}>
-            <PunchNode
-              punched={!!points[i]?.stamped}
-              cardId={cardId}
-              canModify={canModify}
-              index={points[i]?.stamp_index || i}
-              config={punchNodeConfig}
-            />
-          </div>
+          <PunchNode
+            key={i}
+            punched={!!points[i]?.stamped}
+            cardId={cardId}
+            canModify={canModify}
+            index={points[i]?.stamp_index || i}
+            config={punchNodeConfig}
+          />
         ))}
     </div>
   );
 }
-
 export function renderBackLayout(params: RenderParams) {
   const {
     variant,
@@ -125,18 +107,11 @@ export function renderBackLayout(params: RenderParams) {
   };
 
   const gapStyle = { gap: `${merged.gap}px` };
-  // Adjust default justification for two-column variants if left at default 'around'
-  const effectiveJustify =
-    (variant === "two-column" || variant === "two-column-reverse") &&
-    options?.gridJustify == null
-      ? "start"
-      : merged.gridJustify;
   const grid = renderGrid(
     maxPoints,
     points,
     cardId,
     canModify,
-    effectiveJustify,
     punchNodeConfig
   );
   const top = (
@@ -144,21 +119,6 @@ export function renderBackLayout(params: RenderParams) {
   );
 
   switch (variant) {
-    case "vertical-condensed":
-      return (
-        <div className="flex flex-col" style={{ gap: 8 }}>
-          {top}
-          {grid}
-        </div>
-      );
-    case "vertical-separated":
-      return (
-        <div className="flex flex-col" style={gapStyle}>
-          {top}
-          <div className="h-px bg-border" />
-          {grid}
-        </div>
-      );
     case "grid-first":
       return (
         <div className="flex flex-col" style={gapStyle}>
@@ -192,28 +152,6 @@ export function renderBackLayout(params: RenderParams) {
         </div>
       );
     }
-    case "overlay":
-      return (
-        <div className="relative">
-          <div
-            className={cn(
-              merged.overlay.dimGrid && "opacity-60",
-              "transition-opacity"
-            )}
-          >
-            {grid}
-          </div>
-          <div
-            className={cn(
-              "absolute inset-0 flex items-center justify-center",
-              merged.overlay.backdrop && "bg-background/40",
-              merged.overlay.blur && "backdrop-blur-sm"
-            )}
-          >
-            {top}
-          </div>
-        </div>
-      );
     case "custom":
       if (!merged.customGrid) {
         // Fallback to vertical if no custom grid defined
