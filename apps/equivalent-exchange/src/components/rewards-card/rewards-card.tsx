@@ -1,8 +1,4 @@
 "use client";
-// import backDark from "@app/assests/back-dark.svg";
-// import back from "@app/assests/back.svg";
-// import frontDark from "@app/assests/front-dark.svg";
-// import front from "@app/assests/front.svg";
 import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscription";
 import { redeemRewards } from "@app/data-access/actions/rewards-card";
 import { Tables } from "@app/utils/database.types";

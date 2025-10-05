@@ -99,8 +99,6 @@ export interface CardLayoutConfig {
   /** Layout arrangement style */
   variant:
     | "vertical"
-    | "vertical-condensed"
-    | "vertical-separated"
     | "grid-first"
     | "two-column"
     | "two-column-reverse"
