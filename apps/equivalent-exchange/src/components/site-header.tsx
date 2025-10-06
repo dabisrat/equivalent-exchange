@@ -13,13 +13,13 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-2 h-14 flex items-center justify-between max-[380px]:flex-col max-[380px]:h-auto max-[380px]:py-2 max-[380px]:gap-1">
-        <div className="mr-4 max-[380px]:mr-0 max-[380px]:text-center">
-          <h1 className="text-lg font-semibold">
+      <div className="container mx-auto px-2 h-14 flex items-center justify-between max-[480px]:flex-col max-[480px]:h-auto max-[480px]:py-2 max-[480px]:gap-2">
+        <div className="mr-4 max-[480px]:mr-0 max-[480px]:text-center flex-shrink min-w-0">
+          <h1 className="text-lg font-semibold truncate">
             {organization?.organization_name} Rewards
           </h1>
           {/* Stylish powered by */}
-          <div className="mt-0.5 flex items-center gap-1 max-[380px]:justify-center">
+          <div className="mt-0.5 flex items-center gap-1 max-[480px]:justify-center">
             <span className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/70">
               Powered by
             </span>
@@ -37,9 +37,9 @@ export function SiteHeader() {
             </Link>
           </div>
         </div>
-        <div className="flex gap-2 items-center">
-          <PWAInstallButton />
+        <div className="flex flex-wrap gap-1.5 items-center flex-shrink-0 max-[480px]:gap-2">
           <ModeToggle />
+          <PWAInstallButton />
           {user && <LogoutButton></LogoutButton>}
         </div>
       </div>

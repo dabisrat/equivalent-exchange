@@ -12,15 +12,18 @@ export function IOSInstallPrompt() {
   useEffect(() => {
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isIOSDevice = /iphone|ipad|ipod/.test(userAgent);
-    const isStandaloneMode = window.matchMedia("(display-mode: standalone)").matches || 
-                            (window.navigator as any).standalone;
-    
+    const isStandaloneMode =
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone;
+
     setIsIOS(isIOSDevice);
     setIsStandalone(isStandaloneMode);
-    
+
     // Show prompt if it's iOS, not in standalone mode, and user hasn't dismissed it
     if (isIOSDevice && !isStandaloneMode) {
-      const hasSeenPrompt = localStorage.getItem("ios-install-prompt-dismissed");
+      const hasSeenPrompt = localStorage.getItem(
+        "ios-install-prompt-dismissed"
+      );
       if (!hasSeenPrompt) {
         // Show prompt after a short delay
         setTimeout(() => setShowPrompt(true), 3000);
@@ -52,11 +55,11 @@ export function IOSInstallPrompt() {
           <X className="w-4 h-4" />
         </Button>
       </div>
-      
+
       <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
         Add EQ/EX to your home screen for a better experience
       </p>
-      
+
       <div className="space-y-2 text-sm">
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center">
@@ -66,17 +69,18 @@ export function IOSInstallPrompt() {
             Tap the <Share className="w-4 h-4 inline mx-1" /> share button
           </span>
         </div>
-        
+
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 bg-blue-100 dark:bg-blue-900 rounded flex items-center justify-center">
             <span className="text-blue-600 dark:text-blue-400 text-xs">2</span>
           </div>
           <span className="text-gray-700 dark:text-gray-300">
-            Tap &ldquo;Add to Home Screen&rdquo; <Plus className="w-4 h-4 inline ml-1" />
+            Tap &ldquo;Add to Home Screen&rdquo;{" "}
+            <Plus className="w-4 h-4 inline ml-1" />
           </span>
         </div>
       </div>
-      
+
       <div className="mt-4 flex gap-2">
         <Button size="sm" onClick={dismissPrompt} className="flex-1">
           Got it

@@ -20,14 +20,17 @@ declare global {
 }
 
 export function PWAInstallButton() {
-  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [deferredPrompt, setDeferredPrompt] =
+    useState<BeforeInstallPromptEvent | null>(null);
   const [isInstallable, setIsInstallable] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     // Check if app is already installed
-    if (window.matchMedia("(display-mode: standalone)").matches || 
-        (window.navigator as any).standalone) {
+    if (
+      window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as any).standalone
+    ) {
       setIsInstalled(true);
       return;
     }
@@ -59,16 +62,16 @@ export function PWAInstallButton() {
 
     // Show the prompt
     deferredPrompt.prompt();
-    
+
     // Wait for the user to respond to the prompt
     const { outcome } = await deferredPrompt.userChoice;
-    
+
     if (outcome === "accepted") {
       console.log("User accepted the install prompt");
     } else {
       console.log("User dismissed the install prompt");
     }
-    
+
     setDeferredPrompt(null);
     setIsInstallable(false);
   };
