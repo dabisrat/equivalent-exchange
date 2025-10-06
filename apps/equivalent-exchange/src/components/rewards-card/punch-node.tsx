@@ -23,6 +23,7 @@ interface PunchNodeProps {
   punched: boolean;
   canModify: boolean;
   index: number;
+  loading: boolean;
   config?: PunchNodeConfig;
 }
 
@@ -189,21 +190,23 @@ export default function PunchNode({
   punched,
   canModify,
   index,
+  loading,
   config = DEFAULT_CONFIG,
 }: PunchNodeProps) {
-  const [isLoading, setLoading] = useState(false);
+  const [isPunching, setIsPunching] = useState(false);
 
+  const isLoading = loading || isPunching;
   const handleClick = async (e: MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
     if (isLoading || !canModify) return;
 
-    setLoading(true);
+    setIsPunching(true);
     try {
       await updateStampById(cardId, index);
     } finally {
-      setLoading(false);
+      setIsPunching(false);
     }
   };
 

@@ -3,7 +3,6 @@ import { useBroadcastSubscription } from "@app/hooks/supabase-broadcast-subscrip
 import { redeemRewards } from "@app/data-access/actions/rewards-card";
 import { Tables } from "@app/utils/database.types";
 import { Button, buttonVariants } from "@eq-ex/ui/components/button";
-import { Skeleton } from "@eq-ex/ui/components/skeleton";
 import confetti from "canvas-confetti";
 import { motion } from "framer-motion";
 import {
@@ -22,7 +21,6 @@ import {
   BackLayoutVariant,
   renderBackLayout,
 } from "./layout";
-import { useTheme } from "next-themes";
 
 type Stamp = Tables<"stamp">;
 
@@ -90,6 +88,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   children,
 }) => {
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [showRefreshMessage, setShowRefreshMessage] = useState(false);
   const [state, setState] = useState<CardState>({
     isFlipped: false,
     isAnimating: false,
@@ -100,10 +99,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   const backRef = useRef<HTMLDivElement | null>(null);
 
   const { organization } = useOrganization();
-  const { resolvedTheme } = useTheme();
   const triggerConfetti = useConfettiEffect();
-
-  // Use card-specific subscription for stamps belonging to this card
   const { isReady } = useBroadcastSubscription("stamp", {
     topic: `card:${card.id}:stamp`,
     callback: useCallback((payload: any) => {
@@ -166,6 +162,24 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     if (next !== cardHeight) setCardHeight(next);
   }, [state.isFlipped, cardHeight]);
 
+  const getBackgroundStyles = useCallback((config: any) => {
+    if (!config) return {};
+
+    const lightBg = config.background_image;
+    const darkBg = config.dark_background_image || config.background_image;
+
+    const styles: Record<string, string> = {};
+
+    if (lightBg) {
+      styles["--bg-image-light"] = `url('${lightBg}')`;
+    }
+    if (darkBg && darkBg !== lightBg) {
+      styles["--bg-image-dark"] = `url('${darkBg}')`;
+    }
+
+    return styles;
+  }, []);
+
   useEffect(() => {
     // Initialize points from the passed-in stamps
     const stampsByIndex = stamps.reduce(
@@ -179,24 +193,25 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
   }, [stamps]);
 
   useEffect(() => {
-    if (isReady && !state.isFlipped) {
-      const timeout = setTimeout(handleFlip, 200);
-      return () => clearTimeout(timeout);
+    // Show refresh message if connection takes longer than 5 seconds
+    if (!isReady) {
+      const timer = setTimeout(() => {
+        setShowRefreshMessage(true);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    } else {
+      // Reset refresh message when connection is ready
+      setShowRefreshMessage(false);
     }
   }, [isReady]);
 
   useEffect(() => {
-    const ro = new ResizeObserver(() => measure());
-    if (frontRef.current) ro.observe(frontRef.current);
-    if (backRef.current) ro.observe(backRef.current);
-    return () => ro.disconnect();
-  }, [measure]);
-
-  // Post-flip refine measurement after animation ends
-  useEffect(() => {
-    const id = setTimeout(() => measure(), ANIMATION_DURATION * 1000 + 30);
-    return () => clearTimeout(id);
-  }, [state.isFlipped, measure]);
+    if (!state.isFlipped) {
+      const timeout = setTimeout(handleFlip, 200);
+      return () => clearTimeout(timeout);
+    }
+  }, []);
 
   useLayoutEffect(() => {
     measure();
@@ -209,21 +224,28 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
     children,
   ]);
 
-  if (!isReady) {
-    return (
-      <div className="flex flex-col space-y-3 justify-center items-center mt-2">
-        <Skeleton className="w-[375px] h-[225px] rounded-md" />
-        <div className="space-y-2">
-          <Skeleton className="h-4 w-[250px]" />
-          <Skeleton className="h-4 w-[200px]" />
-        </div>
-      </div>
-    );
-  }
-
   return (
     <>
       <div className="flex flex-col items-center">
+        {/* Connecting message above the card */}
+        {!isReady && (
+          <div className="mb-2 text-xs text-muted-foreground bg-background/80 px-2 py-1 rounded-md">
+            {showRefreshMessage ? (
+              <span>
+                Connection issues?{" "}
+                <button
+                  onClick={() => window.location.reload()}
+                  className="underline hover:text-foreground transition-colors"
+                >
+                  Refresh page
+                </button>
+              </span>
+            ) : (
+              "Connecting..."
+            )}
+          </div>
+        )}
+
         <motion.div
           className="mt-2 w-[375px] perspective-1000 cursor-pointer relative"
           onClick={handleFlip}
@@ -243,29 +265,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
           >
             <div
               ref={frontRef}
-              className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm min-h-[225px]"
-              style={{
-                ...(() => {
-                  const frontConfig =
-                    organization?.card_config?.card_front_config;
-                  if (!frontConfig) return {};
-
-                  const isDark = resolvedTheme === "dark";
-                  const backgroundUrl = isDark
-                    ? frontConfig.dark_background_image ||
-                      frontConfig.background_image
-                    : frontConfig.background_image;
-
-                  return backgroundUrl
-                    ? {
-                        backgroundImage: `url(${backgroundUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                      }
-                    : {};
-                })(),
-              }}
+              className="flip-card-front backface-hidden absolute w-full bg-card border rounded-lg shadow-sm min-h-[225px] bg-cover bg-center bg-no-repeat [background-image:var(--bg-image-light)] dark:[background-image:var(--bg-image-dark,var(--bg-image-light))]"
+              style={getBackgroundStyles(
+                organization?.card_config?.card_front_config
+              )}
             >
               {/* Progress indicator */}
               <div className="absolute top-2 right-3 font-bold text-lg">
@@ -333,29 +336,10 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
 
             <div
               ref={backRef}
-              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm min-h-[225px] p-3"
-              style={{
-                ...(() => {
-                  const backConfig =
-                    organization?.card_config?.card_back_config;
-                  if (!backConfig) return {};
-
-                  const isDark = resolvedTheme === "dark";
-                  const backgroundUrl = isDark
-                    ? backConfig.dark_background_image ||
-                      backConfig.background_image
-                    : backConfig.background_image;
-
-                  return backgroundUrl
-                    ? {
-                        backgroundImage: `url(${backgroundUrl})`,
-                        backgroundSize: "cover",
-                        backgroundPosition: "center",
-                        backgroundRepeat: "no-repeat",
-                      }
-                    : {};
-                })(),
-              }}
+              className="flip-card-back backface-hidden absolute rotate-y-180 w-full bg-card border rounded-lg shadow-sm min-h-[225px] p-3 bg-cover bg-center bg-no-repeat [background-image:var(--bg-image-light)] dark:[background-image:var(--bg-image-dark,var(--bg-image-light))]"
+              style={getBackgroundStyles(
+                organization?.card_config?.card_back_config
+              )}
             >
               <div className="flex items-start justify-between mb-0.5">
                 {/* Points Display */}
@@ -394,6 +378,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 cardId: card.id,
                 canModify,
                 punchNodeConfig: organization?.card_config?.punch_node_config,
+                isReady,
                 children,
               })}
 

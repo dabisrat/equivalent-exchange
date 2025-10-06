@@ -42,6 +42,7 @@ interface RenderParams {
   cardId: string;
   canModify: boolean;
   punchNodeConfig?: PunchNodeConfig;
+  isReady: boolean;
   children: React.ReactNode;
 }
 
@@ -60,6 +61,7 @@ function renderGrid(
   points: RenderParams["points"],
   cardId: string,
   canModify: boolean,
+  isReady: boolean,
   punchNodeConfig?: PunchNodeConfig
 ) {
   // Use CSS Grid for all layouts for consistent spacing
@@ -74,6 +76,7 @@ function renderGrid(
             cardId={cardId}
             canModify={canModify}
             index={points[i]?.stamp_index || i}
+            loading={!isReady}
             config={punchNodeConfig}
           />
         ))}
@@ -89,6 +92,7 @@ export function renderBackLayout(params: RenderParams) {
     points,
     cardId,
     canModify,
+    isReady,
     punchNodeConfig,
   } = params;
   const merged: Required<Omit<BackLayoutOptions, "customGrid">> & {
@@ -112,6 +116,7 @@ export function renderBackLayout(params: RenderParams) {
     points,
     cardId,
     canModify,
+    isReady,
     punchNodeConfig
   );
   const top = (
@@ -178,6 +183,7 @@ export function renderBackLayout(params: RenderParams) {
                 punched={!!points[punchNode.index]?.stamped}
                 cardId={cardId}
                 canModify={canModify}
+                loading={!isReady}
                 index={points[punchNode.index]?.stamp_index || punchNode.index}
                 config={punchNodeConfig}
               />
