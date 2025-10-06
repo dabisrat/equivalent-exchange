@@ -2,6 +2,7 @@
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 import { useAuth } from "@eq-ex/auth";
 import { LogoutButton } from "./logout-button";
+import { PWAInstallButton } from "./pwa-install-button";
 import { useOrganization } from "@app/contexts/organization-context";
 
 import Link from "next/dist/client/link";
@@ -37,6 +38,7 @@ export function SiteHeader() {
           </div>
         </div>
         <div className="flex gap-2 items-center">
+          <PWAInstallButton />
           <ModeToggle />
           {user && <LogoutButton></LogoutButton>}
         </div>

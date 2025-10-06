@@ -44,4 +44,16 @@ next-env.d.ts
 # seed-data
 seed.sql
 
+# certificates
 certificates
+
+# PWA auto-generated files
+**/public/sw.js
+**/public/workbox-*.js
+**/public/sw.js.map
+**/public/workbox-*.js.map
+
+# PWA generated icons (if you want to regenerate them)
+# Uncomment these if you want to ignore auto-generated icons:
+# **/public/icons/*.png
+# **/public/icons/apple-touch-icon.png
