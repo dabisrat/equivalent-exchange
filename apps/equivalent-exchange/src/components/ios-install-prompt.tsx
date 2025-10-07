@@ -20,13 +20,18 @@ export function IOSInstallPrompt() {
     setIsStandalone(isStandaloneMode);
 
     // Show prompt if it's iOS, not in standalone mode, and user hasn't dismissed it
-    if (isIOSDevice && !isStandaloneMode) {
+    // Only show on mobile iOS, not for Safari on macOS
+    if (
+      isIOSDevice &&
+      !isStandaloneMode &&
+      /iphone|ipad|ipod/.test(userAgent)
+    ) {
       const hasSeenPrompt = localStorage.getItem(
         "ios-install-prompt-dismissed"
       );
       if (!hasSeenPrompt) {
-        // Show prompt after a short delay
-        setTimeout(() => setShowPrompt(true), 3000);
+        // Show prompt after a longer delay to avoid competing with header button
+        setTimeout(() => setShowPrompt(true), 10000);
       }
     }
   }, []);

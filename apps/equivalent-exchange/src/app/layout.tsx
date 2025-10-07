@@ -10,7 +10,6 @@ import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 import { OrganizationProvider } from "@app/contexts/organization-context";
 import { generateThemeCSS } from "@app/utils/color-utils";
-import { IOSInstallPrompt } from "@app/components/ios-install-prompt";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -214,7 +213,6 @@ export default async function RootLayout({
               <OrganizationProvider organization={organizationData}>
                 <SiteHeader />
                 {children}
-                <IOSInstallPrompt />
               </OrganizationProvider>
             </AuthProvider>
           </CustomThemeProvider>
