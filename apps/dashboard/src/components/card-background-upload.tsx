@@ -14,6 +14,7 @@ import {
   updateCardBackBackground,
   updateCardFrontDarkBackground,
   updateCardBackDarkBackground,
+  updateOrganizationLogo,
 } from "@app/data-access/actions/file-upload";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 import { useRouter } from "next/navigation";
@@ -23,11 +24,14 @@ import {
   TabsList,
   TabsTrigger,
 } from "@eq-ex/ui/components/tabs";
+import { generateAndUploadOrgIcons } from "@app/utils/icon-generation";
+import { createClient } from "@eq-ex/shared/client";
 
 export function CardBackgroundUpload() {
   const { activeOrganization } = useMultiOrgContext();
   const router = useRouter();
   const [isUpdating, setIsUpdating] = useState(false);
+  const [isGeneratingIcons, setIsGeneratingIcons] = useState(false);
 
   const handleFrontBackgroundUpload = async (result: {
     url: string;
@@ -153,21 +157,128 @@ export function CardBackgroundUpload() {
     }
   };
 
+  const handleLogoUpload = async (result: { url: string; path: string }) => {
+    if (!activeOrganization?.id) return;
+
+    try {
+      setIsUpdating(true);
+
+      // Update organization logo URL
+      await updateOrganizationLogo(activeOrganization.id, result.url);
+
+      // Generate PWA icons with new logo
+      setIsGeneratingIcons(true);
+      try {
+        const supabase = createClient();
+        await generateAndUploadOrgIcons(
+          {
+            id: activeOrganization.id,
+            name: activeOrganization.organization_name || "Organization",
+            primaryColor: activeOrganization.primary_color || "#4A90E2",
+            secondaryColor: activeOrganization.secondary_color || "#7B68EE",
+            logoUrl: result.url,
+            subdomain: activeOrganization.subdomain || "",
+          },
+          supabase
+        );
+        console.log("✅ PWA icons regenerated with new logo");
+      } catch (iconError) {
+        console.warn("⚠️ Logo updated but icon generation failed:", iconError);
+      } finally {
+        setIsGeneratingIcons(false);
+      }
+
+      router.refresh(); // Refresh to show updated logo
+    } catch (error) {
+      console.error("Failed to update logo:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleLogoRemove = async () => {
+    if (!activeOrganization?.id) return;
+
+    try {
+      setIsUpdating(true);
+
+      // Remove organization logo
+      await updateOrganizationLogo(activeOrganization.id, null);
+
+      // Regenerate PWA icons without logo (will use initials)
+      setIsGeneratingIcons(true);
+      try {
+        const supabase = createClient();
+        await generateAndUploadOrgIcons(
+          {
+            id: activeOrganization.id,
+            name: activeOrganization.organization_name || "Organization",
+            primaryColor: activeOrganization.primary_color || "#4A90E2",
+            secondaryColor: activeOrganization.secondary_color || "#7B68EE",
+            logoUrl: undefined,
+            subdomain: activeOrganization.subdomain || "",
+          },
+          supabase
+        );
+        console.log("✅ PWA icons regenerated without logo");
+      } catch (iconError) {
+        console.warn("⚠️ Logo removed but icon generation failed:", iconError);
+      } finally {
+        setIsGeneratingIcons(false);
+      }
+
+      router.refresh();
+    } catch (error) {
+      console.error("Failed to remove logo:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Card Background Images</CardTitle>
+        <CardTitle>Branding & Design</CardTitle>
         <CardDescription>
-          Upload custom background images for your reward cards. These will
-          appear behind the card content.
+          Upload your organization logo and custom background images for reward
+          cards. Logo uploads automatically generate PWA app icons for mobile
+          installations.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <Tabs defaultValue="front" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
+        <Tabs defaultValue="logo" className="w-full">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="logo">Logo & Icons</TabsTrigger>
             <TabsTrigger value="front">Front Card</TabsTrigger>
             <TabsTrigger value="back">Back Card</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="logo" className="space-y-4">
+            <div>
+              <h3 className="text-lg font-medium mb-2">Organization Logo</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Upload your organization logo. This will automatically generate
+                PWA app icons for mobile installations and appear on reward
+                cards.
+              </p>
+              <FileUpload
+                label="Organization Logo"
+                currentImage={activeOrganization?.logo_url || undefined}
+                bucket="card-backgrounds"
+                folder={`organizations/${activeOrganization?.id}/logo`}
+                onUploadComplete={handleLogoUpload}
+                onRemove={handleLogoRemove}
+                accept="image/*"
+                maxSizeMB={5}
+                disabled={isUpdating || isGeneratingIcons}
+              />
+              {isGeneratingIcons && (
+                <div className="mt-2 text-sm text-blue-600">
+                  🔄 Generating PWA icons with new logo...
+                </div>
+              )}
+            </div>
+          </TabsContent>
 
           <TabsContent value="front" className="space-y-4">
             <div>
@@ -256,14 +367,19 @@ export function CardBackgroundUpload() {
           </TabsContent>
         </Tabs>
 
-        <div className="text-sm text-muted-foreground mt-6">
+        <div className="text-sm text-muted-foreground mt-6 space-y-2">
           <p>
-            Recommended: High-quality images, 375x225px or larger, PNG or JPEG
-            format, max 5MB
+            <strong>Logo:</strong> Square images work best, PNG format
+            recommended for transparency, max 5MB
+          </p>
+          <p>
+            <strong>Backgrounds:</strong> High-quality images, 375x225px or
+            larger, PNG or JPEG format, max 5MB
           </p>
           <p>
             Background images will be automatically scaled and positioned to fit
-            the card.
+            the card. Logo uploads automatically generate PWA app icons in
+            multiple sizes.
           </p>
         </div>
       </CardContent>

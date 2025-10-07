@@ -75,21 +75,36 @@ export default async function RootLayout({
   const pageTitle = organizationData?.organization_name
     ? `${organizationData.organization_name} | EQ/EX`
     : "EQ/EX";
+
+  // Dynamic PWA branding
+  const appName = organizationData?.organization_name
+    ? `${organizationData.organization_name} Rewards`
+    : "EQ/EX";
+  const appShortName = organizationData?.organization_name
+    ? organizationData.organization_name.length > 12
+      ? organizationData.organization_name.substring(0, 12)
+      : organizationData.organization_name
+    : "EQ/EX";
+  const appDescription = organizationData?.organization_name
+    ? `${organizationData.organization_name} rewards program - powered by Equivalent Exchange`
+    : "Change it up with EQ/EX";
+  const themeColor = organizationData?.primary_color || "#000000";
+
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* PWA meta tags */}
-        <meta name="application-name" content="EQ/EX" />
+        <meta name="application-name" content={appName} />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="EQ/EX" />
-        <meta name="description" content="Change it up with EQ/EX" />
+        <meta name="apple-mobile-web-app-title" content={appShortName} />
+        <meta name="description" content={appDescription} />
         <meta name="format-detection" content="telephone=no" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="msapplication-config" content="/icons/browserconfig.xml" />
-        <meta name="msapplication-TileColor" content="#2B5797" />
+        <meta name="msapplication-TileColor" content={themeColor} />
         <meta name="msapplication-tap-highlight" content="no" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content={themeColor} />
 
         <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
         <link
@@ -130,17 +145,17 @@ export default async function RootLayout({
 
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:url" content="https://yourdomain.com" />
-        <meta name="twitter:title" content="EQ/EX" />
-        <meta name="twitter:description" content="Change it up with EQ/EX" />
+        <meta name="twitter:title" content={appName} />
+        <meta name="twitter:description" content={appDescription} />
         <meta
           name="twitter:image"
           content="https://yourdomain.com/icons/icon-192x192.png"
         />
         <meta name="twitter:creator" content="@eq_ex" />
         <meta property="og:type" content="website" />
-        <meta property="og:title" content="EQ/EX" />
-        <meta property="og:description" content="Change it up with EQ/EX" />
-        <meta property="og:site_name" content="EQ/EX" />
+        <meta property="og:title" content={appName} />
+        <meta property="og:description" content={appDescription} />
+        <meta property="og:site_name" content={appName} />
         <meta property="og:url" content="https://yourdomain.com" />
         <meta
           property="og:image"

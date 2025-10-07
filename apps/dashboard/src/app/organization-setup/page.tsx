@@ -19,6 +19,8 @@ import {
 import { createOrganization } from "@app/data-access/actions/organizations";
 import { useAuth } from "@app/hooks/use-auth";
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
+import { createClient } from "@eq-ex/shared/client";
+import { generateAndUploadOrgIcons } from "@app/utils/icon-generation";
 import { LogOut } from "lucide-react";
 import { signOut } from "@eq-ex/auth";
 import {
@@ -128,7 +130,41 @@ export default function OrganizationSetupPage() {
       const result = await createOrganization(organizationData);
 
       if (result.success) {
-        // Redirect to dashboard after successful setup
+        // Start icon generation in the background (non-blocking)
+        const generateIconsInBackground = async () => {
+          try {
+            const supabase = createClient();
+
+            await generateAndUploadOrgIcons(
+              {
+                id: result.data, // Organization ID
+                name: data.organization_name,
+                primaryColor: data.primary_color || "#4A90E2", // Default blue
+                secondaryColor: data.secondary_color || "#7B68EE", // Default purple
+                logoUrl: data.logo_url || undefined,
+                subdomain: data.subdomain,
+              },
+              supabase
+            );
+
+            console.log(
+              "✅ PWA icons generated successfully for org:",
+              result.data
+            );
+          } catch (iconError) {
+            console.warn(
+              "⚠️ Icon generation failed for org:",
+              result.data,
+              iconError
+            );
+            // Icons will fall back to defaults via the API route
+          }
+        };
+
+        // Fire and forget - don't await
+        generateIconsInBackground();
+
+        // Redirect immediately after organization creation
         router.push("/dashboard");
       } else {
         form.setError("root", { message: result.message });
