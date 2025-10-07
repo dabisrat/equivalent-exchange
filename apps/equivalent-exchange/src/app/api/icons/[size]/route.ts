@@ -3,7 +3,7 @@ import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { NextRequest, NextResponse } from "next/server";
 import fs from "fs";
 import path from "path";
-import { createClient } from "@eq-ex/shared/server";
+import { supabaseAdmin } from "@eq-ex/shared/server";
 
 export async function GET(
   request: NextRequest,
@@ -30,11 +30,9 @@ export async function GET(
 
     // Try Supabase Storage first (generated icons)
     if (organizationData && organizationData.id) {
-      const supabase = await createClient();
-
       // Check if icon exists in Supabase Storage
       const iconPath = `organizations/${organizationData.id}/icons/icon-${size}x${size}.png`;
-      const { data: fileData, error } = await supabase.storage
+      const { data: fileData, error } = await supabaseAdmin.storage
         .from("card-backgrounds")
         .list(`organizations/${organizationData.id}/icons`, {
           limit: 1,
@@ -43,7 +41,7 @@ export async function GET(
 
       if (!error && fileData && fileData.length > 0) {
         // Icon exists in Supabase, get public URL
-        const { data: publicData } = supabase.storage
+        const { data: publicData } = supabaseAdmin.storage
           .from("card-backgrounds")
           .getPublicUrl(iconPath);
 
