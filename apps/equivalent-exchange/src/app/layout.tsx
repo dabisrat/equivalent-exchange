@@ -26,15 +26,17 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Get subdomain from middleware headers
   const headersList = await headers();
-  const subdomain = headersList.get("x-subdomain") || "www";
+  const host = headersList.get("host") || "";
+  const parts = host.split(".");
+  const subdomainFromHost = parts.length > 2 ? parts[0] : "www";
+  const subdomain = headersList.get("x-subdomain") || subdomainFromHost;
 
   // Fetch organization data based on subdomain
   const organizationResult = await getOrganizationBySubdomain(subdomain);
 
   // Handle organization errors (show error page instead of normal app)
-  if (!organizationResult.success && subdomain !== "www") {
+  if (!organizationResult.success) {
     const errorPageTitle = `Organization Error | EQ/EX`;
 
     return (

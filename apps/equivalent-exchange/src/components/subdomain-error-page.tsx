@@ -53,7 +53,7 @@ function ErrorActions({
     // Remove subdomain and go to main domain
     const currentUrl = new URL(window.location.href);
     currentUrl.hostname = currentUrl.hostname.split(".").slice(-2).join(".");
-    window.location.href = currentUrl.toString();
+    window.location.href = currentUrl.hostname;
   };
 
   return (
