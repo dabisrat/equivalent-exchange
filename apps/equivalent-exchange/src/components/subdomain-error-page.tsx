@@ -50,10 +50,12 @@ function ErrorActions({
   };
 
   const goToMainSite = () => {
-    // Remove subdomain and go to main domain
     const currentUrl = new URL(window.location.href);
     currentUrl.hostname = currentUrl.hostname.split(".").slice(-2).join(".");
-    window.location.href = currentUrl.hostname;
+    currentUrl.pathname = "/"; // Reset to root path
+    currentUrl.search = ""; // Remove query params
+    currentUrl.hash = ""; // Remove hash
+    window.location.href = currentUrl.toString();
   };
 
   return (
