@@ -13,7 +13,16 @@ export async function GET(request: Request) {
     const supabase = await createServerClient();
     const {
       data: { session, user },
+      error,
     } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (error || !session) {
+      // Redirect to login with error if exchange fails
+      const errorMessage = error?.message || "Authentication failed";
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?error=${encodeURIComponent(errorMessage)}`
+      );
+    }
 
     if (session) {
       const payload = JSON.parse(atob(session.access_token.split(".")[1]));
