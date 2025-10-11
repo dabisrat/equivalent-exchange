@@ -5,6 +5,8 @@ import { createBrowserClient, authUiConfig } from "@eq-ex/shared";
 import { AuthCard } from "@eq-ex/ui/components/auth-card";
 import { redirect, useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { PasskeyLogin } from "@eq-ex/auth";
+import { Separator } from "@eq-ex/ui/components/separator";
 
 const getUrl = () => {
   let url =
@@ -64,6 +66,15 @@ export default function LoginPage() {
       title="Dashboard"
       description="Sign in or create an account to access your dashboard"
     >
+      <PasskeyLogin redirectTo="/dashboard" />
+
+      <div className="relative my-4">
+        <Separator />
+        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-background px-2 text-xs text-muted-foreground">
+          or
+        </span>
+      </div>
+
       <Auth
         supabaseClient={supabase as any}
         appearance={authUiConfig}

@@ -10,10 +10,15 @@
   },
   "devDependencies": {
     "@eq-ex/shared": "workspace:*",
+    "@eq-ex/ui": "workspace:*",
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.57.0",
     "next": "^15.0.0",
     "react": "^19.0.0",
+    "lucide-react": "^0.468.0",
+    "sonner": "^1.7.0",
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0"

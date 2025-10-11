@@ -30,6 +30,7 @@
     "clean:cache": "pnpm store prune"
   },
   "devDependencies": {
+    "@eslint/eslintrc": "^3.3.1",
     "@typescript-eslint/eslint-plugin": "^8.34.1",
     "@typescript-eslint/parser": "^8.34.1",
     "eslint": "^9.29.0",
@@ -38,7 +39,6 @@
     "eslint-plugin-prettier": "^5.5.3",
     "eslint-plugin-react": "^7.37.5",
     "eslint-plugin-react-hooks": "^5.2.0",
-    "@eslint/eslintrc": "^3.3.1",
     "prettier": "^3.5.3"
   },
   "pnpm": {
@@ -47,5 +47,9 @@
       "@hookform/resolvers": "^5.1.1",
       "zod": "^3.25.67"
     }
+  },
+  "dependencies": {
+    "@simplewebauthn/browser": "^13.2.2",
+    "@simplewebauthn/server": "^13.2.2"
   }
 }

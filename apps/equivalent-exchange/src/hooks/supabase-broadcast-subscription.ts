@@ -60,14 +60,14 @@ export function useBroadcastSubscription(
     const startTime = Date.now();
     let isCleaningUp = false;
 
-    console.log(
-      `🔌 [Broadcast] Setting up subscription for table: ${table}, topic: ${topic}`
-    );
+    // console.log(
+    //   `🔌 [Broadcast] Setting up subscription for table: ${table}, topic: ${topic}`
+    // );
 
     async function setupSubscription() {
       try {
         const supabase = createClient();
-        console.log(`🔑 [Broadcast] Setting auth for topic: ${topic}`);
+        // console.log(`🔑 [Broadcast] Setting auth for topic: ${topic}`);
         await supabase.realtime.setAuth();
 
         channel = supabase.channel(topic, {
@@ -79,29 +79,29 @@ export function useBroadcastSubscription(
         // Log channel state changes
         channel.on("system", {}, (payload) => {
           const { extension, status: systemStatus } = payload;
-          console.log(
-            `📡 [Broadcast] System event - topic: ${topic}, extension: ${extension}, status: ${systemStatus}`
-          );
+          // console.log(
+          //   `📡 [Broadcast] System event - topic: ${topic}, extension: ${extension}, status: ${systemStatus}`
+          // );
         });
 
         events.forEach((event) => {
-          console.log(
-            `👂 [Broadcast] Listening for ${event} events on topic: ${topic}`
-          );
+          // console.log(
+          //   `👂 [Broadcast] Listening for ${event} events on topic: ${topic}`
+          // );
           channel!.on("broadcast", { event }, (payload) => {
             const broadcastPayload = payload.payload as BroadcastPayload;
 
             if (broadcastPayload.table && broadcastPayload.table !== table) {
-              console.log(
-                `⏭️ [Broadcast] Ignoring event for different table: ${broadcastPayload.table} (expected: ${table})`
-              );
+              // console.log(
+              //   `⏭️ [Broadcast] Ignoring event for different table: ${broadcastPayload.table} (expected: ${table})`
+              // );
               return;
             }
 
-            console.log(
-              `📨 [Broadcast] Received ${event} event for ${table}:`,
-              broadcastPayload
-            );
+            // console.log(
+            //   `📨 [Broadcast] Received ${event} event for ${table}:`,
+            //   broadcastPayload
+            // );
             callback(broadcastPayload);
           });
         });
@@ -117,25 +117,25 @@ export function useBroadcastSubscription(
           }
 
           if (status === "SUBSCRIBED") {
-            console.log(
-              `✅ [Broadcast] Successfully subscribed to topic: ${topic} after ${elapsed}ms (attempts: ${reconnectAttempts + 1})`
-            );
+            // console.log(
+            //   `✅ [Broadcast] Successfully subscribed to topic: ${topic} after ${elapsed}ms (attempts: ${reconnectAttempts + 1})`
+            // );
             reconnectAttempts = 0;
           } else if (status === "CHANNEL_ERROR") {
             reconnectAttempts++;
-            console.warn(
-              `⚠️ [Broadcast] Channel error for topic: ${topic}, attempt: ${reconnectAttempts}`
-            );
+            // console.warn(
+            //   `⚠️ [Broadcast] Channel error for topic: ${topic}, attempt: ${reconnectAttempts}`
+            // );
           } else if (status === "TIMED_OUT") {
-            console.warn(
-              `⏱️ [Broadcast] Subscription timed out for topic: ${topic} after ${elapsed}ms`
-            );
+            // console.warn(
+            //   `⏱️ [Broadcast] Subscription timed out for topic: ${topic} after ${elapsed}ms`
+            // );
           } else if (status === "CLOSED") {
-            console.log(`🔒 [Broadcast] Channel closed for topic: ${topic}`);
+            // console.log(`🔒 [Broadcast] Channel closed for topic: ${topic}`);
           } else {
-            console.log(
-              `🔄 [Broadcast] Status change for topic: ${topic} - ${status}`
-            );
+            // console.log(
+            //   `🔄 [Broadcast] Status change for topic: ${topic} - ${status}`
+            // );
           }
 
           setStatus({
@@ -161,31 +161,31 @@ export function useBroadcastSubscription(
     async function forceReconnect() {
       if (isCleaningUp) return;
 
-      console.log(
-        `🔄 [Broadcast] Force reconnecting channel for topic: ${topic}`
-      );
+      // console.log(
+      //   `🔄 [Broadcast] Force reconnecting channel for topic: ${topic}`
+      // );
 
       const supabase = createClient();
-      
+
       // Remove the old channel first
       if (channel) {
-        console.log(`🗑️ [Broadcast] Removing old channel for topic: ${topic}`);
+        // console.log(`🗑️ [Broadcast] Removing old channel for topic: ${topic}`);
         await supabase.removeChannel(channel);
         channel = null;
       }
 
       // Disconnect and reconnect the realtime connection to ensure fresh state
-      console.log(`🔌 [Broadcast] Reconnecting realtime websocket`);
+      // console.log(`🔌 [Broadcast] Reconnecting realtime websocket`);
       supabase.realtime.disconnect();
-      
+
       // Wait a moment for clean disconnect
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       // Reconnect
       supabase.realtime.connect();
-      
+
       // Wait for connection to establish before subscribing
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 1500));
 
       // Reset state and reconnect
       reconnectAttempts = 0;
@@ -195,17 +195,17 @@ export function useBroadcastSubscription(
     // Log visibility changes to track tab switching
     const handleVisibilityChange = async () => {
       if (document.hidden) {
-        console.log(
-          `👁️ [Broadcast] Tab hidden - topic: ${topic}, channel state: ${channel?.state}`
-        );
+        // console.log(
+        //   `👁️ [Broadcast] Tab hidden - topic: ${topic}, channel state: ${channel?.state}`
+        // );
       } else {
-        console.log(
-          `👁️ [Broadcast] Tab visible - topic: ${topic}, channel state: ${channel?.state}`
-        );
+        // console.log(
+        //   `👁️ [Broadcast] Tab visible - topic: ${topic}, channel state: ${channel?.state}`
+        // );
         if (channel?.state === "closed" || channel?.state === "errored") {
-          console.log(
-            `🔄 [Broadcast] Detected stale channel for topic: ${topic}, forcing reconnection`
-          );
+          // console.log(
+          //   `🔄 [Broadcast] Detected stale channel for topic: ${topic}, forcing reconnection`
+          // );
           await forceReconnect();
         }
       }
@@ -217,9 +217,9 @@ export function useBroadcastSubscription(
       isCleaningUp = true;
       document.removeEventListener("visibilitychange", handleVisibilityChange);
       if (channel) {
-        console.log(
-          `🔌 [Broadcast] Cleaning up subscription for topic: ${topic}, state: ${channel.state}`
-        );
+        // console.log(
+        //   `🔌 [Broadcast] Cleaning up subscription for topic: ${topic}, state: ${channel.state}`
+        // );
         const supabase = createClient();
         supabase.removeChannel(channel);
       }
