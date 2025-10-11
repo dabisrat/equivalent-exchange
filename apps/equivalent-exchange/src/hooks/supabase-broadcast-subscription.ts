@@ -165,12 +165,27 @@ export function useBroadcastSubscription(
         `🔄 [Broadcast] Force reconnecting channel for topic: ${topic}`
       );
 
-      // Remove the old channel
+      const supabase = createClient();
+      
+      // Remove the old channel first
       if (channel) {
-        const supabase = createClient();
+        console.log(`🗑️ [Broadcast] Removing old channel for topic: ${topic}`);
         await supabase.removeChannel(channel);
         channel = null;
       }
+
+      // Disconnect and reconnect the realtime connection to ensure fresh state
+      console.log(`🔌 [Broadcast] Reconnecting realtime websocket`);
+      supabase.realtime.disconnect();
+      
+      // Wait a moment for clean disconnect
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Reconnect
+      supabase.realtime.connect();
+      
+      // Wait for connection to establish before subscribing
+      await new Promise(resolve => setTimeout(resolve, 1500));
 
       // Reset state and reconnect
       reconnectAttempts = 0;
