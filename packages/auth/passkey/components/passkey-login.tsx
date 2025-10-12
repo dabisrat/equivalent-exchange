@@ -33,9 +33,13 @@ export function PasskeyLogin({ redirectTo = "/" }: PasskeyLoginProps) {
       // Start WebAuthn authentication
       let assertionResponse;
       try {
-        assertionResponse = await startAuthentication({
+        const authPromise = startAuthentication({
           optionsJSON: optionsResult.data as any,
         });
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error("Authentication timeout")), 30000)
+        );
+        assertionResponse = await Promise.race([authPromise, timeoutPromise]);
       } catch (err: any) {
         console.error("WebAuthn authentication error:", err);
         if (err.name === "NotAllowedError") {

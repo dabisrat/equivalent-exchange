@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { createBrowserClient } from "@eq-ex/shared";
 import type { User, Session, SupabaseClient } from "@supabase/supabase-js";
-import { useParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Database } from "@eq-ex/shared/utils/database.types";
 
 interface AuthContextType {
@@ -11,7 +11,7 @@ interface AuthContextType {
   session: Session | null;
   loading: boolean;
   supabase: SupabaseClient<Database>;
-  signOut: () => Promise<void>;
+  signOut: (path?: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -47,8 +47,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => subscription.unsubscribe();
   }, [supabase.auth, router]);
 
-  const signOut = async () => {
+  const signOut = async (path?: string) => {
     await supabase.auth.signOut();
+    if (path) {
+      router.replace(path);
+    }
   };
 
   const value: AuthContextType = {

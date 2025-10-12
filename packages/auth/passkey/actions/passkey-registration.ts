@@ -6,7 +6,6 @@ import {
   type VerifiedRegistrationResponse,
 } from "@simplewebauthn/server";
 import { createClient } from "@eq-ex/shared/server";
-import { supabaseAdmin } from "@eq-ex/shared/server";
 import type { AsyncResult } from "@eq-ex/shared";
 import { headers } from "next/headers";
 
@@ -17,14 +16,14 @@ const rpName = "Equivalent Exchange";
 const getHostnameFromRequest = async () => {
   const headersList = await headers();
   const host = headersList.get("host") || "localhost:3000";
-  const hostname = host.split(':')[0]; // Remove port
+  const hostname = host.split(":")[0]; // Remove port
   return hostname; // Return full hostname including subdomain
 };
 
 const getOriginFromRequest = async () => {
   const headersList = await headers();
   const host = headersList.get("host") || "localhost:3000";
-  const protocol = host.includes('localhost') ? 'http' : 'https';
+  const protocol = host.includes("localhost") ? "http" : "https";
   return `${protocol}://${host}`;
 };
 
@@ -66,8 +65,7 @@ export async function generatePasskeyRegistrationOptions(): Promise<
 > {
   try {
     const rpID = await getHostnameFromRequest();
-    const origin = await getOriginFromRequest();
-    
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -99,7 +97,8 @@ export async function generatePasskeyRegistrationOptions(): Promise<
       authenticatorSelection: {
         residentKey: "preferred",
         userVerification: "preferred",
-        authenticatorAttachment: "platform",
+        // No authenticatorAttachment specified - allows both platform (built-in)
+        // and cross-platform (phone via QR, security keys) authenticators
       },
       supportedAlgorithmIDs: [-7, -257], // ES256, RS256
     });
@@ -142,7 +141,7 @@ export async function verifyPasskeyRegistration(
   try {
     const rpID = await getHostnameFromRequest();
     const origin = await getOriginFromRequest();
-    
+
     const supabase = await createClient();
     const {
       data: { user },
@@ -190,20 +189,26 @@ export async function verifyPasskeyRegistration(
     }
 
     const { credential } = verification.registrationInfo;
-    const { id: credentialID, publicKey: credentialPublicKey, counter } = credential;
+    const {
+      id: credentialID,
+      publicKey: credentialPublicKey,
+      counter,
+    } = credential;
 
     // The credentialID is already a base64url string from the verification library
     const credentialIdString = credentialID;
 
     // Store the credential
-    const { error: insertError } = await supabase.from("user_credentials").insert({
-      user_id: user.id,
-      credential_id: credentialIdString,
-      public_key: Buffer.from(credentialPublicKey).toString("base64url"),
-      counter,
-      transports: attestationResponse.response.transports || [],
-      device_name: deviceName || "Passkey",
-    });
+    const { error: insertError } = await supabase
+      .from("user_credentials")
+      .insert({
+        user_id: user.id,
+        credential_id: credentialIdString,
+        public_key: Buffer.from(credentialPublicKey).toString("base64url"),
+        counter,
+        transports: attestationResponse.response.transports || [],
+        device_name: deviceName || "Passkey",
+      });
 
     if (insertError) {
       console.error("Insert error:", insertError);

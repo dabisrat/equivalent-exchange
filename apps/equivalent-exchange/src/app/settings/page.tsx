@@ -6,15 +6,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@eq-ex/ui/components/card";
+import { ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
-export default function SecurityPage() {
+export default function Settings() {
   return (
     <div className="container max-w-4xl py-8">
       <div className="space-y-6">
+        <div className="flex items-center gap-4">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Home
+          </Link>
+        </div>
+
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Security Settings
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">
             Manage your account security and authentication methods
           </p>

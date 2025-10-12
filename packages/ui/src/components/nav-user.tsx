@@ -1,23 +1,17 @@
 "use client";
 
-import { CreditCard, MoreVertical, LogOut, Bell, User } from "lucide-react";
+import { MoreVertical, LogOut } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./dropdown-menu";
-import {
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  useSidebar,
-} from "./sidebar";
+import { SidebarMenu, SidebarMenuButton, SidebarMenuItem } from "./sidebar";
 import { useIsMobile } from "../hooks/use-mobile";
 
 export interface NavUserProps {
@@ -28,6 +22,7 @@ export interface NavUserProps {
   };
   onSignOut?: () => void | Promise<void>;
   showSidebarLayout?: boolean;
+  compact?: boolean;
   children?: React.ReactNode;
 }
 
@@ -35,6 +30,7 @@ export function NavUser({
   user,
   onSignOut,
   showSidebarLayout = true,
+  compact = false,
   children,
 }: NavUserProps) {
   const isMobile = useIsMobile();
@@ -79,13 +75,19 @@ export function NavUser({
                 {getUserInitials(user.email)}
               </AvatarFallback>
             </Avatar>
-            <div className="grid flex-1 text-left text-sm leading-tight">
-              <span className="truncate font-medium">{user.name}</span>
-              <span className="text-muted-foreground truncate text-xs">
-                {user.email}
-              </span>
-            </div>
-            <MoreVertical className="ml-auto size-4" />
+            {!compact && (
+              <div
+                className={
+                  "grid flex-1 text-left text-sm leading-tight max-[500px]:hidden"
+                }
+              >
+                <span className="truncate font-medium">{user.name}</span>
+                <span className="text-muted-foreground truncate text-xs">
+                  {user.email}
+                </span>
+              </div>
+            )}
+            <MoreVertical className="ml-auto size-4 max-[500px]:hidden" />
           </button>
         )}
       </DropdownMenuTrigger>
