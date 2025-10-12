@@ -195,10 +195,12 @@ export default async function RootLayout({
         {organizationData && (
           <style
             dangerouslySetInnerHTML={{
-              __html: generateThemeCSS(
-                organizationData.primary_color || "",
-                "neutral"
-              ),
+              __html: organizationData.card_config?.custom_theme_css
+                ? organizationData.card_config.custom_theme_css
+                : generateThemeCSS(
+                    organizationData.primary_color || "",
+                    "neutral"
+                  ),
             }}
           />
         )}

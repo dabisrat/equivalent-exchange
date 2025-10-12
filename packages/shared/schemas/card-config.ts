@@ -165,19 +165,6 @@ export interface OrganizationCardConfig {
   card_layout_config: CardLayoutConfig;
   /** Individual stamp appearance and behavior */
   punch_node_config: PunchNodeConfig;
-}
-
-/**
- * Individual card configuration overrides
- * Cards can override specific organization-level settings
- */
-export interface CardConfigOverrides {
-  /** Override front card configuration */
-  card_front_config?: Partial<CardFrontConfig>;
-  /** Override back card configuration */
-  card_back_config?: Partial<CardBackConfig>;
-  /** Override layout configuration */
-  card_layout_config?: Partial<CardLayoutConfig>;
-  /** Override punch node configuration */
-  punch_node_config?: Partial<PunchNodeConfig>;
+  /** Custom theme CSS string for full theme customization */
+  custom_theme_css?: string;
 }

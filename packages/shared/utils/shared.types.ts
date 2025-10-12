@@ -4,5 +4,4 @@ export type {
   PunchNodeConfig,
   CardLayoutConfig,
   OrganizationCardConfig,
-  CardConfigOverrides,
 } from "../schemas/card-config";
