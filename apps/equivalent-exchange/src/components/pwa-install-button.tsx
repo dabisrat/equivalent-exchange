@@ -160,9 +160,7 @@ export function PWAInstallButton() {
                 <span className="text-gray-700 dark:text-gray-300">
                   Select{" "}
                   <strong>
-                    {isIOS
-                      ? "&ldquo;Add to Home Screen&rdquo;"
-                      : "&ldquo;Add to Dock&rdquo;"}
+                    {isIOS ? "Add to Home Screen" : "Add to Dock"}
                   </strong>{" "}
                   from the menu
                 </span>
