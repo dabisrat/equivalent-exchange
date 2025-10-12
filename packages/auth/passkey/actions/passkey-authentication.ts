@@ -10,11 +10,23 @@ import { headers } from "next/headers";
 
 // Get the actual hostname from the request
 // For WebAuthn, the RP ID must match the domain the browser sees
+// For subdomains under eqxrewards.com, use the base domain to enable
+// passkey sharing across all subdomains (organization sites, www, etc.)
 const getHostnameFromRequest = async () => {
   const headersList = await headers();
   const host = headersList.get("host") || "localhost:3000";
   const hostname = host.split(":")[0]; // Remove port
-  return hostname; // Return full hostname including subdomain
+  
+  // Extract base domain for eqxrewards.com subdomains
+  const parts = hostname.split(".");
+  if (parts.length >= 2) {
+    const baseDomain = parts.slice(-2).join(".");
+    if (baseDomain === "eqxrewards.com") {
+      return baseDomain;
+    }
+  }
+  
+  return hostname; // Return full hostname for localhost or other domains
 };
 
 const getOriginFromRequest = async () => {

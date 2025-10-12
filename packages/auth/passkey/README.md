@@ -127,10 +127,17 @@ await updatePasskeyName(credentialId, "New Name");
 The RP ID is dynamically determined from the request hostname:
 
 - For `localhost:3000` → RP ID: `localhost`
-- For `alchemist.localhost:3000` → RP ID: `alchemist.localhost`
-- For `subdomain.example.com` → RP ID: `subdomain.example.com`
+- For `*.eqxrewards.com` → RP ID: `eqxrewards.com` (base domain)
+- For `eqxrewards.com` → RP ID: `eqxrewards.com`
+- For other custom domains → RP ID: full hostname
 
-This ensures passkeys work correctly across different deployments and subdomains.
+**Cross-subdomain Passkey Sharing**: For the eqxrewards.com domain, the RP ID is set to the base domain (`eqxrewards.com`) rather than individual subdomains. This means:
+
+- A passkey registered on `www.eqxrewards.com` works on `alchemist.eqxrewards.com`
+- A passkey registered on `alchemist.eqxrewards.com` works on `lemon-sweets.eqxrewards.com`
+- Users only need to register their passkey once, and it works across all organization subdomains
+
+This is the correct UX for multi-tenant apps where a single user account can access multiple organization subdomains. The security boundary is at the domain level (eqxrewards.com), not the subdomain level.
 
 ### Security
 
@@ -138,10 +145,7 @@ This ensures passkeys work correctly across different deployments and subdomains
 - Challenges are stored in `passkey_challenges` with automatic cleanup
 - Public keys are stored as base64url-encoded strings
 - Credential counters prevent replay attacks
-
-### Multi-tenant Subdomain Support
-
-Each subdomain gets its own isolated passkeys. This is the correct security model for multi-tenant apps where organizations are isolated by subdomain.
+- Passkeys are scoped to the base domain for cross-subdomain access
 
 ## Database Schema
 
