@@ -19,7 +19,7 @@ const getHostnameFromRequest = async () => {
   const headersList = await headers();
   const host = headersList.get("host") || "localhost:3000";
   const hostname = host.split(":")[0]; // Remove port
-  
+
   // Extract base domain for eqxrewards.com subdomains
   const parts = hostname.split(".");
   if (parts.length >= 2) {
@@ -28,7 +28,7 @@ const getHostnameFromRequest = async () => {
       return baseDomain;
     }
   }
-  
+
   return hostname; // Return full hostname for localhost or other domains
 };
 

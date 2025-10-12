@@ -53,7 +53,7 @@ export function SiteHeader() {
                 user={{
                   name: user.user_metadata?.full_name || "User",
                   email: user.email!,
-                  avatar: "",
+                  avatar: user.user_metadata?.avatar_url || "",
                 }}
                 onSignOut={async () => {
                   await signOut("/auth/login");
