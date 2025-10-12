@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { createBrowserClient } from "@eq-ex/shared";
 import type { User, Session, SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@eq-ex/shared/utils/database.types";
-
+import { useRouter } from "next/navigation";
 interface UseAuthReturn {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signOut: () => Promise<void>;
+  signOut: (path?: string) => Promise<void>;
   supabase: SupabaseClient<Database>;
 }
 
@@ -17,6 +17,7 @@ export function useAuth(): UseAuthReturn {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const supabase = createBrowserClient();
 
   useEffect(() => {
@@ -44,8 +45,11 @@ export function useAuth(): UseAuthReturn {
     return () => subscription.unsubscribe();
   }, [supabase.auth]);
 
-  const signOut = async () => {
+  const signOut = async (path?: string) => {
     await supabase.auth.signOut();
+    if (path) {
+      router.push(path);
+    }
   };
 
   return {

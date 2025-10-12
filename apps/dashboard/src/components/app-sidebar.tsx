@@ -11,7 +11,6 @@ import {
 // import { NavDocuments } from "@app/components/nav-documents";
 import { NavMain } from "@app/components/nav-main";
 // import { NavSecondary } from "@app/components/nav-secondary";
-import { NavUser } from "@app/components/nav-user";
 import { OrganizationSwitcher } from "@app/components/organization-switcher";
 import {
   Sidebar,
@@ -23,9 +22,21 @@ import {
   SidebarMenuItem,
 } from "@eq-ex/ui/components/sidebar";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
-
+import { NavUser } from "@eq-ex/ui/components/nav-user";
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+} from "@eq-ex/ui/components/dropdown-menu";
+import { CreditCard, User } from "lucide-react";
+import { useAuth } from "@app/hooks/use-auth";
+import Link from "next/link";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, organizations, activeOrganization } = useMultiOrgContext();
+  const { signOut } = useAuth();
+
+  const handleSignOut = async () => {
+    await signOut("/login");
+  };
 
   // Create user data from authenticated user
   const userData = user
@@ -97,7 +108,29 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {/* <NavSecondary items={data.navSecondary} className="mt-auto" /> */}
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={userData} />
+        <NavUser
+          user={userData}
+          onSignOut={handleSignOut}
+          showSidebarLayout={true}
+        >
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Link href={"/account"} className="flex items-center gap-2">
+                <User />
+                Account
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link
+                href={"/account/billing"}
+                className="flex items-center gap-2"
+              >
+                <CreditCard />
+                Billing
+              </Link>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </NavUser>
       </SidebarFooter>
     </Sidebar>
   );
