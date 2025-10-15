@@ -6,6 +6,7 @@ import {
   IconInnerShadowTop,
   IconUsers,
   IconPalette,
+  IconBell,
 } from "@tabler/icons-react";
 
 // import { NavDocuments } from "@app/components/nav-documents";
@@ -76,6 +77,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         title: "Card Design",
         url: "/card-design",
         icon: IconPalette,
+      });
+      baseItems.push({
+        title: "Notifications",
+        url: "/notifications",
+        icon: IconBell,
       });
     }
 

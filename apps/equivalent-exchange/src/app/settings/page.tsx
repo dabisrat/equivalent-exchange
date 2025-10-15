@@ -8,6 +8,7 @@ import {
 } from "@eq-ex/ui/components/card";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import PushSubscription from "../../components/PushSubscription";
 
 export default function Settings() {
   return (
@@ -30,17 +31,18 @@ export default function Settings() {
           </p>
         </div>
 
+        <PasskeyManager />
+
         <Card>
           <CardHeader>
-            <CardTitle>Passkeys</CardTitle>
+            <CardTitle>Push Notifications</CardTitle>
             <CardDescription>
-              Passkeys are a more secure and convenient way to sign in. They use
-              biometric authentication (like Face ID or Touch ID) or your
-              device&apos;s PIN instead of passwords.
+              Enable push notifications to stay updated with your
+              organization&apos;s activities.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <PasskeyManager />
+            <PushSubscription />
           </CardContent>
         </Card>
       </div>

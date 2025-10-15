@@ -10,6 +10,7 @@ import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 import { OrganizationProvider } from "@app/contexts/organization-context";
 import { generateThemeCSS } from "@app/utils/color-utils";
+import ServiceWorkerRegistration from "@app/components/ServiceWorkerRegistration";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -215,6 +216,7 @@ export default async function RootLayout({
           <CustomThemeProvider defaultTheme="system">
             <AuthProvider>
               <OrganizationProvider organization={organizationData}>
+                <ServiceWorkerRegistration />
                 <SiteHeader />
                 {children}
               </OrganizationProvider>
