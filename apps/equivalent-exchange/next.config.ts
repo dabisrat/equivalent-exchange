@@ -10,7 +10,6 @@ const pwaConfig = withPWA({
   register: true,
   skipWaiting: true,
   disable: process.env.NODE_ENV === "development",
-  customWorkerDir: "worker",
   buildExcludes: [/middleware-manifest\.json$/],
   runtimeCaching: [
     {
