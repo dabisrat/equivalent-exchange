@@ -112,21 +112,36 @@ export default function PushSubscription() {
       setLoading(false);
       return;
     }
+
     try {
       // Unsubscribe from push manager first
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      if (subscription) {
-        await subscription.unsubscribe();
+
+      if (!subscription) {
+        alert("No active subscription found");
+        setLoading(false);
+        return;
       }
 
-      // Then remove from database
-      await unsubscribeFromPush(organization.id);
+      const endpoint = subscription.endpoint;
+
+      // Unsubscribe from push manager
+      await subscription.unsubscribe();
+
+      // Then remove from database with endpoint
+      await unsubscribeFromPush({
+        organizationId: organization.id,
+        endpoint: endpoint,
+      });
+
       setIsSubscribed(false);
       alert("Unsubscribed from push notifications!");
     } catch (error) {
       console.error("Unsubscription failed:", error);
-      alert("Failed to unsubscribe");
+      alert(
+        `Failed to unsubscribe: ${error instanceof Error ? error.message : String(error)}`
+      );
     } finally {
       setLoading(false);
     }
