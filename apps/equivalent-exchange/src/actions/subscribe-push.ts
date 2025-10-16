@@ -22,7 +22,8 @@ export async function subscribeToPush({
     .select("id")
     .eq("user_id", user.id)
     .eq("organization_id", organizationId)
-    .single();
+    .eq("subscription->>endpoint", subscription.endpoint)
+    .maybeSingle();
 
   if (existing) {
     // Update existing subscription
@@ -46,7 +47,7 @@ export async function subscribeToPush({
   return { success: true };
 }
 
-export async function unsubscribeFromPush() {
+export async function unsubscribeFromPush(organizationId: string) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -54,10 +55,21 @@ export async function unsubscribeFromPush() {
 
   if (!user) throw new Error("User not authenticated");
 
+  // Get the current device's subscription endpoint
+  const registration = await navigator.serviceWorker.ready;
+  const currentSubscription = await registration.pushManager.getSubscription();
+
+  if (!currentSubscription) {
+    throw new Error("No active subscription found");
+  }
+
+  // Delete only THIS device's subscription
   const { error } = await supabase
     .from("push_subscriptions")
     .delete()
-    .eq("user_id", user.id);
+    .eq("user_id", user.id)
+    .eq("organization_id", organizationId)
+    .eq("subscription->>endpoint", currentSubscription.endpoint);
 
   if (error) throw error;
 

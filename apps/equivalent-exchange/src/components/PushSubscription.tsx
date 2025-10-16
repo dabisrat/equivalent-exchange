@@ -106,6 +106,12 @@ export default function PushSubscription() {
 
   const handleUnsubscribe = async () => {
     setLoading(true);
+
+    if (!organization?.id) {
+      console.error("No organization ID found");
+      setLoading(false);
+      return;
+    }
     try {
       // Unsubscribe from push manager first
       const registration = await navigator.serviceWorker.ready;
@@ -115,7 +121,7 @@ export default function PushSubscription() {
       }
 
       // Then remove from database
-      await unsubscribeFromPush();
+      await unsubscribeFromPush(organization.id);
       setIsSubscribed(false);
       alert("Unsubscribed from push notifications!");
     } catch (error) {
