@@ -252,7 +252,6 @@ Deno.serve(async (req) => {
     // Send push notifications to all subscriptions
     const results = await Promise.allSettled(
       subscriptions.map(async (sub: PushSubscription) => {
-        console.log("sub object:", sub);
         try {
           const pushSubscription = {
             endpoint: sub.subscription.endpoint,
