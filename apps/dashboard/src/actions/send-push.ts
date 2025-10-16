@@ -31,7 +31,6 @@ export async function sendPush({
     if (sessionError || !session) {
       throw new Error("Not authenticated");
     }
-
     // Call the Edge Function with JWT authentication
     const { data, error } = await supabase.functions.invoke("send-push", {
       body: { organizationId, title, body, icon, badge, url },

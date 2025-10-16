@@ -1,163 +1,337 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-// @deno-types="npm:@types/web-push"
-import webpush from "npm:web-push@3.6.7";
+import "jsr:@supabase/functions-js/edge-runtime.d.ts";
+// import { createClient } from "npm:@supabase/supabase-js@2";
+// import * as webpush from "jsr:@negrel/webpush";
+import { createClient } from "supabase";
+import * as webpush from "webpush";
 
-export async function handler(req: Request) {
-  try {
-    // Set VAPID details
-    const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY")!;
-    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY")!;
+// CORS headers for the response
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type",
+};
 
-    webpush.setVapidDetails(
-      "mailto:admin@equivalent-exchange.com",
-      vapidPublicKey,
-      vapidPrivateKey
+interface PushNotificationPayload {
+  organizationId: string;
+  title: string;
+  body: string;
+  icon?: string;
+  badge?: string;
+  url?: string;
+}
+
+interface PushSubscription {
+  id: string;
+  user_id: string;
+  organization_id: string;
+  subscription: {
+    endpoint: string;
+    keys: {
+      p256dh: string;
+      auth: string;
+    };
+  };
+}
+
+Deno.serve(async (req) => {
+  console.log(
+    `[${new Date().toISOString()}] Push notification request received: ${req.method} ${req.url}`
+  );
+
+  // Handle CORS preflight requests
+  if (req.method === "OPTIONS") {
+    console.log(
+      `[${new Date().toISOString()}] Handling CORS preflight request`
     );
-    // Extract JWT from Authorization header
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    // Get authorization header
     const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
+    if (!authHeader) {
+      console.log(`[${new Date().toISOString()}] Missing authorization header`);
+      return new Response(
+        JSON.stringify({ error: "Missing authorization header" }),
+        {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
     }
 
-    const token = authHeader.substring(7);
+    console.log(`[${new Date().toISOString()}] Authorization header present`);
 
-    // Create authenticated client with JWT
-    const supabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_ANON_KEY")!,
+    // Create Supabase client with the user's auth token
+    const supabaseClient = createClient(
+      Deno.env.get("SUPABASE_URL") ?? "",
+      Deno.env.get("SUPABASE_ANON_KEY") ?? "",
       {
-        global: { headers: { Authorization: `Bearer ${token}` } },
+        global: {
+          headers: { Authorization: authHeader },
+        },
       }
     );
 
-    // Verify user authentication
+    // Verify the user is authenticated
     const {
       data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-    if (authError || !user) {
+      error: userError,
+    } = await supabaseClient.auth.getUser();
+
+    if (userError || !user) {
+      console.log(
+        `[${new Date().toISOString()}] Authentication failed:`,
+        userError?.message || "No user"
+      );
       return new Response(JSON.stringify({ error: "Unauthorized" }), {
         status: 401,
-        headers: { "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // Parse request body
-    const { organizationId, title, body, url, icon, badge } = await req.json();
+    console.log(`[${new Date().toISOString()}] User authenticated: ${user.id}`);
 
+    // Parse request body
+    const payload: PushNotificationPayload = await req.json();
+    const { organizationId, title, body, icon, badge, url } = payload;
+
+    console.log(`[${new Date().toISOString()}] Request payload:`, {
+      organizationId,
+      title,
+      body,
+      icon,
+      badge,
+      url,
+      hasAuth: !!authHeader,
+    });
+
+    // Validate required fields
     if (!organizationId || !title || !body) {
+      console.log(
+        `[${new Date().toISOString()}] Missing required fields: organizationId=${!!organizationId}, title=${!!title}, body=${!!body}`
+      );
       return new Response(
-        JSON.stringify({ error: "Missing required fields" }),
+        JSON.stringify({
+          error: "Missing required fields: organizationId, title, body",
+        }),
         {
           status: 400,
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    // Verify user is an active admin or owner of the organization
-    const { data: membership, error: membershipError } = await supabase
+    // Verify user has access to this organization
+    const { data: membership, error: membershipError } = await supabaseClient
       .from("organization_members")
       .select("role")
-      .eq("user_id", user.id)
-      .eq("organization_id", organizationId)
       .eq("is_active", true)
+      .eq("organization_id", organizationId)
+      .eq("user_id", user.id)
       .single();
 
     if (membershipError || !membership) {
+      console.log(
+        `[${new Date().toISOString()}] Organization access denied for user ${user.id} in org ${organizationId}:`,
+        membershipError?.message || "No membership found"
+      );
       return new Response(
-        JSON.stringify({ error: "Forbidden - not a member" }),
+        JSON.stringify({
+          error: "User does not have access to this organization",
+        }),
         {
           status: 403,
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    // Only owners and admins can send push notifications
     if (!["owner", "admin"].includes(membership.role)) {
       return new Response(
-        JSON.stringify({ error: "Forbidden - insufficient permissions" }),
+        JSON.stringify({
+          error: "User does not have access to this organization",
+        }),
         {
           status: 403,
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
-    // Get all subscriptions for the organization using service role
-    const serviceSupabase = createClient(
-      Deno.env.get("SUPABASE_URL")!,
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    console.log(
+      `[${new Date().toISOString()}] User ${user.id} has access to organization ${organizationId}`
     );
 
-    const { data: subscriptions, error: subError } = await serviceSupabase
-      .from("push_subscriptions")
-      .select("id, subscription")
-      .eq("organization_id", organizationId);
+    // Get VAPID keys from environment
+    const vapidPublicKey = Deno.env.get("VAPID_PUBLIC_KEY");
+    const vapidPrivateKey = Deno.env.get("VAPID_PRIVATE_KEY");
+    const vapidSubject =
+      Deno.env.get("VAPID_SUBJECT") || "mailto:admin@example.com";
 
-    if (subError) {
-      console.error("Error fetching subscriptions:", subError);
+    if (!vapidPublicKey || !vapidPrivateKey) {
+      console.error(`[${new Date().toISOString()}] VAPID keys not configured`);
       return new Response(
-        JSON.stringify({ error: "Failed to fetch subscriptions" }),
+        JSON.stringify({
+          error: "Push notifications not configured",
+        }),
         {
           status: 500,
-          headers: { "Content-Type": "application/json" },
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    // Set VAPID details for the web-push library
+    webpush.setVapidDetails(vapidSubject, vapidPublicKey, vapidPrivateKey);
+
+    console.log(
+      `[${new Date().toISOString()}] VAPID keys configured, subject: ${vapidSubject}`
+    );
+
+    // Fetch all push subscriptions for this organization
+    const { data: subscriptions, error: subscriptionsError } =
+      await supabaseClient
+        .from("push_subscriptions")
+        .select("*")
+        .eq("organization_id", organizationId);
+
+    if (subscriptionsError) {
+      console.error(
+        `[${new Date().toISOString()}] Error fetching subscriptions for org ${organizationId}:`,
+        subscriptionsError
+      );
+      return new Response(
+        JSON.stringify({
+          error: "Failed to fetch subscriptions",
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    console.log(
+      `[${new Date().toISOString()}] Found ${subscriptions?.length || 0} subscriptions for organization ${organizationId}`
+    );
+
+    if (!subscriptions || subscriptions.length === 0) {
+      console.log(
+        `[${new Date().toISOString()}] No subscriptions found for organization ${organizationId}`
+      );
+      return new Response(
+        JSON.stringify({
+          message: "No subscriptions found for this organization",
+          sentCount: 0,
+          failedCount: 0,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
         }
       );
     }
 
     // Prepare notification payload
-    const payload = JSON.stringify({
+    const notificationPayload = JSON.stringify({
       title,
       body,
-      icon: icon || "/icons/icon-192x192.png",
-      badge: badge || "/icons/icon-192x192.png",
-      data: { url: url || "/" },
+      icon: icon || "/icon-192x192.png",
+      badge: badge || "/badge-72x72.png",
+      data: {
+        url: url || "/",
+        organizationId,
+      },
     });
 
-    // Send notifications to all subscribers
-    const results = [];
-    for (const sub of subscriptions || []) {
-      try {
-        await webpush.sendNotification(sub.subscription, payload);
-        results.push({ id: sub.id, success: true });
-      } catch (err: any) {
-        console.error(`Failed to send to subscription ${sub.id}:`, err.message);
+    console.log(
+      `[${new Date().toISOString()}] Prepared notification payload, starting to send to ${subscriptions.length} subscriptions`
+    );
 
-        // Clean up expired/invalid subscriptions
-        if (err.statusCode === 404 || err.statusCode === 410) {
-          await serviceSupabase
-            .from("push_subscriptions")
-            .delete()
-            .eq("id", sub.id);
+    // Send push notifications to all subscriptions
+    const results = await Promise.allSettled(
+      subscriptions.map(async (sub: PushSubscription) => {
+        console.log("sub object:", sub);
+        try {
+          const pushSubscription = {
+            endpoint: sub.subscription.endpoint,
+            keys: {
+              p256dh: sub.subscription.keys.p256dh,
+              auth: sub.subscription.keys.auth,
+            },
+          };
+
+          await webpush.sendNotification(pushSubscription, notificationPayload);
+
+          console.log(
+            `[${new Date().toISOString()}] Successfully sent notification to subscription ${sub.id} (user: ${sub.user_id})`
+          );
+          return { success: true, subscriptionId: sub.id };
+        } catch (error) {
+          console.error(
+            `[${new Date().toISOString()}] Failed to send notification to subscription ${sub.id} (user: ${sub.user_id}):`,
+            error
+          );
+
+          // If subscription is expired or invalid, delete it
+          if (
+            error instanceof Error &&
+            (error.message.includes("410") || error.message.includes("404"))
+          ) {
+            console.log(
+              `[${new Date().toISOString()}] Deleting expired subscription ${sub.id}`
+            );
+            await supabaseClient
+              .from("push_subscriptions")
+              .delete()
+              .eq("id", sub.id);
+          }
+
+          return {
+            success: false,
+            subscriptionId: sub.id,
+            error: error.message,
+          };
         }
+      })
+    );
 
-        results.push({ id: sub.id, success: false, error: err.message });
-      }
-    }
+    // Count successes and failures
+    const sentCount = results.filter(
+      (r) => r.status === "fulfilled" && r.value.success
+    ).length;
+    const failedCount = results.length - sentCount;
+
+    console.log(
+      `[${new Date().toISOString()}] Push notification batch completed: ${sentCount} sent, ${failedCount} failed, ${subscriptions.length} total`
+    );
 
     return new Response(
       JSON.stringify({
-        success: true,
-        sent: results.filter((r) => r.success).length,
-        failed: results.filter((r) => !r.success).length,
-        total: results.length,
-        results,
+        message: "Push notifications sent",
+        sentCount,
+        failedCount,
+        totalSubscriptions: subscriptions.length,
       }),
       {
         status: 200,
-        headers: { "Content-Type": "application/json" },
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       }
     );
   } catch (error) {
-    console.error("Unexpected error:", error);
-    return new Response(JSON.stringify({ error: "Internal server error" }), {
-      status: 500,
-      headers: { "Content-Type": "application/json" },
-    });
+    console.error(
+      `[${new Date().toISOString()}] Unexpected error in push notification function:`,
+      error
+    );
+    return new Response(
+      JSON.stringify({
+        error: error instanceof Error ? error.message : "Internal server error",
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      }
+    );
   }
-}
+});

@@ -44,15 +44,39 @@ export default function PushSubscription() {
     setLoading(true);
 
     try {
+      // Check if organization exists
+      if (!organization?.id) {
+        console.error("No organization ID found");
+        setLoading(false);
+        return;
+      }
+
       // Request permission
       const permission = await Notification.requestPermission();
       if (permission !== "granted") {
-        alert("Notification permission denied");
+        setLoading(false);
         return;
       }
 
       // Get service worker registration
-      const registration = await navigator.serviceWorker.ready;
+      // Add timeout to detect if service worker is stuck
+      const registrationPromise = navigator.serviceWorker.ready;
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                "Service worker registration timeout - PWA may be disabled"
+              )
+            ),
+          5000
+        )
+      );
+
+      const registration = (await Promise.race([
+        registrationPromise,
+        timeoutPromise,
+      ])) as ServiceWorkerRegistration;
 
       // Subscribe to push
       const subscription = await registration.pushManager.subscribe({
@@ -63,15 +87,18 @@ export default function PushSubscription() {
       });
 
       // Call Server Action
-      await subscribeToPush({
+      const result = await subscribeToPush({
         subscription: subscription.toJSON(),
-        organizationId: organization?.id || "",
+        organizationId: organization.id,
       });
+
       setIsSubscribed(true);
       alert("Subscribed to push notifications!");
     } catch (error) {
       console.error("Subscription failed:", error);
-      alert("Failed to subscribe");
+      alert(
+        `Failed to subscribe: ${error instanceof Error ? error.message : String(error)}`
+      );
     } finally {
       setLoading(false);
     }
