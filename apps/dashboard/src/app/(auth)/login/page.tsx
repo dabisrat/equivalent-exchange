@@ -79,7 +79,7 @@ export default function LoginPage() {
         supabaseClient={supabase as any}
         appearance={authUiConfig}
         providers={["google"]}
-        redirectTo={`${getUrl()}callback`}
+        redirectTo={`${getUrl()}callback?redirectTo=/`}
         showLinks={true}
         magicLink={true}
         view="sign_in"
