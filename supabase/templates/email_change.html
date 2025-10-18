@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Email Change</title>
+</head>
+<body>
+    <h1>Confirm Email Change</h1>
+    <p>You requested to change your email address to {{ .NewEmail }}. Click the link below to confirm:</p>
+    <a href="{{ .ConfirmationURL }}">Confirm Email Change</a>
+    <p>If you did not request this change, please ignore this email.</p>
+</body>
+</html>

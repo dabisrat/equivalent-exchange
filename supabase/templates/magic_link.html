@@ -1,0 +1,11 @@
+<html>
+<head>
+    <title>Your Magic Link</title>
+</head>
+<body>
+    <h1>Your Magic Link</h1>
+    <p>Click the link below to sign in without a password:</p>
+    <a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink">Sign In</a>
+    <p>This link will expire in 1 hour.</p>
+</body>
+</html>

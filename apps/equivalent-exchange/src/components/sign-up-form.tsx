@@ -1,64 +1,68 @@
-'use client'
+"use client";
 
-import { cn } from '@eq-ex/ui/utils/cn'
-import { createClient } from '@eq-ex/shared/client'
-import { Button } from '@eq-ex/ui/components/button'
+import { cn } from "@eq-ex/ui/utils/cn";
+import { createClient } from "@eq-ex/shared/client";
+import { Button } from "@eq-ex/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from '@eq-ex/ui/components/card'
-import { Input } from '@eq-ex/ui/components/input'
-import { Label } from '@eq-ex/ui/components/label'
-import Link from 'next/link'
-import { useRouter, useSearchParams } from 'next/navigation'
-import { useState } from 'react'
+} from "@eq-ex/ui/components/card";
+import { Input } from "@eq-ex/ui/components/input";
+import { Label } from "@eq-ex/ui/components/label";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
-export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutRef<'div'>) {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [repeatPassword, setRepeatPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const searchParams = useSearchParams()
+export function SignUpForm({
+  className,
+  ...props
+}: React.ComponentPropsWithoutRef<"div">) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [repeatPassword, setRepeatPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault()
-    const supabase = createClient()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     if (password !== repeatPassword) {
-      setError('Passwords do not match')
-      setIsLoading(false)
-      return
+      setError("Passwords do not match");
+      setIsLoading(false);
+      return;
     }
 
     try {
-      const redirectTo = searchParams.get('redirectTo') || '/'
+      const supabase = createClient();
+      const redirectTo = searchParams.get("redirectTo") || "/";
+      const emailRedirectTo = `${window.location.origin}/auth/confirm?redirectTo=${encodeURIComponent(redirectTo)}`;
+
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          // TODO: how should we get the base URL? window.location.origin vs process.env.NEXT_PUBLIC_BASE_URL?
-          emailRedirectTo: `${window.location.origin}/auth/oauth?redirectTo=${redirectTo}`,
+          emailRedirectTo,
         },
-      })
+      });
 
-      if (error) throw error
-      router.push('/auth/sign-up-success')
+      if (error) throw error;
+      router.push("/auth/sign-up-success");
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : 'An error occurred')
+      setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
-    <div className={cn('flex flex-col gap-6', className)} {...props}>
+    <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
           <CardTitle className="text-2xl">Sign up</CardTitle>
@@ -104,13 +108,18 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? 'Creating an account...' : 'Sign up'}
+                {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
-              Already have an account?{' '}
-              <Link href={{ pathname: '/auth/login', query: { redirectTo: searchParams.get('redirectTo') || '' }, }}
-                className="underline underline-offset-4">
+              Already have an account?{" "}
+              <Link
+                href={{
+                  pathname: "/auth/login",
+                  query: { redirectTo: searchParams.get("redirectTo") || "" },
+                }}
+                className="underline underline-offset-4"
+              >
                 Login
               </Link>
             </div>
@@ -118,5 +127,5 @@ export function SignUpForm({ className, ...props }: React.ComponentPropsWithoutR
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

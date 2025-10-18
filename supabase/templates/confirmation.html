@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Confirm Your Signup</title>
+</head>
+<body>
+    <h1>Confirm Your Email Address</h1>
+    <p>Thank you for signing up! Please confirm your email address by clicking the link below:</p>
+    <a href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=signup">Confirm Email</a>
+    <p>If you did not sign up, please ignore this email.</p>
+</body>
+</html>
