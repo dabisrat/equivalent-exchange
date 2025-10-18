@@ -1,6 +1,7 @@
 import { createClient as createServerClient } from "@eq-ex/shared/server";
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
+import { EmailOtpType } from "@supabase/supabase-js";
 
 export async function GET(request: Request) {
   // The `/callback` route is required for the server-side auth flow implemented
@@ -8,7 +9,26 @@ export async function GET(request: Request) {
   // https://supabase.com/docs/guides/auth/auth-helpers/nextjs#managing-sign-in-with-code-exchange
   const requestUrl = new URL(request.url);
   const code = requestUrl.searchParams.get("code");
-  let type = requestUrl.searchParams.get("type");
+  const token_hash = requestUrl.searchParams.get("token_hash");
+  let type = (requestUrl.searchParams.get("type") || "email") as EmailOtpType;
+
+  if (token_hash && type) {
+    const supabase = await createServerClient();
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      type,
+      token_hash,
+    });
+
+    if (error || !data.session) {
+      // Redirect to login with error if exchange fails
+      const errorMessage = error?.message || "Authentication failed";
+      return NextResponse.redirect(
+        `${requestUrl.origin}/login?error=${encodeURIComponent(errorMessage)}`
+      );
+    }
+  }
+
   if (code) {
     const supabase = await createServerClient();
     const {
@@ -27,11 +47,11 @@ export async function GET(request: Request) {
     if (session) {
       const payload = JSON.parse(atob(session.access_token.split(".")[1]));
       if (payload.amr.some((method: any) => method.method === "recovery")) {
-        type = "password-reset";
+        type = "recovery";
       }
     }
 
-    if (type === "password-reset" && session && user) {
+    if (type === "recovery" && session && user) {
       return NextResponse.redirect(requestUrl.origin + "/reset-password");
     }
   }
