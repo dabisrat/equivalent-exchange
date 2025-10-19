@@ -1,16 +1,15 @@
-import { PasskeyManager } from "@eq-ex/auth";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@eq-ex/ui/components/card";
+import { getUser, PasskeyManager } from "@eq-ex/auth";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import PushSubscription from "../../components/PushSubscription";
+import { redirect } from "next/navigation";
 
-export default function Settings() {
+export default async function Settings() {
+  const user = await getUser().catch((e) => null);
+
+  if (!user) {
+    redirect(`/auth/login`);
+  }
   return (
     <div className="container max-w-4xl py-8">
       <div className="space-y-6">
@@ -32,19 +31,7 @@ export default function Settings() {
         </div>
 
         <PasskeyManager />
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Push Notifications</CardTitle>
-            <CardDescription>
-              Enable push notifications to stay updated with your
-              organization&apos;s activities.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PushSubscription />
-          </CardContent>
-        </Card>
+        <PushSubscription />
       </div>
     </div>
   );

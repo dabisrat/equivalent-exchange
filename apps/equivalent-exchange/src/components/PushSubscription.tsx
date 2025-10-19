@@ -4,8 +4,15 @@ import { useState, useEffect } from "react";
 import {
   subscribeToPush,
   unsubscribeFromPush,
-} from "../actions/subscribe-push";
+} from "../data-access/actions/subscribe-push";
 import { useOrganization } from "../contexts/organization-context";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@eq-ex/ui/components/card";
 
 // Helper function to convert VAPID key
 function urlBase64ToUint8Array(base64String: string) {
@@ -148,24 +155,35 @@ export default function PushSubscription() {
   };
 
   return (
-    <div className="p-4">
-      {!isSubscribed ? (
-        <button
-          onClick={handleSubscribe}
-          disabled={loading}
-          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
-        >
-          {loading ? "Subscribing..." : "Subscribe to Notifications"}
-        </button>
-      ) : (
-        <button
-          onClick={handleUnsubscribe}
-          disabled={loading}
-          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
-        >
-          {loading ? "Unsubscribing..." : "Unsubscribe from Notifications"}
-        </button>
-      )}
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Push Notifications</CardTitle>
+        <CardDescription>
+          Enable push notifications to stay updated with your
+          organization&apos;s activities.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="p-4">
+          {!isSubscribed ? (
+            <button
+              onClick={handleSubscribe}
+              disabled={loading}
+              className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 disabled:opacity-50"
+            >
+              {loading ? "Subscribing..." : "Subscribe to Notifications"}
+            </button>
+          ) : (
+            <button
+              onClick={handleUnsubscribe}
+              disabled={loading}
+              className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 disabled:opacity-50"
+            >
+              {loading ? "Unsubscribing..." : "Unsubscribe from Notifications"}
+            </button>
+          )}
+        </div>
+      </CardContent>
+    </Card>
   );
 }

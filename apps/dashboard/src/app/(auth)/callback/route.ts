@@ -11,7 +11,6 @@ export async function GET(request: Request) {
   const code = requestUrl.searchParams.get("code");
   const token_hash = requestUrl.searchParams.get("token_hash");
   let type = (requestUrl.searchParams.get("type") || "email") as EmailOtpType;
-
   if (token_hash && type) {
     const supabase = await createServerClient();
 
