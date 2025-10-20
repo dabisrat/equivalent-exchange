@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { sendPush } from "../../../actions/send-push";
+import { sendPush } from "../../../data-access/actions/send-push";
 import { useMultiOrgContext } from "../../../contexts/multi-org-context";
 import { Button } from "@eq-ex/ui/components/button";
 import { Input } from "@eq-ex/ui/components/input";
