@@ -16,13 +16,11 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useState } from "react";
 
-export function SignUpForm({
+export function PasskeySignUpForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [repeatPassword, setRepeatPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -33,20 +31,16 @@ export function SignUpForm({
     setIsLoading(true);
     setError(null);
 
-    if (password !== repeatPassword) {
-      setError("Passwords do not match");
-      setIsLoading(false);
-      return;
-    }
-
     try {
       const supabase = createClient();
-      const redirectTo = searchParams.get("redirectTo") || "/";
-      const emailRedirectTo = `${window.location.origin}/auth/confirm?redirectTo=${encodeURIComponent(redirectTo)}`;
+      // Always redirect to passkey setup, but forward the original redirectTo
+      const originalRedirect = searchParams.get("redirectTo") || "/";
+      const redirectTo = `/auth/setup?redirectTo=${encodeURIComponent(originalRedirect)}`;
+      const emailRedirectTo = `${window.location.origin}/auth/confirm?redirectTo=${redirectTo}`;
 
-      const { error } = await supabase.auth.signUp({
+      // Passwordless signup: send magic link
+      const { error } = await supabase.auth.signInWithOtp({
         email,
-        password,
         options: {
           emailRedirectTo,
         },
@@ -65,9 +59,9 @@ export function SignUpForm({
     <div className={cn("flex flex-col gap-6", className)} {...props}>
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Sign up with Password</CardTitle>
+          <CardTitle className="text-2xl">Sign up with Passkey</CardTitle>
           <CardDescription>
-            Create a new account with email and password
+            Create a new account with passkey authentication
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -84,33 +78,12 @@ export function SignUpForm({
                   onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="password">Password</Label>
-                </div>
-                <Input
-                  id="password"
-                  type="password"
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                />
-              </div>
-              <div className="grid gap-2">
-                <div className="flex items-center">
-                  <Label htmlFor="repeat-password">Repeat Password</Label>
-                </div>
-                <Input
-                  id="repeat-password"
-                  type="password"
-                  required
-                  value={repeatPassword}
-                  onChange={(e) => setRepeatPassword(e.target.value)}
-                />
-              </div>
+
               {error && <p className="text-sm text-red-500">{error}</p>}
               <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Creating an account..." : "Sign up"}
+                {isLoading
+                  ? "Sending confirmation..."
+                  : "Send confirmation email"}
               </Button>
             </div>
             <div className="mt-4 text-center text-sm">
