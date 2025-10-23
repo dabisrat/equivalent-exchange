@@ -34,11 +34,10 @@ export function PasskeySignUpForm({
     try {
       const supabase = createClient();
       // Always redirect to passkey setup, but forward the original redirectTo
+      const componentPath = "/auth/setup";
       const originalRedirect = searchParams.get("redirectTo") || "/";
-      const redirectTo = `/auth/setup?redirectTo=${encodeURIComponent(originalRedirect)}`;
+      const redirectTo = `${componentPath}&originalRedirect=${originalRedirect}`;
       const emailRedirectTo = `${window.location.origin}/auth/confirm?redirectTo=${redirectTo}`;
-
-      // Passwordless signup: send magic link
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {

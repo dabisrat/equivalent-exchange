@@ -19,20 +19,7 @@ export default function AccountPage() {
             Manage your account security and authentication methods
           </p>
         </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Passkeys</CardTitle>
-            <CardDescription>
-              Passkeys are a more secure and convenient way to sign in. They use
-              biometric authentication (like Face ID or Touch ID) or your
-              device&apos;s PIN instead of passwords.
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <PasskeyManager />
-          </CardContent>
-        </Card>
+        <PasskeyManager />
       </div>
     </div>
   );

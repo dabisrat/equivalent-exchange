@@ -7,9 +7,14 @@ export async function GET(request: NextRequest) {
   const token_hash = searchParams.get("token_hash");
   const type = (searchParams.get("type") || "email") as EmailOtpType;
   let redirectTo = searchParams.get("redirectTo") ?? "/";
+  let originalRedirect = searchParams.get("originalRedirect");
   // Validate redirect URL is relative
   if (!redirectTo.startsWith("/")) {
     redirectTo = "/";
+  }
+
+  if (originalRedirect && originalRedirect.startsWith("/")) {
+    redirectTo += `?redirectTo=${encodeURIComponent(originalRedirect)}`;
   }
 
   if (token_hash && type) {
