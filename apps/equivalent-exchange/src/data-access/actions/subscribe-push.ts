@@ -73,3 +73,26 @@ export async function unsubscribeFromPush({
 
   return { success: true };
 }
+
+export async function checkSubscriptionValidity({
+  endpoint,
+  organizationId,
+}: {
+  endpoint: string;
+  organizationId: string;
+}) {
+  const supabase = await createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error("User not authenticated");
+
+  const { data, error } = await supabase
+    .from("push_subscriptions")
+    .select("id")
+    .eq("user_id", user.id)
+    .eq("organization_id", organizationId)
+    .eq("subscription->>endpoint", endpoint)
+    .maybeSingle();
+
+  if (error) throw error;
+  return { isValid: !!data };
+}
