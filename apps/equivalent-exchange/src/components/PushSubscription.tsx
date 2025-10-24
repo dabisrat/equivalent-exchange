@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import {
   subscribeToPush,
   unsubscribeFromPush,
@@ -163,7 +164,7 @@ export default function PushSubscription() {
     if (success) {
       setIsSubscribed(true);
       setNeedsManualResub(false);
-      alert("Subscribed to push notifications!");
+      toast.success("Subscribed to push notifications!");
     }
     setLoading(false);
   };
@@ -183,7 +184,7 @@ export default function PushSubscription() {
       const subscription = await registration.pushManager.getSubscription();
 
       if (!subscription) {
-        alert("No active subscription found");
+        toast.error("No active subscription found");
         setLoading(false);
         return;
       }
@@ -200,10 +201,10 @@ export default function PushSubscription() {
       });
 
       setIsSubscribed(false);
-      alert("Unsubscribed from push notifications!");
+      toast.success("Unsubscribed from push notifications!");
     } catch (error) {
       console.error("Unsubscription failed:", error);
-      alert(
+      toast.error(
         `Failed to unsubscribe: ${error instanceof Error ? error.message : String(error)}`
       );
     } finally {

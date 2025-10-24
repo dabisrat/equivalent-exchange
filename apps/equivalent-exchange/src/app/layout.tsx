@@ -11,6 +11,7 @@ import { SubdomainErrorPage } from "@app/components/subdomain-error-page";
 import { OrganizationProvider } from "@app/contexts/organization-context";
 import { generateThemeCSS } from "@app/utils/color-utils";
 import ServiceWorkerRegistration from "@app/components/ServiceWorkerRegistration";
+import { Toaster } from "@eq-ex/ui/components/sonner";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -224,6 +225,7 @@ export default async function RootLayout({
                 <ServiceWorkerRegistration />
                 <SiteHeader />
                 {children}
+                <Toaster />
               </OrganizationProvider>
             </AuthProvider>
           </CustomThemeProvider>
