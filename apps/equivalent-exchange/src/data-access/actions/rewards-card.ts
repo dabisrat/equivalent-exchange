@@ -11,6 +11,7 @@ import {
   getMaxCount,
 } from "@app/data-access/queries/organization";
 import { getRewardsCardId } from "@app/utils/data-access";
+import { revalidatePath } from "next/cache";
 
 // don't export this with out verifying the RSL policies on the rewards_card table
 async function addRewardPoints(card_id: string) {
@@ -102,6 +103,7 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
+  revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
 export async function updateStampById(cardId: string, stampIndex: number) {
@@ -138,6 +140,7 @@ export async function updateStampById(cardId: string, stampIndex: number) {
     ]);
     addRewardPoints(cardId);
   }
+  revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
 export async function createRewardCard(userId: string, organizationId: string) {
