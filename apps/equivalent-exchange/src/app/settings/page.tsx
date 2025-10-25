@@ -1,7 +1,7 @@
 import { getUser, PasskeyManager } from "@eq-ex/auth";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import PushSubscription from "../../components/PushSubscription";
+import PushSubscription from "../../components/push-subscription/PushSubscription";
 import { redirect } from "next/navigation";
 
 export default async function Settings() {

@@ -12,6 +12,7 @@ import { OrganizationProvider } from "@app/contexts/organization-context";
 import { generateThemeCSS } from "@app/utils/color-utils";
 import ServiceWorkerRegistration from "@app/components/ServiceWorkerRegistration";
 import { Toaster } from "@eq-ex/ui/components/sonner";
+import PushSubscriptionManager from "@app/components/push-subscription/PushSubscriptionManager";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -223,6 +224,7 @@ export default async function RootLayout({
             <AuthProvider>
               <OrganizationProvider organization={organizationData}>
                 <ServiceWorkerRegistration />
+                <PushSubscriptionManager />
                 <SiteHeader />
                 {children}
                 <Toaster />

@@ -226,7 +226,6 @@ export default function PunchNode({
       className={getContainerClasses(state, animationClass)}
       style={getContainerStyles(animationClass, animationDuration)}
       onClick={handleClick}
-      title={`${config.name} - ${config.type}`}
     >
       {animationClass === "animate-fill" ? (
         <FillAnimation
