@@ -1,5 +1,5 @@
 import { createClient } from "@eq-ex/shared/server";
-import { PasskeySetupWrapper } from "../../../components/passkey-setup-wrapper";
+import { PasskeySetupWrapper } from "../../../components/auth/passkey-setup-success";
 import {
   Card,
   CardContent,

@@ -1,4 +1,4 @@
-import { ForgotPasswordForm } from "@app/components/forgot-password-form";
+import { ForgotPasswordForm } from "@app/components/auth/forgot-password-form";
 import { Loading } from "@app/components/loading";
 import { Suspense } from "react";
 

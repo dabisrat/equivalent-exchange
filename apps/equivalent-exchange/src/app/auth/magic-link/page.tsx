@@ -1,5 +1,5 @@
 import { Loading } from "@app/components/loading";
-import MagicLinkForm from "@app/components/magic-link-form";
+import MagicLinkForm from "@app/components/auth/magic-link-form";
 import { Suspense } from "react";
 
 export default function Page() {

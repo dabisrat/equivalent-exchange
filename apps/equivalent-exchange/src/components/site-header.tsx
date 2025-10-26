@@ -1,7 +1,7 @@
 "use client";
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
 import { useAuth } from "@eq-ex/auth";
-import { PWAInstallButton } from "./pwa-install-button";
+import { PWAInstallButton } from "./app-install/pwa-install-button";
 import { useOrganization } from "@app/contexts/organization-context";
 import { NavUser } from "@eq-ex/ui/components/nav-user";
 import { DropdownMenuItem } from "@eq-ex/ui/components/dropdown-menu";

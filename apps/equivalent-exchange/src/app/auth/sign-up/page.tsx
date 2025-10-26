@@ -1,6 +1,6 @@
 import { Loading } from "@app/components/loading";
-import { SignUpForm } from "@app/components/sign-up-form";
-import { PasskeySignUpForm } from "@app/components/passkey-sign-up-form";
+import { SignUpForm } from "@app/components/auth/sign-up-form";
+import { PasskeySignUpForm } from "@app/components/auth/passkey-sign-up-form";
 import { Suspense } from "react";
 import {
   Tabs,

@@ -43,7 +43,5 @@ export default function App() {
     redirect(`/auth/login`);
   }
 
-  if (loading || !organization) {
-    return <Loading />;
-  }
+  return <Loading />;
 }

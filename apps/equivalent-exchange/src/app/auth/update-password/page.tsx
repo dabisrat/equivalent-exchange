@@ -1,5 +1,5 @@
 import { Loading } from "@app/components/loading";
-import { UpdatePasswordForm } from "@app/components/update-password-form";
+import { UpdatePasswordForm } from "@app/components/auth/update-password-form";
 import { Suspense } from "react";
 
 export default function Page() {
