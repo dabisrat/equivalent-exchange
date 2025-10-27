@@ -146,6 +146,7 @@ export async function generateGoogleWalletPass({
             id: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_class_${organizationId}`,
             issuerName: org.organization_name,
             programName: `${org.organization_name} Rewards`,
+            reviewStatus: "UNDER_REVIEW",
             programLogo: org.logo_url
               ? {
                   sourceUri: {
