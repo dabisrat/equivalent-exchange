@@ -12,6 +12,7 @@ export function CreateWalletClassButton() {
   const { activeOrganization } = useMultiOrgContext();
 
   const handleClick = async () => {
+    console.log("Creating Google Wallet Loyalty Class...");
     setLoading(true);
     if (!activeOrganization) {
       toast.error("No active organization selected.");
@@ -25,7 +26,12 @@ export function CreateWalletClassButton() {
     };
 
     try {
-      await createGoogleWalletLoyaltyClass(organizationData);
+      const result = await createGoogleWalletLoyaltyClass(organizationData);
+      console.log(result);
+      if (!result.success) {
+        throw new Error(result.error || "Unknown error");
+      }
+
       toast.success("Google Wallet Loyalty Class created successfully!");
     } catch (error) {
       console.error("Error creating Google Wallet Loyalty Class:", error);

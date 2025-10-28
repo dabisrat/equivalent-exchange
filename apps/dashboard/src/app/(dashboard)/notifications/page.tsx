@@ -13,6 +13,8 @@ export default function NotificationsPage() {
   const [message, setMessage] = useState("");
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     if (!activeOrganization) {
       setMessage("No active organization selected");
       return;

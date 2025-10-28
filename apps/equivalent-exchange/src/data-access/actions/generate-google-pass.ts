@@ -5,7 +5,7 @@ import { getUser } from "@eq-ex/auth";
 import jwt from "jsonwebtoken";
 import { headers } from "next/headers";
 import type { AsyncResult } from "@eq-ex/shared";
-
+import { type walletobjects_v1 } from "googleapis";
 interface GooglePassData {
   cardId: string;
   organizationId: string;
@@ -89,8 +89,51 @@ export async function generateGoogleWalletPass({
       return { success: false, error: "Failed to load stamps" };
     }
 
-    // Create JWT payload for Google Wallet
     const currentDomain = await getCurrentDomain();
+    const walletObject: {
+      loyaltyObjects: Array<walletobjects_v1.Schema$LoyaltyObject>;
+    } = {
+      loyaltyObjects: [
+        {
+          classId: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_class_${organizationId}`,
+          id: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_object_${cardId}`,
+          state: "ACTIVE",
+          accountId: user.id,
+          accountName:
+            user.user_metadata?.full_name ??
+            user.email?.split("@")?.[0] ??
+            "User",
+          loyaltyPoints: {
+            label: "Stamps",
+            balance: {
+              string: `${stamps.filter((s) => s.stamped).length}/${stamps.length}`,
+            },
+          },
+          barcode: {
+            type: "QR_CODE",
+            value: `${currentDomain}/${organizationId}/${cardId}`,
+          },
+          appLinkData: {
+            webAppLinkInfo: {
+              appTarget: {
+                targetUri: {
+                  uri: `${currentDomain}/${organizationId}/${cardId}`,
+                },
+              },
+            },
+          },
+          textModulesData: [
+            {
+              header: "Organization",
+              body: org.organization_name,
+              id: "organization",
+            },
+          ],
+        },
+      ],
+    };
+
+    // Create JWT payload for Google Wallet
     const payload = {
       iss: process.env.GOOGLE_WALLET_CLIENT_EMAIL,
       aud: "google",
@@ -98,50 +141,7 @@ export async function generateGoogleWalletPass({
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
       origins: [currentDomain],
-      payload: {
-        loyaltyObjects: [
-          {
-            id: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_object_${cardId}`,
-            classId: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_class_${organizationId}`,
-            state: "ACTIVE",
-            accountId: user.id,
-            accountName: user.email?.split("@")[0] || "User",
-            loyaltyPoints: {
-              balance: {
-                int: card.points,
-              },
-              label: "Points",
-            },
-            secondaryLoyaltyPoints: {
-              balance: {
-                int: stamps.filter((s) => s.stamped).length,
-              },
-              label: "Stamps",
-            },
-            barcode: {
-              type: "QR_CODE",
-              value: `${currentDomain}/${organizationId}/${cardId}`,
-            },
-            textModulesData: [
-              {
-                header: "Points",
-                body: `${card.points}`,
-                id: "points",
-              },
-              {
-                header: "Stamps",
-                body: `${stamps.filter((s) => s.stamped).length}/${stamps.length}`,
-                id: "stamps",
-              },
-              {
-                header: "Organization",
-                body: org.organization_name,
-                id: "organization",
-              },
-            ],
-          },
-        ],
-      },
+      payload: walletObject,
     };
 
     const token = await createGoogleWalletJWT(payload);

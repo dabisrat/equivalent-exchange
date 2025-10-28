@@ -2,8 +2,6 @@
 
 import { OrganizationAdminRoute } from "@app/components/organization-admin-route";
 import { CardBackgroundUpload } from "@app/components/card-background-upload";
-import { Button } from "@eq-ex/ui/components/button";
-import { createGoogleWalletLoyaltyClass } from "@app/data-access/actions/create-google-wallet-class";
 import { CreateWalletClassButton } from "@app/components/create-wallet-class-button";
 
 export default function CardDesignPage() {
@@ -29,7 +27,7 @@ export default function CardDesignPage() {
         </div>
 
         <div className="px-4 lg:px-6">
-          <CreateWalletClassButton></CreateWalletClassButton>
+          <CreateWalletClassButton />
         </div>
       </div>
     </OrganizationAdminRoute>

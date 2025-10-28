@@ -10,6 +10,13 @@ interface CreateLoyaltyClassData {
   organizationName: string;
   logoUrl?: string;
   primaryColor?: string;
+  heroImageUrl?: string;
+}
+
+enum MultipleDevicesAndHoldersAllowedStatus {
+  MULTIPLE_HOLDERS = "MULTIPLE_HOLDERS",
+  ONE_USER_ALL_DEVICES = "ONE_USER_ALL_DEVICES",
+  ONE_USER_ONE_DEVICES = "ONE_USER_ONE_DEVICES",
 }
 
 export async function createGoogleWalletLoyaltyClass({
@@ -17,12 +24,18 @@ export async function createGoogleWalletLoyaltyClass({
   organizationName,
   logoUrl,
   primaryColor,
+  heroImageUrl,
 }: CreateLoyaltyClassData): Promise<AsyncResult<string>> {
   try {
     //verify user authorization
     const authResult = await verifyUserAutherization(organizationId);
     if (!authResult.success) {
       return { success: false, error: authResult.message };
+    }
+
+    if (logoUrl?.includes("localhost") || logoUrl?.includes("127.0.0.1")) {
+      logoUrl =
+        "https://as1.ftcdn.net/jpg/02/48/92/96/1000_F_248929619_JkVBYroM1rSrshWJemrcjriggudHMUhV.jpg";
     }
 
     // Set up authentication
@@ -47,37 +60,41 @@ export async function createGoogleWalletLoyaltyClass({
       programName: `${organizationName.substring(0, 15)} Rewards`,
       hexBackgroundColor: primaryColor || "#3b82f6",
       reviewStatus: "UNDER_REVIEW",
+      multipleDevicesAndHoldersAllowedStatus:
+        MultipleDevicesAndHoldersAllowedStatus.ONE_USER_ALL_DEVICES,
     };
 
-    if (
-      logoUrl &&
-      !logoUrl.includes("127.0.0.1") &&
-      !logoUrl.includes("localhost")
-    ) {
+    if (logoUrl) {
       loyaltyClass.programLogo = {
         sourceUri: {
-          uri: logoUrl,
-        },
-      };
-    } else {
-      // Use a simple placeholder logo for development or when no logo is available
-      loyaltyClass.programLogo = {
-        sourceUri: {
-          uri: `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
+          uri: logoUrl ?? `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
         },
       };
     }
 
-    // Create the loyalty class
-    const response = await wallet.loyaltyclass.insert({
-      requestBody: loyaltyClass,
+    if (heroImageUrl) {
+      loyaltyClass.heroImage = {
+        sourceUri: {
+          uri: heroImageUrl,
+        },
+      };
+    }
+    const walletClass = await wallet.loyaltyclass.get({
+      resourceId: loyaltyClass.id!,
     });
 
-    if (response.status === 200 && response.data?.id) {
-      return { success: true, data: response.data.id };
+    if (walletClass) {
+      await wallet.loyaltyclass.update({
+        requestBody: loyaltyClass,
+        resourceId: loyaltyClass.id!,
+      });
     } else {
-      return { success: false, error: "Failed to create loyalty class" };
+      await wallet.loyaltyclass.insert({
+        requestBody: loyaltyClass,
+      });
     }
+
+    return { success: true, data: "" };
   } catch (error) {
     console.error("Error creating Google Wallet loyalty class:", error);
     return { success: false, error: "Failed to create wallet loyalty class" };
