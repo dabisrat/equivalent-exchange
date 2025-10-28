@@ -12,7 +12,7 @@ export default function NotificationsPage() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
 
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     if (!activeOrganization) {
       setMessage("No active organization selected");
       return;
@@ -22,6 +22,7 @@ export default function NotificationsPage() {
     setMessage("");
 
     try {
+      const formData = new FormData(event.currentTarget);
       const title = formData.get("title") as string;
       const body = formData.get("body") as string;
       const url = formData.get("url") as string;
@@ -65,7 +66,7 @@ export default function NotificationsPage() {
       <h1 className="text-2xl font-bold mb-6">Notifications</h1>
       <div className="border rounded-lg p-4 max-w-md">
         <h3 className="text-lg font-semibold mb-4">Send Push Notification</h3>
-        <form action={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
             <Label htmlFor="title">Title</Label>
             <Input id="title" name="title" required />
@@ -74,10 +75,10 @@ export default function NotificationsPage() {
             <Label htmlFor="body">Body</Label>
             <Input id="body" name="body" required />
           </div>
-          <div>
+          {/* <div>
             <Label htmlFor="url">URL (optional)</Label>
             <Input id="url" name="url" placeholder="/" />
-          </div>
+          </div> */}
           <Button type="submit" disabled={loading}>
             {loading ? "Sending..." : "Send Notification"}
           </Button>
