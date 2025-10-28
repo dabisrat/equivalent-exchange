@@ -96,7 +96,7 @@ export async function generateGoogleWalletPass({
       aud: "google",
       typ: "savetowallet",
       iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 365 * 24 * 60 * 60, // 1 year
+      exp: Math.floor(Date.now() / 1000) + 5 * 60, // 5 minutes
       origins: [currentDomain],
       payload: {
         loyaltyObjects: [
@@ -122,39 +122,6 @@ export async function generateGoogleWalletPass({
               type: "QR_CODE",
               value: `${currentDomain}/${organizationId}/${cardId}`,
             },
-            textModulesData: [
-              {
-                header: "Points",
-                body: `${card.points}`,
-                id: "points",
-              },
-              {
-                header: "Stamps",
-                body: `${stamps.filter((s) => s.stamped).length}/${stamps.length}`,
-                id: "stamps",
-              },
-              {
-                header: "Organization",
-                body: org.organization_name,
-                id: "organization",
-              },
-            ],
-          },
-        ],
-        loyaltyClasses: [
-          {
-            id: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_class_${organizationId}`,
-            issuerName: org.organization_name,
-            programName: `${org.organization_name} Rewards`,
-            reviewStatus: "UNDER_REVIEW",
-            programLogo: org.logo_url
-              ? {
-                  sourceUri: {
-                    uri: org.logo_url,
-                  },
-                }
-              : undefined,
-            hexBackgroundColor: org.primary_color || "#3b82f6",
             textModulesData: [
               {
                 header: "Points",

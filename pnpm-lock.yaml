@@ -89,6 +89,9 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      googleapis:
+        specifier: ^164.1.0
+        version: 164.1.0
       lucide-react:
         specifier: ^0.522.0
         version: 0.522.0(react@19.1.1)
