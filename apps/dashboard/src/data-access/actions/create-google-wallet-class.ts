@@ -86,7 +86,7 @@ export async function createGoogleWalletLoyaltyClass({
     if (walletClass.data) {
       delete loyaltyClass.multipleDevicesAndHoldersAllowedStatus;
       await wallet.loyaltyclass.update({
-        requestBody: { ...walletClass.data, ...loyaltyClass },
+        requestBody: loyaltyClass,
         resourceId: loyaltyClass.id!,
       });
     } else {
