@@ -7,7 +7,8 @@ import { google, walletobjects_v1 } from "googleapis";
 
 // use only on the server side for now.
 export async function updateGoogleWalletPass(
-  cardId: string
+  cardId: string,
+  organizationId: string
 ): Promise<AsyncResult<void>> {
   try {
     const user = await getUser();
@@ -37,6 +38,17 @@ export async function updateGoogleWalletPass(
       return { success: false, error: "Pass object not found" };
     }
 
+    // Get organization data
+    const { data: org, error: orgError } = await supabaseAdmin
+      .from("organization")
+      .select("max_points")
+      .eq("id", organizationId)
+      .single();
+
+    if (orgError || !org) {
+      return { success: false, error: "Organization not found" };
+    }
+
     // Get stamps
     const { data: stamps, error: stampsError } = await supabaseAdmin
       .from("stamp")
@@ -52,7 +64,7 @@ export async function updateGoogleWalletPass(
       loyaltyPoints: {
         label: "Stamps",
         balance: {
-          string: `${stamps.filter((s) => s.stamped).length}/${stamps.length}`,
+          string: `${stamps.filter((s) => s.stamped).length}/${org.max_points}`,
         },
       },
     };

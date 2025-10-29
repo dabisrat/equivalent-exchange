@@ -57,7 +57,9 @@ export async function generateGoogleWalletPass({
     // Get organization data
     const { data: org, error: orgError } = await supabaseAdmin
       .from("organization")
-      .select("organization_name, card_config, primary_color, logo_url")
+      .select(
+        "organization_name, card_config, primary_color, logo_url, max_points"
+      )
       .eq("id", organizationId)
       .single();
 
@@ -93,7 +95,7 @@ export async function generateGoogleWalletPass({
           loyaltyPoints: {
             label: "Stamps",
             balance: {
-              string: `${stamps.filter((s) => s.stamped).length}/${stamps.length}`,
+              string: `${stamps.filter((s) => s.stamped).length}/${org.max_points}`,
             },
           },
           barcode: {

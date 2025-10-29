@@ -104,7 +104,7 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
-  updateGoogleWalletPass(cardId);
+  updateGoogleWalletPass(cardId, card.organization_id);
   revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
@@ -142,7 +142,7 @@ export async function updateStampById(cardId: string, stampIndex: number) {
     ]);
     addRewardPoints(cardId);
   }
-  updateGoogleWalletPass(cardId);
+  updateGoogleWalletPass(cardId, card.organization_id);
   revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
