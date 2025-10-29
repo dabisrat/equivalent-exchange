@@ -79,11 +79,18 @@ export async function createGoogleWalletLoyaltyClass({
         },
       };
     }
-    const walletClass = await wallet.loyaltyclass.get({
-      resourceId: loyaltyClass.id!,
-    });
 
-    if (walletClass.data) {
+    let walletClass;
+
+    try {
+      walletClass = await wallet.loyaltyclass.get({
+        resourceId: loyaltyClass.id!,
+      });
+    } catch (error) {
+      console.error("Loyalty class not found, will create a new one.", error);
+    }
+
+    if (walletClass?.data) {
       delete loyaltyClass.multipleDevicesAndHoldersAllowedStatus;
       await wallet.loyaltyclass.update({
         requestBody: loyaltyClass,
