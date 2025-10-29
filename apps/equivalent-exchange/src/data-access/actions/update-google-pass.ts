@@ -38,27 +38,25 @@ export async function updateGoogleWalletPass(
       return { success: false, error: "Pass object not found" };
     }
 
-    // Get organization data
-    const { data: org, error: orgError } = await supabaseAdmin
-      .from("organization")
-      .select("max_points")
-      .eq("id", organizationId)
+    const { data: cardData, error: queryError } = await supabaseAdmin
+      .from("reward_card")
+      .select(
+        `
+    organization!inner(max_points),
+    stamp(stamp_index, stamped)
+  `
+      )
+      .eq("id", cardId)
+      .eq("organization.id", organizationId)
       .single();
 
-    if (orgError || !org) {
-      return { success: false, error: "Organization not found" };
+    if (queryError || !cardData) {
+      return { success: false, error: "Card or organization not found" };
     }
 
-    // Get stamps
-    const { data: stamps, error: stampsError } = await supabaseAdmin
-      .from("stamp")
-      .select("stamp_index, stamped")
-      .eq("reward_card_id", cardId)
-      .order("stamp_index");
+    const org = cardData.organization;
+    const stamps = cardData.stamp;
 
-    if (stampsError) {
-      return { success: false, error: "Failed to load stamps" };
-    }
     const updatedObject: Partial<walletobjects_v1.Schema$LoyaltyObject> = {
       ...passObject.data,
       loyaltyPoints: {

@@ -54,29 +54,24 @@ export async function generateGoogleWalletPass({
       return { success: false, error: "User not authenticated" };
     }
 
-    // Get organization data
-    const { data: org, error: orgError } = await supabaseAdmin
-      .from("organization")
+    const { data: cardData, error: queryError } = await supabaseAdmin
+      .from("reward_card")
       .select(
-        "organization_name, card_config, primary_color, logo_url, max_points"
+        `
+    organization!inner(organization_name, card_config, primary_color, logo_url, max_points),
+    stamp(stamp_index, stamped)
+  `
       )
-      .eq("id", organizationId)
+      .eq("id", cardId)
+      .eq("organization.id", organizationId)
       .single();
 
-    if (orgError || !org) {
-      return { success: false, error: "Organization not found" };
+    if (queryError || !cardData) {
+      return { success: false, error: "Card or organization not found" };
     }
 
-    // Get stamps
-    const { data: stamps, error: stampsError } = await supabaseAdmin
-      .from("stamp")
-      .select("stamp_index, stamped")
-      .eq("reward_card_id", cardId)
-      .order("stamp_index");
-
-    if (stampsError) {
-      return { success: false, error: "Failed to load stamps" };
-    }
+    const org = cardData.organization;
+    const stamps = cardData.stamp;
 
     const currentDomain = await getCurrentDomain();
     const walletObject: {
