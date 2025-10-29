@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@eq-ex/shared/server";
+import { supabaseAdmin } from "@eq-ex/shared/server";
 import { getUser } from "@eq-ex/auth";
 import jwt from "jsonwebtoken";
 import { headers } from "next/headers";
@@ -54,21 +54,8 @@ export async function generateGoogleWalletPass({
       return { success: false, error: "User not authenticated" };
     }
 
-    // Get card data
-    const supabase = await createClient();
-    const { data: card, error: cardError } = await supabase
-      .from("reward_card")
-      .select("id, points, created_at")
-      .eq("id", cardId)
-      .eq("user_id", user.id)
-      .single();
-
-    if (cardError || !card) {
-      return { success: false, error: "Card not found or access denied" };
-    }
-
     // Get organization data
-    const { data: org, error: orgError } = await supabase
+    const { data: org, error: orgError } = await supabaseAdmin
       .from("organization")
       .select("organization_name, card_config, primary_color, logo_url")
       .eq("id", organizationId)
@@ -79,7 +66,7 @@ export async function generateGoogleWalletPass({
     }
 
     // Get stamps
-    const { data: stamps, error: stampsError } = await supabase
+    const { data: stamps, error: stampsError } = await supabaseAdmin
       .from("stamp")
       .select("stamp_index, stamped")
       .eq("reward_card_id", cardId)
