@@ -6,6 +6,7 @@ import { useMultiOrgContext } from "../../../contexts/multi-org-context";
 import { Button } from "@eq-ex/ui/components/button";
 import { Input } from "@eq-ex/ui/components/input";
 import { Label } from "@eq-ex/ui/components/label";
+import { OrganizationAdminRoute } from "@app/components/organization-admin-route";
 
 export default function NotificationsPage() {
   const { activeOrganization } = useMultiOrgContext();
@@ -54,39 +55,32 @@ export default function NotificationsPage() {
     }
   };
 
-  if (!activeOrganization) {
-    return (
+  return (
+    <OrganizationAdminRoute>
       <div className="p-6">
         <h1 className="text-2xl font-bold mb-6">Notifications</h1>
-        <div>Please select an organization</div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-6">Notifications</h1>
-      <div className="border rounded-lg p-4 max-w-md">
-        <h3 className="text-lg font-semibold mb-4">Send Push Notification</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" required />
-          </div>
-          <div>
-            <Label htmlFor="body">Body</Label>
-            <Input id="body" name="body" required />
-          </div>
-          {/* <div>
+        <div className="border rounded-lg p-4 max-w-md">
+          <h3 className="text-lg font-semibold mb-4">Send Push Notification</h3>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <Label htmlFor="title">Title</Label>
+              <Input id="title" name="title" required />
+            </div>
+            <div>
+              <Label htmlFor="body">Body</Label>
+              <Input id="body" name="body" required />
+            </div>
+            {/* <div>
             <Label htmlFor="url">URL (optional)</Label>
             <Input id="url" name="url" placeholder="/" />
-          </div> */}
-          <Button type="submit" disabled={loading}>
-            {loading ? "Sending..." : "Send Notification"}
-          </Button>
-        </form>
-        {message && <p className="mt-4 text-sm">{message}</p>}
+            </div> */}
+            <Button type="submit" disabled={loading}>
+              {loading ? "Sending..." : "Send Notification"}
+            </Button>
+          </form>
+          {message && <p className="mt-4 text-sm">{message}</p>}
+        </div>
       </div>
-    </div>
+    </OrganizationAdminRoute>
   );
 }

@@ -233,15 +233,17 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
             {showRefreshMessage ? (
               <span>
                 Connection issues?{" "}
-                <button
+                <Button
                   onClick={() => window.location.reload()}
-                  className="underline hover:text-foreground transition-colors"
+                  className="p-0"
+                  variant={"link"}
                 >
-                  Refresh page
-                </button>
+                  Refresh
+                </Button>
+                <span> for updates</span>
               </span>
             ) : (
-              "Connecting..."
+              "Connecting for live updates..."
             )}
           </div>
         )}
@@ -378,7 +380,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                 cardId: card.id,
                 canModify,
                 punchNodeConfig: organization?.card_config?.punch_node_config,
-                isReady,
+                isReady: true,
                 children,
               })}
 
