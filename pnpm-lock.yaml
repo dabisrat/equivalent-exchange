@@ -132,6 +132,9 @@ importers:
       '@types/node':
         specifier: 20.2.1
         version: 20.2.1
+      '@types/qrcode':
+        specifier: ^1.5.5
+        version: 1.5.5
       '@types/react':
         specifier: ^19.1.0
         version: 19.1.11

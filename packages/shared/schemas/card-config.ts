@@ -167,4 +167,15 @@ export interface OrganizationCardConfig {
   punch_node_config: PunchNodeConfig;
   /** Custom theme CSS string for full theme customization */
   custom_theme_css?: string;
+  /** Google Wallet loyalty class configuration */
+  google_wallet_class_config?: {
+    /** Program name for the loyalty class */
+    programName?: string;
+    /** Background color in hex format */
+    hexBackgroundColor?: string;
+    /** Program logo URL */
+    programLogoUrl?: string;
+    /** Hero image URL */
+    heroImageUrl?: string;
+  };
 }

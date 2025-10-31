@@ -4,13 +4,76 @@
 import { google, walletobjects_v1 } from "googleapis";
 import type { AsyncResult } from "@eq-ex/shared";
 import { verifyUserAutherization } from "../queries/authHelpers";
+import { getOrganizationById } from "../queries/organizations";
+import type { OrganizationCardConfig } from "@eq-ex/shared/schemas/card-config";
+import { supabaseAdmin } from "@eq-ex/shared/server";
 
 interface CreateLoyaltyClassData {
   organizationId: string;
   organizationName: string;
-  logoUrl?: string;
-  primaryColor?: string;
-  heroImageUrl?: string;
+}
+
+interface UpdateWalletClassConfigData {
+  organizationId: string;
+  googleWalletClassConfig: {
+    programName?: string;
+    hexBackgroundColor?: string;
+    programLogoUrl?: string;
+    heroImageUrl?: string;
+  };
+}
+
+export async function updateGoogleWalletClassConfig({
+  organizationId,
+  googleWalletClassConfig,
+}: UpdateWalletClassConfigData): Promise<AsyncResult<void>> {
+  try {
+    // Verify user authorization
+    const authResult = await verifyUserAutherization(organizationId);
+    if (!authResult.success) {
+      return { success: false, error: authResult.message };
+    }
+
+    // Fetch current organization data
+    const orgResult = await getOrganizationById(organizationId);
+    if (!orgResult.success || !orgResult.data) {
+      return { success: false, error: "Organization not found" };
+    }
+
+    const organization = orgResult.data;
+    const cardConfig =
+      organization.card_config as unknown as OrganizationCardConfig;
+
+    // Update the google_wallet_class_config
+    const updatedCardConfig = {
+      ...cardConfig,
+      google_wallet_class_config: {
+        ...cardConfig?.google_wallet_class_config,
+        ...googleWalletClassConfig,
+      },
+    };
+
+    // Update the database
+    const { error: updateError } = await supabaseAdmin
+      .from("organization")
+      .update({ card_config: updatedCardConfig as any })
+      .eq("id", organizationId);
+
+    if (updateError) {
+      console.error("Error updating card config:", updateError);
+      return { success: false, error: "Failed to update wallet class config" };
+    }
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    console.error("Error updating Google Wallet class config:", error);
+    return { success: false, error: "Failed to update wallet class config" };
+  }
+}
+
+interface CreateLoyaltyClassData {
+  organizationId: string;
+  organizationName: string;
 }
 
 enum MultipleDevicesAndHoldersAllowedStatus {
@@ -22,9 +85,6 @@ enum MultipleDevicesAndHoldersAllowedStatus {
 export async function createGoogleWalletLoyaltyClass({
   organizationId,
   organizationName,
-  logoUrl,
-  primaryColor,
-  heroImageUrl,
 }: CreateLoyaltyClassData): Promise<AsyncResult<string>> {
   try {
     //verify user authorization
@@ -33,8 +93,33 @@ export async function createGoogleWalletLoyaltyClass({
       return { success: false, error: authResult.message };
     }
 
-    if (logoUrl?.includes("localhost") || logoUrl?.includes("127.0.0.1")) {
-      logoUrl =
+    // Fetch organization data with card_config
+    const orgResult = await getOrganizationById(organizationId);
+    if (!orgResult.success || !orgResult.data) {
+      return { success: false, error: "Organization not found" };
+    }
+
+    const organization = orgResult.data;
+    const cardConfig =
+      organization.card_config as unknown as OrganizationCardConfig;
+    const walletConfig = cardConfig?.google_wallet_class_config;
+
+    // Use config values or defaults
+    const programName =
+      walletConfig?.programName ||
+      `${organizationName.substring(0, 15)} Rewards`;
+    const hexBackgroundColor =
+      walletConfig?.hexBackgroundColor ||
+      organization.primary_color ||
+      "#3b82f6";
+    let programLogoUrl = walletConfig?.programLogoUrl || organization.logo_url;
+    const heroImageUrl = walletConfig?.heroImageUrl;
+
+    if (
+      programLogoUrl?.includes("localhost") ||
+      programLogoUrl?.includes("127.0.0.1")
+    ) {
+      programLogoUrl =
         "https://as1.ftcdn.net/jpg/02/48/92/96/1000_F_248929619_JkVBYroM1rSrshWJemrcjriggudHMUhV.jpg";
     }
 
@@ -57,17 +142,17 @@ export async function createGoogleWalletLoyaltyClass({
     const loyaltyClass: walletobjects_v1.Schema$LoyaltyClass = {
       id: `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_class_${organizationId}`,
       issuerName: organizationName.substring(0, 20),
-      programName: `${organizationName.substring(0, 15)} Rewards`,
-      hexBackgroundColor: primaryColor || "#3b82f6",
+      programName,
+      hexBackgroundColor,
       reviewStatus: "UNDER_REVIEW",
       multipleDevicesAndHoldersAllowedStatus:
         MultipleDevicesAndHoldersAllowedStatus.ONE_USER_ALL_DEVICES,
     };
 
-    if (logoUrl) {
+    if (programLogoUrl) {
       loyaltyClass.programLogo = {
         sourceUri: {
-          uri: logoUrl ?? `${process.env.NEXT_PUBLIC_APP_URL}/logo.png`,
+          uri: programLogoUrl,
         },
       };
     }

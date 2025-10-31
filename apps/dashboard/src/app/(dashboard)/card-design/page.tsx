@@ -2,7 +2,13 @@
 
 import { OrganizationAdminRoute } from "@app/components/organization-admin-route";
 import { CardBackgroundUpload } from "@app/components/card-background-upload";
-import { CreateWalletClassButton } from "@app/components/create-wallet-class-button";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@eq-ex/ui/components/tabs";
+import { WalletClassConfigForm } from "@app/components/wallet-class-config-form";
 
 export default function CardDesignPage() {
   return (
@@ -21,14 +27,26 @@ export default function CardDesignPage() {
           </div>
         </div>
 
-        {/* Card Background Upload */}
-        <div className="px-4 lg:px-6">
-          <CardBackgroundUpload />
-        </div>
+        <Tabs defaultValue="branding" className="px-4 lg:px-6">
+          <TabsList>
+            <TabsTrigger value="branding">Main App</TabsTrigger>
+            <TabsTrigger value="google-wallet">Google Wallet</TabsTrigger>
+            <TabsTrigger value="apple-wallet">Apple Wallet</TabsTrigger>
+          </TabsList>
 
-        <div className="px-4 lg:px-6">
-          <CreateWalletClassButton />
-        </div>
+          <TabsContent value="branding" className="space-y-4">
+            <CardBackgroundUpload />
+          </TabsContent>
+
+          <TabsContent value="apple-wallet" className="space-y-4">
+            {/* Back card config - placeholder */}
+            <div>Apple configuration coming soon</div>
+          </TabsContent>
+
+          <TabsContent value="google-wallet" className="space-y-4">
+            <WalletClassConfigForm />
+          </TabsContent>
+        </Tabs>
       </div>
     </OrganizationAdminRoute>
   );
