@@ -14,6 +14,28 @@ interface PreviewWalletPassProps {
   issuerName?: string;
 }
 
+// Utility function to determine if a hex color is dark
+function isDarkColor(hexColor: string): boolean {
+  // Remove # if present
+  const hex = hexColor.replace("#", "");
+
+  // Convert hex to RGB
+  const r = parseInt(hex.substr(0, 2), 16);
+  const g = parseInt(hex.substr(2, 2), 16);
+  const b = parseInt(hex.substr(4, 2), 16);
+
+  // Calculate luminance (perceived brightness)
+  const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+
+  // Return true if dark (luminance < 0.5)
+  return luminance < 0.5;
+}
+
+// Get appropriate text color based on background
+function getTextColor(hexBackgroundColor: string): string {
+  return isDarkColor(hexBackgroundColor) ? "text-white" : "text-black";
+}
+
 export function PreviewWalletPass({
   className,
   programName = "My Rewards Program",
@@ -33,6 +55,9 @@ export function PreviewWalletPass({
       .then((url) => setBarcodeDataUrl(url))
       .catch((err) => console.error("QR Code generation failed", err));
   }, []);
+
+  // Determine text color based on background
+  const textColor = getTextColor(hexBackgroundColor);
 
   // Show loading if QR not ready
   if (!barcodeDataUrl) {
@@ -62,20 +87,22 @@ export function PreviewWalletPass({
               />
             )}
             <div>
-              <h2 className="text-black">{issuerName}</h2>
+              <h2 className={textColor}>{issuerName}</h2>
             </div>
           </div>
 
           {/* Program Name */}
           <div className="flex justify-center mb-4">
-            <h1 className="text-2xl text-black">{programName}</h1>
+            <h1 className={`text-2xl ${textColor}`}>{programName}</h1>
           </div>
 
           {/* Points */}
           <div className="flex items-start">
-            <div className="flex-1 text-black">
-              <div className="text-left text-sm">Stamps</div>
-              <div className="text-left text-lg font-medium">10/10</div>
+            <div className="flex-1">
+              <div className={`text-left text-sm ${textColor}`}>Stamps</div>
+              <div className={`text-left text-lg font-medium ${textColor}`}>
+                10/10
+              </div>
             </div>
           </div>
 
@@ -89,7 +116,7 @@ export function PreviewWalletPass({
                 height={150}
                 className="rounded"
               />
-              <div className="text-xs text-black mt-1">Member ID</div>
+              <div className={`text-xs mt-1 ${textColor}`}>Member ID</div>
             </div>
           </div>
         </div>

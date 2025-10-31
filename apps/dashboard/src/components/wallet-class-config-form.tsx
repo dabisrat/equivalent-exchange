@@ -176,9 +176,9 @@ export function WalletClassConfigForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-[70%_30%] gap-6">
+        <div className="flex justify-between flex-wrap">
           {/* Form Column */}
-          <div>
+          <div className="w-140">
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleApplyConfig)}
@@ -283,8 +283,8 @@ export function WalletClassConfigForm() {
           </div>
 
           {/* Preview Column */}
-          <div>
-            <h3 className="text-lg font-semibold mb-4">Pass Preview</h3>
+          <div className="w-90">
+            <h3 className="text-lg mb-4">Pass Preview</h3>
             {/* TODO: get max points and pass to the preview component */}
             <PreviewWalletPass
               className="p-0 rounded-3xl gap-0"
