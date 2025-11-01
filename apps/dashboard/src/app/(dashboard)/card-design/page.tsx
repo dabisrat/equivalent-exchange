@@ -1,5 +1,3 @@
-"use client";
-
 import { OrganizationAdminRoute } from "@app/components/organization-admin-route";
 import { CardBackgroundUpload } from "@app/components/card-background-upload";
 import {
@@ -10,7 +8,7 @@ import {
 } from "@eq-ex/ui/components/tabs";
 import { WalletClassConfigForm } from "@app/components/wallet-class-config-form";
 
-export default function CardDesignPage() {
+export default async function CardDesignPage() {
   return (
     <OrganizationAdminRoute>
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">

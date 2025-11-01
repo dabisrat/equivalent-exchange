@@ -54,27 +54,12 @@ type WalletClassConfigFormData = z.infer<typeof walletClassConfigSchema>;
 
 export function WalletClassConfigForm() {
   const { activeOrganization } = useMultiOrgContext();
+  const [loading, setLoading] = useState(true);
   const [cardConfig, setCardConfig] = useState<OrganizationCardConfig | null>(
     null
   );
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (activeOrganization?.id) {
-      getOrganizationById(activeOrganization.id).then((result) => {
-        if (result.success && result.data) {
-          setCardConfig(
-            result.data.card_config as unknown as OrganizationCardConfig
-          );
-        }
-        setLoading(false);
-      });
-    }
-  }, [activeOrganization?.id]);
 
   const walletConfig = cardConfig?.google_wallet_class_config;
-
-  // Compute default values
   const defaultProgramName =
     walletConfig?.programName ||
     `${activeOrganization?.organization_name?.substring(0, 15)} Rewards` ||
@@ -96,6 +81,19 @@ export function WalletClassConfigForm() {
       heroImageUrl: defaultHeroImageUrl,
     },
   });
+
+  useEffect(() => {
+    if (activeOrganization?.id) {
+      getOrganizationById(activeOrganization.id).then((result) => {
+        if (result.success && result.data) {
+          setCardConfig(
+            result.data.card_config as unknown as OrganizationCardConfig
+          );
+        }
+        setLoading(false);
+      });
+    }
+  }, [activeOrganization?.id]);
 
   // Update form when cardConfig loads or organization changes
   useEffect(() => {

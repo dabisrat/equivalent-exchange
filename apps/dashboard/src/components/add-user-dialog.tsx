@@ -70,7 +70,7 @@ export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-primary/90">
-          Add User
+          Add Member
         </button>
       </DialogTrigger>
       <DialogContent className="max-w-sm">
