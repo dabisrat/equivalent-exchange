@@ -13,7 +13,7 @@ import {
 import { createLogger } from "@eq-ex/shared/logger";
 import type { OrganizationCardConfig } from "@eq-ex/shared/schemas/card-config";
 
-const logger = createLogger({ service: 'apple-wallet-pass-generation' });
+const logger = createLogger({ service: "apple-wallet-pass-generation" });
 
 interface ApplePassData {
   cardId: string;
@@ -44,21 +44,21 @@ export async function generateAppleWalletPass({
   organizationId,
 }: ApplePassData): Promise<AsyncResult<number[]>> {
   const logContext = {
-    operation: 'generateAppleWalletPass',
+    operation: "generateAppleWalletPass",
     cardId,
     organizationId,
   };
 
-  logger.info('Pass generation started', logContext);
+  logger.info("Pass generation started", logContext);
 
   try {
     const user = await getUser();
     if (!user) {
-      logger.warn('User not authenticated', logContext);
+      logger.warn("User not authenticated", logContext);
       return { success: false, error: "User not authenticated" };
     }
 
-    logger.debug('User authenticated', { ...logContext, userId: user.id });
+    logger.debug("User authenticated", { ...logContext, userId: user.id });
 
     // Fetch card data with organization details and stamps
     const { data: cardData, error: queryError } = await supabaseAdmin
@@ -74,14 +74,14 @@ export async function generateAppleWalletPass({
       .single();
 
     if (queryError || !cardData) {
-      logger.error('Card data fetch failed', {
+      logger.error("Card data fetch failed", {
         ...logContext,
         error: queryError?.message,
       });
       return { success: false, error: "Card or organization not found" };
     }
 
-    logger.debug('Card data fetched', {
+    logger.debug("Card data fetched", {
       ...logContext,
       organizationName: cardData.organization?.organization_name,
       stampCount: cardData.stamp?.filter((s: any) => s.stamped).length,
@@ -109,7 +109,7 @@ export async function generateAppleWalletPass({
     const currentDomain = await getCurrentDomain();
     const isLocalhost = currentDomain.startsWith("http://");
 
-    logger.debug('Domain detected', {
+    logger.debug("Domain detected", {
       ...logContext,
       currentDomain,
       isLocalhost,
@@ -141,7 +141,7 @@ export async function generateAppleWalletPass({
       ...(isLocalhost
         ? {}
         : {
-            webServiceURL: `${currentDomain}/api/apple-wallet/v1`,
+            webServiceURL: `${currentDomain}/api/apple-wallet`,
             authenticationToken,
           }),
       barcodes: [
@@ -212,7 +212,7 @@ export async function generateAppleWalletPass({
     // Generate the .pkpass buffer
     const pkpassBuffer = await pass.asBuffer();
 
-    logger.debug('Pass buffer generated', {
+    logger.debug("Pass buffer generated", {
       ...logContext,
       serialNumber,
       bufferSize: pkpassBuffer.length,
@@ -230,7 +230,7 @@ export async function generateAppleWalletPass({
       });
 
     if (insertError) {
-      logger.error('Database insert failed', {
+      logger.error("Database insert failed", {
         ...logContext,
         serialNumber,
         error: insertError.message,
@@ -238,10 +238,10 @@ export async function generateAppleWalletPass({
       });
       // Continue anyway - pass generation succeeded
     } else {
-      logger.debug('Pass stored in database', { ...logContext, serialNumber });
+      logger.debug("Pass stored in database", { ...logContext, serialNumber });
     }
 
-    logger.info('Pass generation completed successfully', {
+    logger.info("Pass generation completed successfully", {
       ...logContext,
       serialNumber,
       bufferSize: pkpassBuffer.length,
@@ -250,7 +250,7 @@ export async function generateAppleWalletPass({
     // Convert Buffer to array for serialization (Next.js can't serialize Buffer)
     return { success: true, data: Array.from(pkpassBuffer) };
   } catch (error) {
-    logger.error('Pass generation exception', {
+    logger.error("Pass generation exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
       stack: error instanceof Error ? error.stack : undefined,

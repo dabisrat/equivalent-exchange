@@ -3,7 +3,7 @@
  * Logs to console in a structured JSON format that's easy to search in Vercel logs
  */
 
-type LogLevel = 'debug' | 'info' | 'warn' | 'error';
+type LogLevel = "debug" | "info" | "warn" | "error";
 
 interface LogContext {
   [key: string]: unknown;
@@ -28,10 +28,10 @@ class Logger {
     const logString = JSON.stringify(logEntry);
 
     switch (level) {
-      case 'error':
+      case "error":
         console.error(logString);
         break;
-      case 'warn':
+      case "warn":
         console.warn(logString);
         break;
       default:
@@ -40,19 +40,19 @@ class Logger {
   }
 
   debug(message: string, meta?: LogContext) {
-    this.log('debug', message, meta);
+    this.log("debug", message, meta);
   }
 
   info(message: string, meta?: LogContext) {
-    this.log('info', message, meta);
+    this.log("info", message, meta);
   }
 
   warn(message: string, meta?: LogContext) {
-    this.log('warn', message, meta);
+    this.log("warn", message, meta);
   }
 
   error(message: string, meta?: LogContext) {
-    this.log('error', message, meta);
+    this.log("error", message, meta);
   }
 
   /**

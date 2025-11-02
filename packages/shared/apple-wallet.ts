@@ -6,7 +6,7 @@ import crypto from "crypto";
 import { supabaseAdmin } from "./server";
 import { createLogger } from "./logger";
 
-const logger = createLogger({ service: 'apple-wallet' });
+const logger = createLogger({ service: "apple-wallet" });
 
 /**
  * Apple Wallet pass generation and update utilities
@@ -337,8 +337,8 @@ export async function sendPassUpdateNotification(
   pushToken: string
 ): Promise<{ success: boolean; error?: string }> {
   const logContext = {
-    operation: 'sendPassUpdateNotification',
-    pushToken: pushToken.substring(0, 10) + '...',
+    operation: "sendPassUpdateNotification",
+    pushToken: pushToken.substring(0, 10) + "...",
   };
 
   let apnProvider: apn.Provider | null = null;
@@ -347,7 +347,7 @@ export async function sendPassUpdateNotification(
     const apnCredentials = getAPNCredentials();
 
     if (!apnCredentials) {
-      logger.warn('APNs credentials not configured', logContext);
+      logger.warn("APNs credentials not configured", logContext);
       return {
         success: false,
         error: "APNs credentials not configured",
@@ -355,10 +355,10 @@ export async function sendPassUpdateNotification(
     }
 
     const isProduction = process.env.NODE_ENV === "production";
-    logger.debug('Initializing APNs provider', {
+    logger.debug("Initializing APNs provider", {
       ...logContext,
       environment: process.env.NODE_ENV,
-      gateway: isProduction ? 'PRODUCTION' : 'SANDBOX',
+      gateway: isProduction ? "PRODUCTION" : "SANDBOX",
     });
 
     apnProvider = new apn.Provider({
@@ -378,10 +378,10 @@ export async function sendPassUpdateNotification(
     const result = await apnProvider.send(notification, pushToken);
 
     if (result.failed.length > 0) {
-      logger.error('APNs push failed', {
+      logger.error("APNs push failed", {
         ...logContext,
-        failures: result.failed.map(f => ({
-          device: f.device?.substring(0, 10) + '...',
+        failures: result.failed.map((f) => ({
+          device: f.device?.substring(0, 10) + "...",
           status: f.status,
           reason: f.response?.reason,
         })),
@@ -392,11 +392,11 @@ export async function sendPassUpdateNotification(
       };
     }
 
-    logger.info('APNs push sent successfully', logContext);
+    logger.info("APNs push sent successfully", logContext);
 
     return { success: true };
   } catch (error) {
-    logger.error('Send APNs notification exception', {
+    logger.error("Send APNs notification exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -416,11 +416,11 @@ export async function notifyPassUpdate(
   cardId: string
 ): Promise<{ sent: number; failed: number }> {
   const logContext = {
-    operation: 'notifyPassUpdate',
+    operation: "notifyPassUpdate",
     cardId,
   };
 
-  logger.info('Sending push notifications for card', logContext);
+  logger.info("Sending push notifications for card", logContext);
 
   try {
     // Get all device registrations for this card
@@ -431,16 +431,22 @@ export async function notifyPassUpdate(
       .not("push_token", "is", null);
 
     if (error) {
-      logger.error('Error fetching passes for notification', { ...logContext, error: error.message });
+      logger.error("Error fetching passes for notification", {
+        ...logContext,
+        error: error.message,
+      });
       return { sent: 0, failed: 0 };
     }
 
     if (!passes || passes.length === 0) {
-      logger.debug('No passes found to notify', logContext);
+      logger.debug("No passes found to notify", logContext);
       return { sent: 0, failed: 0 };
     }
 
-    logger.debug('Found passes to notify', { ...logContext, count: passes.length });
+    logger.debug("Found passes to notify", {
+      ...logContext,
+      count: passes.length,
+    });
 
     // Send notifications to all registered devices
     const results = await Promise.all(
@@ -455,11 +461,15 @@ export async function notifyPassUpdate(
     const sent = results.filter((r) => r.success).length;
     const failed = results.filter((r) => !r.success).length;
 
-    logger.info('Push notifications completed', { ...logContext, sent, failed });
+    logger.info("Push notifications completed", {
+      ...logContext,
+      sent,
+      failed,
+    });
 
     return { sent, failed };
   } catch (error) {
-    logger.error('Notify pass update exception', {
+    logger.error("Notify pass update exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -478,14 +488,14 @@ export async function registerDevice(params: {
   authenticationToken: string;
 }): Promise<{ success: boolean; error?: string }> {
   const logContext = {
-    operation: 'registerDevice',
+    operation: "registerDevice",
     deviceLibraryIdentifier: params.deviceLibraryIdentifier,
     passTypeIdentifier: params.passTypeIdentifier,
     serialNumber: params.serialNumber,
-    pushToken: params.pushToken.substring(0, 10) + '...',
+    pushToken: params.pushToken.substring(0, 10) + "...",
   };
 
-  logger.info('Device registration started', logContext);
+  logger.info("Device registration started", logContext);
 
   try {
     const { data: pass, error: fetchError } = await supabaseAdmin
@@ -495,13 +505,16 @@ export async function registerDevice(params: {
       .single();
 
     if (fetchError || !pass) {
-      logger.warn('Pass not found', { ...logContext, error: fetchError?.message });
+      logger.warn("Pass not found", {
+        ...logContext,
+        error: fetchError?.message,
+      });
       return { success: false, error: "Pass not found" };
     }
 
     // Verify authentication token
     if (pass.authentication_token !== params.authenticationToken) {
-      logger.warn('Invalid authentication token', logContext);
+      logger.warn("Invalid authentication token", logContext);
       return { success: false, error: "Unauthorized" };
     }
 
@@ -516,7 +529,7 @@ export async function registerDevice(params: {
       .eq("serial_number", params.serialNumber);
 
     if (updateError) {
-      logger.error('Device registration update failed', {
+      logger.error("Device registration update failed", {
         ...logContext,
         error: updateError.message,
         code: updateError.code,
@@ -524,11 +537,11 @@ export async function registerDevice(params: {
       return { success: false, error: "Failed to register device" };
     }
 
-    logger.info('Device registration successful', logContext);
+    logger.info("Device registration successful", logContext);
 
     return { success: true };
   } catch (error) {
-    logger.error('Register device exception', {
+    logger.error("Register device exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -549,13 +562,13 @@ export async function unregisterDevice(params: {
   authenticationToken: string;
 }): Promise<{ success: boolean; error?: string }> {
   const logContext = {
-    operation: 'unregisterDevice',
+    operation: "unregisterDevice",
     deviceLibraryIdentifier: params.deviceLibraryIdentifier,
     passTypeIdentifier: params.passTypeIdentifier,
     serialNumber: params.serialNumber,
   };
 
-  logger.info('Device unregistration started', logContext);
+  logger.info("Device unregistration started", logContext);
 
   try {
     // Verify authentication token first
@@ -566,12 +579,18 @@ export async function unregisterDevice(params: {
       .single();
 
     if (fetchError || !pass) {
-      logger.warn('Pass not found for unregistration', { ...logContext, error: fetchError?.message });
+      logger.warn("Pass not found for unregistration", {
+        ...logContext,
+        error: fetchError?.message,
+      });
       return { success: false, error: "Pass not found" };
     }
 
     if (pass.authentication_token !== params.authenticationToken) {
-      logger.warn('Invalid authentication token for unregistration', logContext);
+      logger.warn(
+        "Invalid authentication token for unregistration",
+        logContext
+      );
       return { success: false, error: "Unauthorized" };
     }
 
@@ -587,7 +606,7 @@ export async function unregisterDevice(params: {
       .eq("device_library_identifier", params.deviceLibraryIdentifier);
 
     if (error) {
-      logger.error('Device unregistration update failed', {
+      logger.error("Device unregistration update failed", {
         ...logContext,
         error: error.message,
         code: error.code,
@@ -595,11 +614,11 @@ export async function unregisterDevice(params: {
       return { success: false, error: "Failed to unregister device" };
     }
 
-    logger.info('Device unregistration successful', logContext);
+    logger.info("Device unregistration successful", logContext);
 
     return { success: true };
   } catch (error) {
-    logger.error('Unregister device exception', {
+    logger.error("Unregister device exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
     });
@@ -619,13 +638,13 @@ export async function getSerialNumbersForDevice(
   passesUpdatedSince?: string
 ): Promise<{ serialNumbers: string[]; lastUpdated: string }> {
   const logContext = {
-    operation: 'getSerialNumbers',
+    operation: "getSerialNumbers",
     deviceLibraryIdentifier,
     passTypeIdentifier,
     passesUpdatedSince,
   };
 
-  logger.debug('Fetching serial numbers', logContext);
+  logger.debug("Fetching serial numbers", logContext);
 
   try {
     let query = supabaseAdmin
@@ -640,13 +659,19 @@ export async function getSerialNumbersForDevice(
     const { data: passes, error } = await query;
 
     if (error) {
-      logger.error('Failed to fetch serial numbers', { ...logContext, error: error.message });
+      logger.error("Failed to fetch serial numbers", {
+        ...logContext,
+        error: error.message,
+      });
       return { serialNumbers: [], lastUpdated: new Date().toISOString() };
     }
 
     const serialNumbers = passes?.map((p) => p.serial_number) || [];
-    
-    logger.info('Serial numbers retrieved', { ...logContext, count: serialNumbers.length });
+
+    logger.info("Serial numbers retrieved", {
+      ...logContext,
+      count: serialNumbers.length,
+    });
 
     const lastUpdated =
       passes && passes.length > 0
@@ -660,7 +685,7 @@ export async function getSerialNumbersForDevice(
       lastUpdated: new Date(lastUpdated).toISOString(),
     };
   } catch (error) {
-    logger.error('Get serial numbers exception', {
+    logger.error("Get serial numbers exception", {
       ...logContext,
       error: error instanceof Error ? error.message : String(error),
     });
