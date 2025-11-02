@@ -7,6 +7,7 @@ import {
   TabsTrigger,
 } from "@eq-ex/ui/components/tabs";
 import { WalletClassConfigForm } from "@app/components/wallet-class-config-form";
+import { AppleWalletPassConfigForm } from "@app/components/apple-wallet-pass-config-form";
 
 export default async function CardDesignPage() {
   return (
@@ -37,8 +38,7 @@ export default async function CardDesignPage() {
           </TabsContent>
 
           <TabsContent value="apple-wallet" className="space-y-4">
-            {/* Back card config - placeholder */}
-            <div>Apple configuration coming soon</div>
+            <AppleWalletPassConfigForm />
           </TabsContent>
 
           <TabsContent value="google-wallet" className="space-y-4">

@@ -3,7 +3,7 @@
 import { AsyncResult } from "@app/schemas/responses";
 import { createClient } from "@eq-ex/shared/server";
 
-export async function verifyUserAutherization(
+export async function verifyUserAuthorization(
   organizationId: string
 ): AsyncResult<null> {
   const supabase = await createClient();

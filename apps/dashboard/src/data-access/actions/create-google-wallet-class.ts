@@ -3,7 +3,7 @@
 //TODO: use only the libraries needed for this file
 import { google, walletobjects_v1 } from "googleapis";
 import type { AsyncResult } from "@eq-ex/shared";
-import { verifyUserAutherization } from "../queries/authHelpers";
+import { verifyUserAuthorization } from "../queries/authHelpers";
 import { getOrganizationById } from "../queries/organizations";
 import type { OrganizationCardConfig } from "@eq-ex/shared/schemas/card-config";
 import { supabaseAdmin } from "@eq-ex/shared/server";
@@ -29,7 +29,7 @@ export async function updateGoogleWalletClassConfig({
 }: UpdateWalletClassConfigData): Promise<AsyncResult<void>> {
   try {
     // Verify user authorization
-    const authResult = await verifyUserAutherization(organizationId);
+    const authResult = await verifyUserAuthorization(organizationId);
     if (!authResult.success) {
       return { success: false, error: authResult.message };
     }
@@ -88,7 +88,7 @@ export async function createGoogleWalletLoyaltyClass({
 }: CreateLoyaltyClassData): Promise<AsyncResult<string>> {
   try {
     //verify user authorization
-    const authResult = await verifyUserAutherization(organizationId);
+    const authResult = await verifyUserAuthorization(organizationId);
     if (!authResult.success) {
       return { success: false, error: authResult.message };
     }

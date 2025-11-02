@@ -5,6 +5,8 @@
  * stored in the database as JSONB columns.
  */
 
+import { z } from "zod";
+
 /**
  * Front card configuration - controls the branding and offer display on the front of the card
  */
@@ -178,4 +180,104 @@ export interface OrganizationCardConfig {
     /** Hero image URL */
     heroImageUrl?: string;
   };
+  /** Apple Wallet pass configuration */
+  apple_wallet_pass_config?: AppleWalletPassConfig;
 }
+
+/**
+ * Apple Wallet pass configuration - controls the appearance of Apple Wallet passes
+ * Based on Apple's StoreCard pass type for loyalty programs
+ */
+export interface AppleWalletPassConfig {
+  /** Background color in hex format (e.g., #3b82f6) */
+  backgroundColor?: string;
+  /** Foreground color for text in hex format (e.g., #ffffff) */
+  foregroundColor?: string;
+  /** Label color for field labels in hex format */
+  labelColor?: string;
+  /** Text displayed next to logo on pass */
+  logoText?: string;
+  /** Strip image URL displayed behind primary fields */
+  stripImage?: string;
+  /** Icon image URL (must be square, recommended 29x29 @3x) */
+  iconImage?: string;
+  /** Logo image URL displayed in top left */
+  logoImage?: string;
+  /** Organization description shown on pass */
+  description?: string;
+}
+
+/**
+ * Zod schema for Apple Wallet pass configuration validation
+ * Enforces HTTPS URLs and reasonable length limits to prevent abuse
+ */
+export const appleWalletPassConfigSchema = z.object({
+  backgroundColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, "Must be a valid hex color")
+    .optional(),
+  foregroundColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, "Must be a valid hex color")
+    .optional(),
+  labelColor: z
+    .string()
+    .regex(/^#[0-9A-F]{6}$/i, "Must be a valid hex color")
+    .optional(),
+  logoText: z
+    .string()
+    .max(50, "Logo text must be 50 characters or less")
+    .optional(),
+  description: z
+    .string()
+    .max(200, "Description must be 200 characters or less")
+    .optional(),
+  stripImage: z
+    .string()
+    .refine(
+      (val: string) => {
+        if (!val) return true;
+        try {
+          const url = new URL(val);
+          return url.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      "Must be a valid HTTPS URL"
+    )
+    .optional()
+    .or(z.literal("")),
+  iconImage: z
+    .string()
+    .refine(
+      (val: string) => {
+        if (!val) return true;
+        try {
+          const url = new URL(val);
+          return url.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      "Must be a valid HTTPS URL"
+    )
+    .optional()
+    .or(z.literal("")),
+  logoImage: z
+    .string()
+    .refine(
+      (val: string) => {
+        if (!val) return true;
+        try {
+          const url = new URL(val);
+          return url.protocol === "https:";
+        } catch {
+          return false;
+        }
+      },
+      "Must be a valid HTTPS URL"
+    )
+    .optional()
+    .or(z.literal("")),
+}) satisfies z.ZodType<AppleWalletPassConfig>;

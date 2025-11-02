@@ -25,7 +25,8 @@
     "lint-all": "pnpm -r lint",
     "update-types-remote": "supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > apps/equivalent-exchange/src/utils/database.types.ts",
     "update-types-local": "supabase gen types --lang=typescript --local > packages/shared/utils/database.types.ts",
-    "db-data-dump": "supabase db dump --data-only -f supabase/seed.sql",
+    "db-dump-remote": "supabase db dump --data-only -f supabase/seed.sql",
+    "db-dump-local": "supabase db dump --data-only -f --local supabase/seed-local.sql",
     "db-data-upload": "psql -h localhost -U postgres -p 54322 -f supabase/seed.sql",
     "db-diff-migration": "supabase db diff --use-migra -f local_schema_change",
     "clean": "rm -rf node_modules && rm -rf apps/*/node_modules && rm -rf packages/*/node_modules && rm -rf pnpm-lock.yaml",
@@ -54,6 +55,9 @@
   },
   "dependencies": {
     "@simplewebauthn/browser": "^13.2.2",
-    "@simplewebauthn/server": "^13.2.2"
+    "@simplewebauthn/server": "^13.2.2",
+    "@walletpass/pass-js": "^6.9.1",
+    "archiver": "^7.0.1",
+    "node-apn": "^3.0.0"
   }
 }
