@@ -4,6 +4,9 @@ import { Template } from "@walletpass/pass-js";
 import apn from "node-apn";
 import crypto from "crypto";
 import { supabaseAdmin } from "./server";
+import { createLogger } from "./logger";
+
+const logger = createLogger({ service: 'apple-wallet' });
 
 /**
  * Apple Wallet pass generation and update utilities
@@ -333,12 +336,18 @@ export async function getPassTemplate() {
 export async function sendPassUpdateNotification(
   pushToken: string
 ): Promise<{ success: boolean; error?: string }> {
+  const logContext = {
+    operation: 'sendPassUpdateNotification',
+    pushToken: pushToken.substring(0, 10) + '...',
+  };
+
   let apnProvider: apn.Provider | null = null;
 
   try {
     const apnCredentials = getAPNCredentials();
 
     if (!apnCredentials) {
+      logger.warn('APNs credentials not configured', logContext);
       return {
         success: false,
         error: "APNs credentials not configured",
@@ -346,9 +355,11 @@ export async function sendPassUpdateNotification(
     }
 
     const isProduction = process.env.NODE_ENV === "production";
-    console.log(
-      `[APNs] Environment: ${process.env.NODE_ENV}, Using ${isProduction ? "PRODUCTION" : "SANDBOX"} gateway`
-    );
+    logger.debug('Initializing APNs provider', {
+      ...logContext,
+      environment: process.env.NODE_ENV,
+      gateway: isProduction ? 'PRODUCTION' : 'SANDBOX',
+    });
 
     apnProvider = new apn.Provider({
       cert: apnCredentials.cert,
@@ -367,16 +378,28 @@ export async function sendPassUpdateNotification(
     const result = await apnProvider.send(notification, pushToken);
 
     if (result.failed.length > 0) {
-      console.error("APNs push failed:", result.failed);
+      logger.error('APNs push failed', {
+        ...logContext,
+        failures: result.failed.map(f => ({
+          device: f.device?.substring(0, 10) + '...',
+          status: f.status,
+          reason: f.response?.reason,
+        })),
+      });
       return {
         success: false,
         error: result.failed[0].response?.reason || "APNs push failed",
       };
     }
 
+    logger.info('APNs push sent successfully', logContext);
+
     return { success: true };
   } catch (error) {
-    console.error("Error sending APNs notification:", error);
+    logger.error('Send APNs notification exception', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -392,6 +415,13 @@ export async function sendPassUpdateNotification(
 export async function notifyPassUpdate(
   cardId: string
 ): Promise<{ sent: number; failed: number }> {
+  const logContext = {
+    operation: 'notifyPassUpdate',
+    cardId,
+  };
+
+  logger.info('Sending push notifications for card', logContext);
+
   try {
     // Get all device registrations for this card
     const { data: passes, error } = await supabaseAdmin
@@ -401,13 +431,16 @@ export async function notifyPassUpdate(
       .not("push_token", "is", null);
 
     if (error) {
-      console.error("Error fetching passes:", error);
+      logger.error('Error fetching passes for notification', { ...logContext, error: error.message });
       return { sent: 0, failed: 0 };
     }
 
     if (!passes || passes.length === 0) {
+      logger.debug('No passes found to notify', logContext);
       return { sent: 0, failed: 0 };
     }
+
+    logger.debug('Found passes to notify', { ...logContext, count: passes.length });
 
     // Send notifications to all registered devices
     const results = await Promise.all(
@@ -422,9 +455,14 @@ export async function notifyPassUpdate(
     const sent = results.filter((r) => r.success).length;
     const failed = results.filter((r) => !r.success).length;
 
+    logger.info('Push notifications completed', { ...logContext, sent, failed });
+
     return { sent, failed };
   } catch (error) {
-    console.error("Error notifying pass updates:", error);
+    logger.error('Notify pass update exception', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return { sent: 0, failed: 0 };
   }
 }
@@ -439,6 +477,16 @@ export async function registerDevice(params: {
   pushToken: string;
   authenticationToken: string;
 }): Promise<{ success: boolean; error?: string }> {
+  const logContext = {
+    operation: 'registerDevice',
+    deviceLibraryIdentifier: params.deviceLibraryIdentifier,
+    passTypeIdentifier: params.passTypeIdentifier,
+    serialNumber: params.serialNumber,
+    pushToken: params.pushToken.substring(0, 10) + '...',
+  };
+
+  logger.info('Device registration started', logContext);
+
   try {
     const { data: pass, error: fetchError } = await supabaseAdmin
       .from("apple_wallet_passes")
@@ -447,11 +495,13 @@ export async function registerDevice(params: {
       .single();
 
     if (fetchError || !pass) {
+      logger.warn('Pass not found', { ...logContext, error: fetchError?.message });
       return { success: false, error: "Pass not found" };
     }
 
     // Verify authentication token
     if (pass.authentication_token !== params.authenticationToken) {
+      logger.warn('Invalid authentication token', logContext);
       return { success: false, error: "Unauthorized" };
     }
 
@@ -466,13 +516,22 @@ export async function registerDevice(params: {
       .eq("serial_number", params.serialNumber);
 
     if (updateError) {
-      console.error("Error registering device:", updateError);
+      logger.error('Device registration update failed', {
+        ...logContext,
+        error: updateError.message,
+        code: updateError.code,
+      });
       return { success: false, error: "Failed to register device" };
     }
 
+    logger.info('Device registration successful', logContext);
+
     return { success: true };
   } catch (error) {
-    console.error("Error in registerDevice:", error);
+    logger.error('Register device exception', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -489,6 +548,15 @@ export async function unregisterDevice(params: {
   serialNumber: string;
   authenticationToken: string;
 }): Promise<{ success: boolean; error?: string }> {
+  const logContext = {
+    operation: 'unregisterDevice',
+    deviceLibraryIdentifier: params.deviceLibraryIdentifier,
+    passTypeIdentifier: params.passTypeIdentifier,
+    serialNumber: params.serialNumber,
+  };
+
+  logger.info('Device unregistration started', logContext);
+
   try {
     // Verify authentication token first
     const { data: pass, error: fetchError } = await supabaseAdmin
@@ -498,10 +566,12 @@ export async function unregisterDevice(params: {
       .single();
 
     if (fetchError || !pass) {
+      logger.warn('Pass not found for unregistration', { ...logContext, error: fetchError?.message });
       return { success: false, error: "Pass not found" };
     }
 
     if (pass.authentication_token !== params.authenticationToken) {
+      logger.warn('Invalid authentication token for unregistration', logContext);
       return { success: false, error: "Unauthorized" };
     }
 
@@ -517,13 +587,22 @@ export async function unregisterDevice(params: {
       .eq("device_library_identifier", params.deviceLibraryIdentifier);
 
     if (error) {
-      console.error("Error unregistering device:", error);
+      logger.error('Device unregistration update failed', {
+        ...logContext,
+        error: error.message,
+        code: error.code,
+      });
       return { success: false, error: "Failed to unregister device" };
     }
 
+    logger.info('Device unregistration successful', logContext);
+
     return { success: true };
   } catch (error) {
-    console.error("Error in unregisterDevice:", error);
+    logger.error('Unregister device exception', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -539,6 +618,15 @@ export async function getSerialNumbersForDevice(
   passTypeIdentifier: string,
   passesUpdatedSince?: string
 ): Promise<{ serialNumbers: string[]; lastUpdated: string }> {
+  const logContext = {
+    operation: 'getSerialNumbers',
+    deviceLibraryIdentifier,
+    passTypeIdentifier,
+    passesUpdatedSince,
+  };
+
+  logger.debug('Fetching serial numbers', logContext);
+
   try {
     let query = supabaseAdmin
       .from("apple_wallet_passes")
@@ -552,11 +640,14 @@ export async function getSerialNumbersForDevice(
     const { data: passes, error } = await query;
 
     if (error) {
-      console.error("Error fetching serial numbers:", error);
+      logger.error('Failed to fetch serial numbers', { ...logContext, error: error.message });
       return { serialNumbers: [], lastUpdated: new Date().toISOString() };
     }
 
     const serialNumbers = passes?.map((p) => p.serial_number) || [];
+    
+    logger.info('Serial numbers retrieved', { ...logContext, count: serialNumbers.length });
+
     const lastUpdated =
       passes && passes.length > 0
         ? passes
@@ -569,7 +660,10 @@ export async function getSerialNumbersForDevice(
       lastUpdated: new Date(lastUpdated).toISOString(),
     };
   } catch (error) {
-    console.error("Error in getSerialNumbersForDevice:", error);
+    logger.error('Get serial numbers exception', {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
     return { serialNumbers: [], lastUpdated: new Date().toISOString() };
   }
 }
