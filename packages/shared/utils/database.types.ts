@@ -34,6 +34,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      apple_wallet_passes: {
+        Row: {
+          authentication_token: string
+          card_id: string
+          created_at: string
+          device_library_identifier: string | null
+          id: string
+          last_updated_at: string
+          push_token: string | null
+          serial_number: string
+          user_id: string
+        }
+        Insert: {
+          authentication_token: string
+          card_id: string
+          created_at?: string
+          device_library_identifier?: string | null
+          id?: string
+          last_updated_at?: string
+          push_token?: string | null
+          serial_number: string
+          user_id: string
+        }
+        Update: {
+          authentication_token?: string
+          card_id?: string
+          created_at?: string
+          device_library_identifier?: string | null
+          id?: string
+          last_updated_at?: string
+          push_token?: string | null
+          serial_number?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "apple_wallet_passes_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "reward_card"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization: {
         Row: {
           card_config: Json | null

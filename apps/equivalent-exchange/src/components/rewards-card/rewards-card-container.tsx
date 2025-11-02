@@ -12,7 +12,7 @@ import Image from "next/image";
 import { toDataURL } from "qrcode";
 import RewardsCard from "./rewards-card";
 import type { User } from "@supabase/supabase-js";
-import { AddToWalletButton } from "./add-to-wallet-button";
+import { WalletButtons } from "./wallet-buttons";
 
 export default async function RewardsCardContainer({
   cardId,
@@ -59,8 +59,8 @@ export default async function RewardsCardContainer({
         )}
       </RewardsCard>
       {user.id == card.user_id && (
-        <div className=" flex justify-center">
-          <AddToWalletButton
+        <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-6 bg-gradient-to-t from-background via-background to-transparent pt-8">
+          <WalletButtons
             cardId={card.id}
             organizationId={card.organization_id}
           />

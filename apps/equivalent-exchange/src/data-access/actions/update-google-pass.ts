@@ -27,12 +27,18 @@ export async function updateGoogleWalletPass(
       scopes: ["https://www.googleapis.com/auth/wallet_object.issuer"],
     });
 
+    let passObject;
     const objectId = `${process.env.GOOGLE_WALLET_ISSUER_ID}.loyalty_object_${cardId}`;
     const wallet = google.walletobjects({ version: "v1", auth });
 
-    const passObject = await wallet.loyaltyobject.get({
-      resourceId: objectId,
-    });
+    try {
+      passObject = await wallet.loyaltyobject.get({
+        resourceId: objectId,
+      });
+    } catch (e) {
+      console.error("Error fetching Google Wallet pass object:", e);
+      return { success: false, error: "Pass object not found" };
+    }
 
     if (!passObject.data || passObject.data.state !== "active") {
       return { success: false, error: "Pass object not found" };

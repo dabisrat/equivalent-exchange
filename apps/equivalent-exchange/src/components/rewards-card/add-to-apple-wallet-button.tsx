@@ -1,34 +1,49 @@
 "use client";
 
-import { generateGoogleWalletPass } from "@app/data-access/actions/generate-google-pass";
+import { generateAppleWalletPass } from "@app/data-access/actions/generate-apple-pass";
 import { useState } from "react";
 import { toast } from "sonner";
 import Image from "next/image";
 
-interface AddToWalletButtonProps {
+interface AddToAppleWalletButtonProps {
   cardId: string;
   organizationId: string;
 }
 
-export function AddToWalletButton({
+export function AddToAppleWalletButton({
   cardId,
   organizationId,
-}: AddToWalletButtonProps) {
+}: AddToAppleWalletButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddToWallet = async () => {
     setIsLoading(true);
     try {
-      const result = await generateGoogleWalletPass({
+      const result = await generateAppleWalletPass({
         cardId,
         organizationId,
       });
 
-      if (result.success) {
-        // Redirect to Google Wallet save URL
-        window.location.href = result.data;
+      if (result.success && result.data) {
+        // Create a blob from the buffer and trigger download
+        const blob = new Blob([new Uint8Array(result.data)], {
+          type: "application/vnd.apple.pkpass",
+        });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `reward-card-${cardId}.pkpass`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+
+        toast.success("Pass downloaded! Tap the file to add to Apple Wallet");
       } else {
-        toast.error(result.error || "Failed to add to wallet");
+        toast.error(
+          (result as { success: false; error: string }).error ||
+            "Failed to add to wallet"
+        );
       }
     } catch (error) {
       console.error("Error adding to wallet:", error);
@@ -49,8 +64,8 @@ export function AddToWalletButton({
       }}
     >
       <Image
-        src="/google_wallet_condensed.svg"
-        alt="Add to Google Wallet"
+        src="/apple_wallet.svg"
+        alt="Add to Apple Wallet"
         width={199}
         height={55}
         className="h-12 w-auto"
