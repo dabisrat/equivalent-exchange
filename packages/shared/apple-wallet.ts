@@ -579,11 +579,12 @@ export async function unregisterDevice(params: {
       .single();
 
     if (fetchError || !pass) {
-      logger.warn("Pass not found for unregistration", {
+      logger.info("Pass not found for unregistration - already deleted", {
         ...logContext,
         error: fetchError?.message,
       });
-      return { success: false, error: "Pass not found" };
+      // Return success - pass is already gone, which is what we want
+      return { success: true };
     }
 
     if (pass.authentication_token !== params.authenticationToken) {
