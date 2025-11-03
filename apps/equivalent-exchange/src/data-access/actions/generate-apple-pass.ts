@@ -60,6 +60,28 @@ export async function generateAppleWalletPass({
 
     logger.debug("User authenticated", { ...logContext, userId: user.id });
 
+    // Check if a pass already exists for this user and card
+    const { data: existingPass } = await supabaseAdmin
+      .from("apple_wallet_passes")
+      .select("serial_number, authentication_token, created_at")
+      .eq("user_id", user.id)
+      .eq("card_id", cardId)
+      .single();
+
+    // If pass exists, regenerate with same credentials
+    // This ensures the pass can be re-downloaded without breaking registrations
+    const serialNumber = existingPass?.serial_number || generateSerialNumber();
+    const authenticationToken =
+      existingPass?.authentication_token || generateAuthToken();
+
+    if (existingPass) {
+      logger.debug("Reusing existing pass credentials", {
+        ...logContext,
+        serialNumber,
+        existingSince: existingPass.created_at,
+      });
+    }
+
     // Fetch card data with organization details and stamps
     const { data: cardData, error: queryError } = await supabaseAdmin
       .from("reward_card")
@@ -100,10 +122,6 @@ export async function generateAppleWalletPass({
     const backgroundColor = appleConfig?.backgroundColor || "#3b82f6";
     const foregroundColor = appleConfig?.foregroundColor || "#ffffff";
     const labelColor = appleConfig?.labelColor || "#e5e7eb";
-
-    // Generate unique serial number and authentication token
-    const serialNumber = generateSerialNumber();
-    const authenticationToken = generateAuthToken();
 
     // Get current domain for QR code and web service URL
     const currentDomain = await getCurrentDomain();
@@ -219,26 +237,51 @@ export async function generateAppleWalletPass({
       bufferSizeMB: (pkpassBuffer.length / 1024 / 1024).toFixed(2),
     });
 
-    // Store pass registration in database
-    const { error: insertError } = await supabaseAdmin
-      .from("apple_wallet_passes")
-      .insert({
-        user_id: user.id,
-        card_id: cardId,
-        serial_number: serialNumber,
-        authentication_token: authenticationToken,
-      });
+    // Store or update pass registration in database
+    if (!existingPass) {
+      const { error: insertError } = await supabaseAdmin
+        .from("apple_wallet_passes")
+        .insert({
+          user_id: user.id,
+          card_id: cardId,
+          serial_number: serialNumber,
+          authentication_token: authenticationToken,
+        });
 
-    if (insertError) {
-      logger.error("Database insert failed", {
-        ...logContext,
-        serialNumber,
-        error: insertError.message,
-        code: insertError.code,
-      });
-      // Continue anyway - pass generation succeeded
+      if (insertError) {
+        logger.error("Database insert failed", {
+          ...logContext,
+          serialNumber,
+          error: insertError.message,
+          code: insertError.code,
+        });
+        // Continue anyway - pass generation succeeded
+      } else {
+        logger.debug("New pass stored in database", {
+          ...logContext,
+          serialNumber,
+        });
+      }
     } else {
-      logger.debug("Pass stored in database", { ...logContext, serialNumber });
+      // Update last_updated_at for existing pass
+      const { error: updateError } = await supabaseAdmin
+        .from("apple_wallet_passes")
+        .update({ last_updated_at: new Date().toISOString() })
+        .eq("user_id", user.id)
+        .eq("card_id", cardId);
+
+      if (updateError) {
+        logger.warn("Failed to update pass timestamp", {
+          ...logContext,
+          serialNumber,
+          error: updateError.message,
+        });
+      } else {
+        logger.debug("Pass regenerated with existing credentials", {
+          ...logContext,
+          serialNumber,
+        });
+      }
     }
 
     logger.info("Pass generation completed successfully", {
