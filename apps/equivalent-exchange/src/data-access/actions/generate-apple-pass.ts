@@ -18,6 +18,7 @@ const logger = createLogger({ service: "apple-wallet-pass-generation" });
 interface ApplePassData {
   cardId: string;
   organizationId: string;
+  userId?: string; // Optional: if not provided, won't store/update in database
 }
 
 async function getCurrentDomain(): Promise<string> {
@@ -42,6 +43,7 @@ async function getCurrentDomain(): Promise<string> {
 export async function generateAppleWalletPass({
   cardId,
   organizationId,
+  userId: providedUserId,
 }: ApplePassData): Promise<AsyncResult<number[]>> {
   const logContext = {
     operation: "generateAppleWalletPass",
@@ -52,19 +54,20 @@ export async function generateAppleWalletPass({
   logger.info("Pass generation started", logContext);
 
   try {
-    const user = await getUser();
-    if (!user) {
-      logger.warn("User not authenticated", logContext);
-      return { success: false, error: "User not authenticated" };
+    let userId = providedUserId;
+
+    if (!userId) {
+      const user = await getUser();
+      userId = user.id;
     }
 
-    logger.debug("User authenticated", { ...logContext, userId: user.id });
+    logger.debug("User identified", { ...logContext, userId });
 
     // Check if a pass already exists for this user and card
     const { data: existingPass } = await supabaseAdmin
       .from("apple_wallet_passes")
       .select("serial_number, authentication_token, created_at")
-      .eq("user_id", user.id)
+      .eq("user_id", userId)
       .eq("card_id", cardId)
       .single();
 
@@ -242,7 +245,7 @@ export async function generateAppleWalletPass({
       const { error: insertError } = await supabaseAdmin
         .from("apple_wallet_passes")
         .insert({
-          user_id: user.id,
+          user_id: userId,
           card_id: cardId,
           serial_number: serialNumber,
           authentication_token: authenticationToken,
@@ -267,7 +270,7 @@ export async function generateAppleWalletPass({
       const { error: updateError } = await supabaseAdmin
         .from("apple_wallet_passes")
         .update({ last_updated_at: new Date().toISOString() })
-        .eq("user_id", user.id)
+        .eq("user_id", userId)
         .eq("card_id", cardId);
 
       if (updateError) {

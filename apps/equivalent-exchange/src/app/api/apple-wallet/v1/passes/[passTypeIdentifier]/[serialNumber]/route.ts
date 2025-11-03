@@ -80,6 +80,7 @@ export async function GET(
     const result = await generateAppleWalletPass({
       cardId: pass.card_id,
       organizationId: card.organization_id,
+      userId: pass.user_id,
     });
 
     if (!result.success || !result.data) {
