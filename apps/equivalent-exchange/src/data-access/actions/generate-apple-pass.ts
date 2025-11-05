@@ -217,17 +217,14 @@ export async function generateAppleWalletPass({
     // Note: Images should be provided at @2x or @3x resolution for best quality
     if (images.icon) {
       pass.images.set("icon.png", images.icon);
-      pass.images.set("icon@2x.png", images.icon);
     }
 
     if (images.logo) {
       pass.images.set("logo.png", images.logo);
-      pass.images.set("logo@2x.png", images.logo);
     }
 
     if (images.strip) {
       pass.images.set("strip.png", images.strip);
-      pass.images.set("strip@2x.png", images.strip);
     }
 
     // Generate the .pkpass buffer
