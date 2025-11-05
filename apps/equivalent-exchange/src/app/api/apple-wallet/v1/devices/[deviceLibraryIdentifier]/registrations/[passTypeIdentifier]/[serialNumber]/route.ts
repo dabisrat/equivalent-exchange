@@ -58,7 +58,6 @@ export async function POST(
       );
     }
 
-    // Return 201 if newly registered, 200 if already registered
     return new NextResponse(null, { status: 201 });
   } catch (error) {
     console.error("Error registering device:", error);

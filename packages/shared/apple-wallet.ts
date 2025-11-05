@@ -482,9 +482,9 @@ export async function notifyPassUpdate(
  */
 export async function registerDevice(params: {
   deviceLibraryIdentifier: string;
+  pushToken: string;
   passTypeIdentifier: string;
   serialNumber: string;
-  pushToken: string;
   authenticationToken: string;
 }): Promise<{ success: boolean; error?: string }> {
   const logContext = {
@@ -532,7 +532,7 @@ export async function registerDevice(params: {
           last_updated_at: new Date().toISOString(),
         },
         {
-          onConflict: "user_id,card_id,device_library_identifier",
+          onConflict: "card_id,device_library_identifier",
           ignoreDuplicates: false,
         }
       );
