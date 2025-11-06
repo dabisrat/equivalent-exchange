@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS public.apple_wallet_passes (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   card_id uuid NOT NULL REFERENCES public.reward_card(id) ON DELETE CASCADE,
-  serial_number text UNIQUE NOT NULL,
+  serial_number text NOT NULL,
   authentication_token text NOT NULL,
   device_library_identifier text,
   push_token text,
