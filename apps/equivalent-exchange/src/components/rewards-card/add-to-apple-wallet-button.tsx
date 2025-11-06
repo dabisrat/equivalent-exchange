@@ -7,12 +7,10 @@ import Image from "next/image";
 
 interface AddToAppleWalletButtonProps {
   cardId: string;
-  organizationId: string;
 }
 
 export function AddToAppleWalletButton({
   cardId,
-  organizationId,
 }: AddToAppleWalletButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,7 +19,6 @@ export function AddToAppleWalletButton({
     try {
       const result = await generateAppleWalletPass({
         cardId,
-        organizationId,
       });
 
       if (result.success && result.data) {

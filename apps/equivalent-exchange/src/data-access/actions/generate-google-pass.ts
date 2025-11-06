@@ -8,7 +8,6 @@ import type { AsyncResult } from "@eq-ex/shared";
 import { type walletobjects_v1 } from "googleapis";
 interface GooglePassData {
   cardId: string;
-  organizationId: string;
 }
 
 // Google Wallet JWT generation
@@ -46,7 +45,6 @@ async function getCurrentDomain(): Promise<string> {
 
 export async function generateGoogleWalletPass({
   cardId,
-  organizationId,
 }: GooglePassData): Promise<AsyncResult<string>> {
   try {
     const user = await getUser();
@@ -58,12 +56,12 @@ export async function generateGoogleWalletPass({
       .from("reward_card")
       .select(
         `
+    organization_id,
     organization!inner(organization_name, card_config, primary_color, logo_url, max_points),
     stamp(stamp_index, stamped)
   `
       )
       .eq("id", cardId)
-      .eq("organization.id", organizationId)
       .single();
 
     if (queryError || !cardData) {
@@ -71,6 +69,7 @@ export async function generateGoogleWalletPass({
     }
 
     const org = cardData.organization;
+    const organizationId = cardData.organization_id;
     const stamps = cardData.stamp;
 
     const currentDomain = await getCurrentDomain();

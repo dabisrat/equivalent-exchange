@@ -33,7 +33,7 @@ export async function GET(
     // Get pass from database
     const { data: pass, error } = await supabaseAdmin
       .from("apple_wallet_passes")
-      .select("card_id, authentication_token, user_id")
+      .select("card_id, authentication_token, user_id, last_updated_at")
       .eq("serial_number", serialNumber)
       .single();
 
@@ -46,40 +46,20 @@ export async function GET(
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // Get card and organization info
-    const { data: card, error: cardError } = await supabaseAdmin
-      .from("reward_card")
-      .select("organization_id")
-      .eq("id", pass.card_id)
-      .single();
-
-    if (cardError || !card) {
-      return NextResponse.json({ error: "Card not found" }, { status: 404 });
-    }
-
     // Check if pass has been updated since the If-Modified-Since header
     const ifModifiedSince = request.headers.get("if-modified-since");
     if (ifModifiedSince) {
-      const { data: passData } = await supabaseAdmin
-        .from("apple_wallet_passes")
-        .select("last_updated_at")
-        .eq("serial_number", serialNumber)
-        .single();
+      const lastUpdated = new Date(pass.last_updated_at);
+      const modifiedSince = new Date(ifModifiedSince);
 
-      if (passData) {
-        const lastUpdated = new Date(passData.last_updated_at);
-        const modifiedSince = new Date(ifModifiedSince);
-
-        if (lastUpdated <= modifiedSince) {
-          return new NextResponse(null, { status: 304 });
-        }
+      if (lastUpdated <= modifiedSince) {
+        return new NextResponse(null, { status: 304 });
       }
     }
 
     // Generate fresh pass
     const result = await generateAppleWalletPass({
       cardId: pass.card_id,
-      organizationId: card.organization_id,
       userId: pass.user_id,
     });
 

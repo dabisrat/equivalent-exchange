@@ -17,7 +17,6 @@ const logger = createLogger({ service: "apple-wallet-pass-generation" });
 
 interface ApplePassData {
   cardId: string;
-  organizationId: string;
   userId?: string; // Optional: if not provided, won't store/update in database
 }
 
@@ -42,13 +41,11 @@ async function getCurrentDomain(): Promise<string> {
 
 export async function generateAppleWalletPass({
   cardId,
-  organizationId,
   userId: providedUserId,
 }: ApplePassData): Promise<AsyncResult<number[]>> {
   const logContext = {
     operation: "generateAppleWalletPass",
     cardId,
-    organizationId,
   };
 
   logger.info("Pass generation started", logContext);
@@ -90,12 +87,12 @@ export async function generateAppleWalletPass({
       .from("reward_card")
       .select(
         `
+        organization_id,
         organization!inner(organization_name, card_config, primary_color, logo_url, max_points),
         stamp(stamp_index, stamped)
       `
       )
       .eq("id", cardId)
-      .eq("organization.id", organizationId)
       .single();
 
     if (queryError || !cardData) {
@@ -113,6 +110,7 @@ export async function generateAppleWalletPass({
     });
 
     const org = cardData.organization;
+    const organizationId = cardData.organization_id;
     const stamps = cardData.stamp;
     const currentStamps = stamps.filter((s) => s.stamped).length;
     const maxPoints = org.max_points;

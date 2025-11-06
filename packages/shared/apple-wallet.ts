@@ -518,30 +518,21 @@ export async function registerDevice(params: {
       return { success: false, error: "Unauthorized" };
     }
 
-    // Register device: upsert allows multiple devices to register the same pass
-    const { error: upsertError } = await supabaseAdmin
+    const { error: updateError } = await supabaseAdmin
       .from("apple_wallet_passes")
-      .upsert(
-        {
-          user_id: pass.user_id,
-          card_id: pass.card_id,
-          serial_number: params.serialNumber,
-          authentication_token: pass.authentication_token,
-          device_library_identifier: params.deviceLibraryIdentifier,
-          push_token: params.pushToken,
-          last_updated_at: new Date().toISOString(),
-        },
-        {
-          onConflict: "card_id,device_library_identifier",
-          ignoreDuplicates: false,
-        }
-      );
+      .update({
+        device_library_identifier: params.deviceLibraryIdentifier,
+        push_token: params.pushToken,
+        last_updated_at: new Date().toISOString(),
+      })
+      .eq("card_id", pass.card_id)
+      .eq("serial_number", params.serialNumber);
 
-    if (upsertError) {
-      logger.error("Device registration upsert failed", {
+    if (updateError) {
+      logger.error("Device registration update failed", {
         ...logContext,
-        error: upsertError.message,
-        code: upsertError.code,
+        error: updateError.message,
+        code: updateError.code,
       });
       return { success: false, error: "Failed to register device" };
     }

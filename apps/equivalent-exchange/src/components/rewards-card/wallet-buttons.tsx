@@ -6,7 +6,6 @@ import { AddToAppleWalletButton } from "./add-to-apple-wallet-button";
 
 interface WalletButtonsProps {
   cardId: string;
-  organizationId: string;
 }
 
 /**
@@ -15,7 +14,7 @@ interface WalletButtonsProps {
  * - Android: Shows Google Wallet button only
  * - Desktop/Other: Shows both buttons
  */
-export function WalletButtons({ cardId, organizationId }: WalletButtonsProps) {
+export function WalletButtons({ cardId }: WalletButtonsProps) {
   const [platform, setPlatform] = useState<"ios" | "android" | "other">(
     "other"
   );
@@ -36,13 +35,10 @@ export function WalletButtons({ cardId, organizationId }: WalletButtonsProps) {
   return (
     <div className="flex flex-col sm:flex-row gap-4 items-center justify-center">
       {(platform === "ios" || platform === "other") && (
-        <AddToAppleWalletButton
-          cardId={cardId}
-          organizationId={organizationId}
-        />
+        <AddToAppleWalletButton cardId={cardId} />
       )}
       {(platform === "android" || platform === "other") && (
-        <AddToWalletButton cardId={cardId} organizationId={organizationId} />
+        <AddToWalletButton cardId={cardId} />
       )}
     </div>
   );

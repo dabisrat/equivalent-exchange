@@ -60,10 +60,7 @@ export default async function RewardsCardContainer({
       </RewardsCard>
       {user.id == card.user_id && (
         <div className="fixed bottom-0 left-0 right-0 flex justify-center pb-6 bg-gradient-to-t from-background via-background to-transparent pt-8">
-          <WalletButtons
-            cardId={card.id}
-            organizationId={card.organization_id}
-          />
+          <WalletButtons cardId={card.id} />
         </div>
       )}
     </>

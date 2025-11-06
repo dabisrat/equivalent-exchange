@@ -7,13 +7,9 @@ import Image from "next/image";
 
 interface AddToWalletButtonProps {
   cardId: string;
-  organizationId: string;
 }
 
-export function AddToWalletButton({
-  cardId,
-  organizationId,
-}: AddToWalletButtonProps) {
+export function AddToWalletButton({ cardId }: AddToWalletButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleAddToWallet = async () => {
@@ -21,7 +17,6 @@ export function AddToWalletButton({
     try {
       const result = await generateGoogleWalletPass({
         cardId,
-        organizationId,
       });
 
       if (result.success) {
