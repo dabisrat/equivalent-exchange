@@ -62,6 +62,7 @@ export async function generateGoogleWalletPass({
   `
       )
       .eq("id", cardId)
+      .eq("user_id", user.id)
       .single();
 
     if (queryError || !cardData) {

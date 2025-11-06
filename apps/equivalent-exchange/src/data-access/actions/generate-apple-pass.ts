@@ -17,10 +17,13 @@ const logger = createLogger({ service: "apple-wallet-pass-generation" });
 
 interface ApplePassData {
   cardId: string;
-  userId?: string; // Optional: if not provided, will use current user
   serialNumber?: string; // Optional: if provided, regenerate existing pass; if not, create new pass
 }
 
+/**
+ * Get current domain from request headers
+ * Returns HTTPS URL for production, HTTP for localhost
+ */
 async function getCurrentDomain(): Promise<string> {
   const headersList = await headers();
   const host =
@@ -28,55 +31,87 @@ async function getCurrentDomain(): Promise<string> {
     headersList.get("host") ||
     "localhost:3000";
 
-  // Always use HTTPS in production
-  // For localhost development, don't include webServiceURL (it's optional)
   const isLocalhost = host.includes("localhost") || host.includes("127.0.0.1");
 
   if (isLocalhost) {
     return `http://${host}`;
   }
 
-  // For production, always use HTTPS
   return `https://${host}`;
 }
 
-export async function generateAppleWalletPass({
-  cardId,
-  userId: providedUserId,
-  serialNumber: providedSerialNumber,
-}: ApplePassData): Promise<AsyncResult<number[]>> {
-  const logContext = {
-    operation: "generateAppleWalletPass",
-    cardId,
-    serialNumber: providedSerialNumber,
-  };
+/**
+ * Pass credentials for generation or regeneration
+ */
+interface PassCredentials {
+  userId: string;
+  serialNumber: string;
+  authenticationToken: string;
+  isRegeneration: boolean;
+}
 
-  logger.info("Pass generation started", logContext);
+/**
+ * Check if user already has a pass for this card
+ * Returns existing pass credentials if found
+ */
+async function checkExistingPass(
+  userId: string,
+  cardId: string
+): Promise<{ serialNumber: string; authenticationToken: string } | null> {
+  const logContext = { userId, cardId };
 
   try {
-    let userId = providedUserId;
+    const { data, error } = await supabaseAdmin
+      .from("apple_wallet_passes")
+      .select("serial_number, authentication_token")
+      .eq("user_id", userId)
+      .eq("card_id", cardId)
+      .limit(1)
+      .single();
 
-    if (!userId) {
-      const user = await getUser();
-      userId = user.id;
+    if (error || !data) {
+      logger.debug("No existing pass found", {
+        ...logContext,
+        error: error?.message,
+      });
+      return null;
     }
 
-    logger.debug("User identified", { ...logContext, userId });
+    logger.info("Existing pass found, returning existing credentials", {
+      ...logContext,
+      serialNumber: data.serial_number,
+    });
 
-    let serialNumber: string;
-    let authenticationToken: string;
-    let existingPass: {
-      serial_number: string;
-      authentication_token: string;
-      user_id: string;
-      card_id: string;
-    } | null = null;
+    return {
+      serialNumber: data.serial_number,
+      authenticationToken: data.authentication_token,
+    };
+  } catch (error) {
+    logger.error("Error checking for existing pass", {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return null;
+  }
+}
 
-    // If serial number provided, fetch existing pass and regenerate
+/**
+ * Resolve or generate pass credentials
+ * If serial number provided: Fetch from DB (API route regeneration)
+ * Otherwise: Use session user (client generation)
+ */
+async function resolvePassCredentials(
+  cardId: string,
+  providedSerialNumber?: string
+): Promise<AsyncResult<PassCredentials>> {
+  const logContext = { cardId, serialNumber: providedSerialNumber };
+
+  try {
+    // Regenerating existing pass (called from API route with serialNumber)
     if (providedSerialNumber) {
       const { data, error } = await supabaseAdmin
         .from("apple_wallet_passes")
-        .select("serial_number, authentication_token, user_id, card_id")
+        .select("serial_number, authentication_token, card_id, user_id")
         .eq("serial_number", providedSerialNumber)
         .single();
 
@@ -97,33 +132,102 @@ export async function generateAppleWalletPass({
         return { success: false, error: "Invalid pass" };
       }
 
-      existingPass = data;
-      serialNumber = data.serial_number;
-      authenticationToken = data.authentication_token;
-
-      logger.debug("Regenerating existing pass", {
+      logger.debug("Regenerating existing pass from DB", {
         ...logContext,
-        serialNumber,
+        userId: data.user_id,
       });
-    } else {
-      // No serial number provided - generate new pass
-      serialNumber = generateSerialNumber();
-      authenticationToken = generateAuthToken();
 
-      logger.debug("Generating new pass", {
-        ...logContext,
-        serialNumber,
-      });
+      return {
+        success: true,
+        data: {
+          userId: data.user_id,
+          serialNumber: data.serial_number,
+          authenticationToken: data.authentication_token,
+          isRegeneration: true,
+        },
+      };
     }
 
-    // Fetch card data with organization details and stamps
+    // Generating new pass (called from client without serialNumber)
+    // Get userId from session
+    const user = await getUser();
+    const userId = user.id;
+
+    logger.debug("Resolving pass for session user", { ...logContext, userId });
+
+    // Check if user already has a pass for this card
+    const existingPass = await checkExistingPass(userId, cardId);
+    if (existingPass) {
+      logger.info("Returning existing pass credentials", {
+        ...logContext,
+        userId,
+        serialNumber: existingPass.serialNumber,
+      });
+      return {
+        success: true,
+        data: {
+          userId,
+          serialNumber: existingPass.serialNumber,
+          authenticationToken: existingPass.authenticationToken,
+          isRegeneration: true, // Treat as regeneration to skip INSERT
+        },
+      };
+    }
+
+    // Generating new pass for this user
+    logger.debug("Generating new pass credentials for session user", {
+      ...logContext,
+      userId,
+    });
+
+    return {
+      success: true,
+      data: {
+        userId,
+        serialNumber: generateSerialNumber(),
+        authenticationToken: generateAuthToken(),
+        isRegeneration: false,
+      },
+    };
+  } catch (error) {
+    logger.error("Failed to resolve pass credentials", {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return {
+      success: false,
+      error: "Failed to resolve pass credentials",
+    };
+  }
+}
+
+/**
+ * Card configuration data for pass generation
+ */
+interface CardConfiguration {
+  organizationId: string;
+  organizationName: string;
+  maxPoints: number;
+  currentStamps: number;
+  cardConfig: OrganizationCardConfig;
+}
+
+/**
+ * Fetch and validate card configuration from database
+ */
+async function fetchCardConfiguration(
+  cardId: string
+): Promise<AsyncResult<CardConfiguration>> {
+  const logContext = { cardId };
+
+  try {
     const { data: cardData, error: queryError } = await supabaseAdmin
       .from("reward_card")
       .select(
         `
         organization_id,
-        organization!inner(organization_name, card_config, primary_color, logo_url, max_points),
-        stamp(stamp_index, stamped)
+        organization!inner(organization_name, card_config, max_points),
+        stamp(stamped)
       `
       )
       .eq("id", cardId)
@@ -137,124 +241,184 @@ export async function generateAppleWalletPass({
       return { success: false, error: "Card or organization not found" };
     }
 
-    logger.debug("Card data fetched", {
-      ...logContext,
-      organizationName: cardData.organization?.organization_name,
-      stampCount: cardData.stamp?.filter((s: any) => s.stamped).length,
-    });
-
     const org = cardData.organization;
-    const organizationId = cardData.organization_id;
-    const stamps = cardData.stamp;
-    const currentStamps = stamps.filter((s) => s.stamped).length;
-    const maxPoints = org.max_points;
+    const stamps = cardData.stamp || [];
+    const currentStamps = stamps.filter(
+      (s: { stamped: boolean | null }) => s.stamped === true
+    ).length;
 
-    // Type assertion for card_config
-    const cardConfig = org.card_config as unknown as OrganizationCardConfig;
-
-    // Get Apple Wallet configuration
-    const appleConfig = cardConfig?.apple_wallet_pass_config;
-    const backgroundColor = appleConfig?.backgroundColor || "#3b82f6";
-    const foregroundColor = appleConfig?.foregroundColor || "#ffffff";
-    const labelColor = appleConfig?.labelColor || "#e5e7eb";
-
-    // Get current domain for QR code and web service URL
-    const currentDomain = await getCurrentDomain();
-    const isLocalhost = currentDomain.startsWith("http://");
-
-    logger.debug("Domain detected", {
+    logger.debug("Card configuration fetched", {
       ...logContext,
-      currentDomain,
-      isLocalhost,
-      includeWebService: !isLocalhost,
+      organizationName: org?.organization_name,
+      currentStamps,
+      maxPoints: org.max_points,
     });
 
-    const orgName = org.organization_name || "Loyalty Program";
+    return {
+      success: true,
+      data: {
+        organizationId: cardData.organization_id,
+        organizationName: org.organization_name || "Loyalty Program",
+        maxPoints: org.max_points,
+        currentStamps,
+        cardConfig: org.card_config as unknown as OrganizationCardConfig,
+      },
+    };
+  } catch (error) {
+    logger.error("Failed to fetch card configuration", {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return {
+      success: false,
+      error: "Failed to fetch card configuration",
+    };
+  }
+}
 
-    // Get cached template (created once and reused for all passes)
+/**
+ * Pass configuration for Apple Wallet
+ */
+interface PassConfiguration {
+  serialNumber: string;
+  description: string;
+  organizationName: string;
+  logoText: string;
+  backgroundColor: string;
+  foregroundColor: string;
+  labelColor: string;
+  webServiceURL?: string;
+  authenticationToken?: string;
+  barcodes: Array<{
+    message: string;
+    format: "PKBarcodeFormatQR";
+    messageEncoding: string;
+  }>;
+  storeCard: {
+    primaryFields: Array<{ key: string; label: string; value: string }>;
+    auxiliaryFields: Array<{ key: string; label: string; value: string }>;
+    backFields: Array<{ key: string; label: string; value: string }>;
+  };
+}
+
+/**
+ * Build pass configuration object for Apple Wallet
+ */
+async function buildPassConfiguration(
+  credentials: PassCredentials,
+  cardConfig: CardConfiguration,
+  cardId: string
+): Promise<PassConfiguration> {
+  const { organizationId, organizationName, maxPoints, currentStamps } =
+    cardConfig;
+  const appleConfig = cardConfig.cardConfig?.apple_wallet_pass_config;
+
+  // Get current domain for QR code and web service URL
+  const currentDomain = await getCurrentDomain();
+  const isLocalhost = currentDomain.startsWith("http://");
+
+  logger.debug("Building pass configuration", {
+    cardId,
+    serialNumber: credentials.serialNumber,
+    currentDomain,
+    isLocalhost,
+  });
+
+  return {
+    serialNumber: credentials.serialNumber,
+    description: appleConfig?.description || `${organizationName} Loyalty Card`,
+    organizationName,
+    logoText: appleConfig?.logoText || organizationName,
+    backgroundColor: appleConfig?.backgroundColor || "#3b82f6",
+    foregroundColor: appleConfig?.foregroundColor || "#ffffff",
+    labelColor: appleConfig?.labelColor || "#e5e7eb",
+    // Only include webServiceURL if we're on HTTPS (Apple requirement)
+    ...(isLocalhost
+      ? {}
+      : {
+          webServiceURL: `${currentDomain}/api/apple-wallet`,
+          authenticationToken: credentials.authenticationToken,
+        }),
+    barcodes: [
+      {
+        message: `${currentDomain}/${organizationId}/${cardId}`,
+        format: "PKBarcodeFormatQR",
+        messageEncoding: "iso-8859-1",
+      },
+    ],
+    storeCard: {
+      primaryFields: [
+        {
+          key: "stamps",
+          label: "Stamps",
+          value: `${currentStamps}/${maxPoints}`,
+        },
+      ],
+      auxiliaryFields: [
+        {
+          key: "organization",
+          label: "Organization",
+          value: organizationName,
+        },
+        {
+          key: "offer",
+          label: "Offer",
+          value:
+            cardConfig.cardConfig?.card_front_config?.offer_description ||
+            `Collect ${maxPoints} stamps for a reward`,
+        },
+      ],
+      backFields: [
+        {
+          key: "terms",
+          label: "Terms & Conditions",
+          value:
+            cardConfig.cardConfig?.card_back_config?.description ||
+            "Present this pass to earn stamps. Full card earns a free reward!",
+        },
+        {
+          key: "website",
+          label: "Website",
+          value:
+            cardConfig.cardConfig?.card_front_config?.website_link ||
+            currentDomain,
+        },
+      ],
+    },
+  };
+}
+
+/**
+ * Generate the .pkpass buffer from configuration
+ */
+async function generatePassBuffer(
+  passConfig: PassConfiguration,
+  cardConfig: CardConfiguration
+): Promise<AsyncResult<Buffer>> {
+  const logContext = { serialNumber: passConfig.serialNumber };
+
+  try {
+    // Get cached template
     const template = await getPassTemplate();
 
+    // Create pass instance
+    const pass = template.createPass(passConfig);
+
     // Download and process images from configured URLs
+    const appleConfig = cardConfig.cardConfig?.apple_wallet_pass_config;
     const images = await downloadAndProcessPassImages({
       iconImage: appleConfig?.iconImage,
       logoImage: appleConfig?.logoImage,
       stripImage: appleConfig?.stripImage,
     });
 
-    // Create a Pass instance from the template with dynamic data
-    const passConfig: any = {
-      serialNumber,
-      description: appleConfig?.description || `${orgName} Loyalty Card`,
-      organizationName: orgName,
-      logoText: appleConfig?.logoText || orgName,
-      backgroundColor,
-      foregroundColor,
-      labelColor,
-      // Only include webServiceURL if we're on HTTPS (Apple requirement)
-      ...(isLocalhost
-        ? {}
-        : {
-            webServiceURL: `${currentDomain}/api/apple-wallet`,
-            authenticationToken,
-          }),
-      barcodes: [
-        {
-          message: `${currentDomain}/${organizationId}/${cardId}`,
-          format: "PKBarcodeFormatQR",
-          messageEncoding: "iso-8859-1",
-        },
-      ],
-      storeCard: {
-        primaryFields: [
-          {
-            key: "stamps",
-            label: "Stamps",
-            value: `${currentStamps}/${maxPoints}`,
-          },
-        ],
-        auxiliaryFields: [
-          {
-            key: "organization",
-            label: "Organization",
-            value: orgName,
-          },
-          {
-            key: "offer",
-            label: "Offer",
-            value:
-              cardConfig?.card_front_config?.offer_description ||
-              `Collect ${maxPoints} stamps for a reward`,
-          },
-        ],
-        backFields: [
-          {
-            key: "terms",
-            label: "Terms & Conditions",
-            value:
-              cardConfig?.card_back_config?.description ||
-              "Present this pass to earn stamps. Full card earns a free reward!",
-          },
-          {
-            key: "website",
-            label: "Website",
-            value: cardConfig?.card_front_config?.website_link || currentDomain,
-          },
-        ],
-      },
-    };
-
-    const pass = template.createPass(passConfig);
-
-    // Add images to the pass if they were successfully downloaded and processed
-    // Note: Images should be provided at @2x or @3x resolution for best quality
+    // Add images to the pass if available
     if (images.icon) {
       pass.images.set("icon.png", images.icon);
     }
-
     if (images.logo) {
       pass.images.set("logo.png", images.logo);
     }
-
     if (images.strip) {
       pass.images.set("strip.png", images.strip);
     }
@@ -264,61 +428,174 @@ export async function generateAppleWalletPass({
 
     logger.debug("Pass buffer generated", {
       ...logContext,
-      serialNumber,
       bufferSize: pkpassBuffer.length,
       bufferSizeMB: (pkpassBuffer.length / 1024 / 1024).toFixed(2),
     });
 
-    // Store or update pass registration in database
-    if (!existingPass) {
+    return { success: true, data: pkpassBuffer };
+  } catch (error) {
+    logger.error("Failed to generate pass buffer", {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+    });
+    return {
+      success: false,
+      error: "Failed to generate pass buffer",
+    };
+  }
+}
+
+/**
+ * Persist pass record to database
+ * For new passes: Creates initial record with NULL device fields
+ * For existing passes: Updates timestamp for all device registrations
+ *
+ * Note: Initial row with NULL device_library_identifier is needed to store
+ * serial_number and authentication_token before any device registers.
+ * The UNIQUE constraint on (card_id, device_library_identifier) allows
+ * multiple NULL values, so this won't conflict with device registrations.
+ */
+async function persistPassRecord(
+  userId: string,
+  cardId: string,
+  credentials: PassCredentials
+): Promise<AsyncResult<void>> {
+  const logContext = {
+    userId,
+    cardId,
+    serialNumber: credentials.serialNumber,
+    isRegeneration: credentials.isRegeneration,
+  };
+
+  try {
+    if (!credentials.isRegeneration) {
+      // Insert new pass record with NULL device fields
+      // This stores the serial number and auth token for later device registration
       const { error: insertError } = await supabaseAdmin
         .from("apple_wallet_passes")
         .insert({
           user_id: userId,
           card_id: cardId,
-          serial_number: serialNumber,
-          authentication_token: authenticationToken,
+          serial_number: credentials.serialNumber,
+          authentication_token: credentials.authenticationToken,
+          device_library_identifier: null,
+          push_token: null,
         });
 
       if (insertError) {
         logger.error("Database insert failed", {
           ...logContext,
-          serialNumber,
           error: insertError.message,
           code: insertError.code,
         });
         // Continue anyway - pass generation succeeded
-      } else {
-        logger.debug("New pass stored in database", {
-          ...logContext,
-          serialNumber,
-        });
+        return {
+          success: false,
+          error: "Failed to save pass record",
+        };
       }
+
+      logger.debug("New pass record created", logContext);
     } else {
-      // Update last_updated_at for existing pass
+      // Update timestamp for all existing device registrations
       const { error: updateError } = await supabaseAdmin
         .from("apple_wallet_passes")
         .update({ last_updated_at: new Date().toISOString() })
-        .eq("user_id", userId)
-        .eq("card_id", cardId);
+        .eq("serial_number", credentials.serialNumber);
 
       if (updateError) {
         logger.warn("Failed to update pass timestamp", {
           ...logContext,
-          serialNumber,
           error: updateError.message,
         });
-      } else {
-        logger.debug("Pass regenerated with existing credentials", {
-          ...logContext,
-          serialNumber,
-        });
+        return {
+          success: false,
+          error: "Failed to update pass record",
+        };
       }
+
+      logger.debug("Pass timestamps updated", logContext);
     }
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    logger.error("Failed to persist pass record", {
+      ...logContext,
+      error: error instanceof Error ? error.message : String(error),
+    });
+    return {
+      success: false,
+      error: "Failed to persist pass record",
+    };
+  }
+}
+
+/**
+ * Generate or regenerate an Apple Wallet pass for a loyalty card
+ * Main orchestrator function that coordinates all steps of pass generation
+ */
+export async function generateAppleWalletPass({
+  cardId,
+  serialNumber: providedSerialNumber,
+}: ApplePassData): Promise<AsyncResult<number[]>> {
+  const logContext = {
+    operation: "generateAppleWalletPass",
+    cardId,
+    serialNumber: providedSerialNumber,
+  };
+
+  logger.info("Pass generation started", logContext);
+
+  try {
+    // Step 1: Resolve or generate pass credentials
+    // If serialNumber provided: Fetches userId from DB (API route)
+    // Otherwise: Uses session userId (client call)
+    const credentialsResult = await resolvePassCredentials(
+      cardId,
+      providedSerialNumber
+    );
+    if (!credentialsResult.success) {
+      return credentialsResult;
+    }
+    const credentials = credentialsResult.data;
+    const userId = credentials.userId;
+
+    logger.debug("User and credentials resolved", {
+      ...logContext,
+      userId,
+      serialNumber: credentials.serialNumber,
+    });
+
+    // Step 2: Fetch card configuration
+    const cardConfigResult = await fetchCardConfiguration(cardId);
+    if (!cardConfigResult.success) {
+      return cardConfigResult;
+    }
+    const cardConfig = cardConfigResult.data;
+
+    // Step 3: Build pass configuration
+    const passConfig = await buildPassConfiguration(
+      credentials,
+      cardConfig,
+      cardId
+    );
+
+    // Step 4: Generate pass buffer
+    const bufferResult = await generatePassBuffer(passConfig, cardConfig);
+    if (!bufferResult.success) {
+      return bufferResult;
+    }
+    const pkpassBuffer = bufferResult.data;
+
+    // Step 5: Persist pass record to database
+    // For new passes: Creates initial row with NULL device fields
+    // For existing passes: Updates timestamps for all device registrations
+    await persistPassRecord(userId, cardId, credentials);
 
     logger.info("Pass generation completed successfully", {
       ...logContext,
-      serialNumber,
+      serialNumber: credentials.serialNumber,
       bufferSize: pkpassBuffer.length,
     });
 

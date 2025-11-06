@@ -498,10 +498,12 @@ export async function registerDevice(params: {
   logger.info("Device registration started", logContext);
 
   try {
+    // Find the pass record (could be initial NULL-device row or existing registration)
     const { data: pass, error: fetchError } = await supabaseAdmin
       .from("apple_wallet_passes")
       .select("authentication_token, user_id, card_id")
       .eq("serial_number", params.serialNumber)
+      .limit(1)
       .single();
 
     if (fetchError || !pass) {
@@ -518,23 +520,74 @@ export async function registerDevice(params: {
       return { success: false, error: "Unauthorized" };
     }
 
-    const { error: updateError } = await supabaseAdmin
-      .from("apple_wallet_passes")
-      .update({
-        device_library_identifier: params.deviceLibraryIdentifier,
-        push_token: params.pushToken,
-        last_updated_at: new Date().toISOString(),
-      })
-      .eq("card_id", pass.card_id)
-      .eq("serial_number", params.serialNumber);
+    // Strategy: Update NULL-device row if it exists, otherwise INSERT new row
+    // This ensures first device "claims" the initial row, subsequent devices create new rows
 
-    if (updateError) {
-      logger.error("Device registration update failed", {
-        ...logContext,
-        error: updateError.message,
-        code: updateError.code,
-      });
-      return { success: false, error: "Failed to register device" };
+    // Check if there's a NULL-device row for this serial number
+    const { data: nullDeviceRow, error: checkError } = await supabaseAdmin
+      .from("apple_wallet_passes")
+      .select("id")
+      .eq("serial_number", params.serialNumber)
+      .is("device_library_identifier", null)
+      .single();
+
+    if (nullDeviceRow && !checkError) {
+      // Update the NULL row with device info (first device registration)
+      const { error: updateError } = await supabaseAdmin
+        .from("apple_wallet_passes")
+        .update({
+          device_library_identifier: params.deviceLibraryIdentifier,
+          push_token: params.pushToken,
+          last_updated_at: new Date().toISOString(),
+        })
+        .eq("id", nullDeviceRow.id);
+
+      if (updateError) {
+        logger.error("Device registration update failed", {
+          ...logContext,
+          error: updateError.message,
+          code: updateError.code,
+        });
+        return { success: false, error: "Failed to register device" };
+      }
+
+      logger.info(
+        "Device registration successful (updated NULL row)",
+        logContext
+      );
+    } else {
+      // No NULL row exists, insert new row (2nd+ device or re-registration)
+      // Use upsert to handle case where this device was already registered
+      const { error: insertError } = await supabaseAdmin
+        .from("apple_wallet_passes")
+        .upsert(
+          {
+            user_id: pass.user_id,
+            card_id: pass.card_id,
+            serial_number: params.serialNumber,
+            authentication_token: params.authenticationToken,
+            device_library_identifier: params.deviceLibraryIdentifier,
+            push_token: params.pushToken,
+            last_updated_at: new Date().toISOString(),
+          },
+          {
+            onConflict: "card_id,device_library_identifier",
+          }
+        );
+
+      if (insertError) {
+        logger.error("Device registration insert failed", {
+          ...logContext,
+          error: insertError.message,
+          code: insertError.code,
+        });
+        return { success: false, error: "Failed to register device" };
+      }
+
+      logger.info(
+        "Device registration successful (inserted new row)",
+        logContext
+      );
     }
 
     logger.info("Device registration successful", logContext);
@@ -595,19 +648,15 @@ export async function unregisterDevice(params: {
       return { success: false, error: "Unauthorized" };
     }
 
-    // Now unregister the device
+    // Delete the device registration row
     const { error } = await supabaseAdmin
       .from("apple_wallet_passes")
-      .update({
-        device_library_identifier: null,
-        push_token: null,
-        last_updated_at: new Date().toISOString(),
-      })
+      .delete()
       .eq("serial_number", params.serialNumber)
       .eq("device_library_identifier", params.deviceLibraryIdentifier);
 
     if (error) {
-      logger.error("Device unregistration update failed", {
+      logger.error("Device unregistration delete failed", {
         ...logContext,
         error: error.message,
         code: error.code,

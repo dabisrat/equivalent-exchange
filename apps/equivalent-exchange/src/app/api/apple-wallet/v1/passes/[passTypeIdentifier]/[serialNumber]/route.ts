@@ -60,7 +60,6 @@ export async function GET(
     // Regenerate pass with existing serial number and credentials
     const result = await generateAppleWalletPass({
       cardId: pass.card_id,
-      userId: pass.user_id,
       serialNumber: serialNumber,
     });
 
