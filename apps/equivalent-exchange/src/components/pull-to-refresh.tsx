@@ -33,7 +33,7 @@ export function PullToRefresh({ children }: PullToRefreshProps) {
         instructionsReleaseToRefresh: "Release to refresh",
         instructionsRefreshing: "Refreshing",
         iconArrow: "↓",
-        iconRefreshing: "⟳",
+        iconRefreshing: "...",
       });
     } else {
       console.error("PullToRefreshLib.init is not a function");
