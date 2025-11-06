@@ -17,7 +17,8 @@ const logger = createLogger({ service: "apple-wallet-pass-generation" });
 
 interface ApplePassData {
   cardId: string;
-  userId?: string; // Optional: if not provided, won't store/update in database
+  userId?: string; // Optional: if not provided, will use current user
+  serialNumber?: string; // Optional: if provided, regenerate existing pass; if not, create new pass
 }
 
 async function getCurrentDomain(): Promise<string> {
@@ -42,10 +43,12 @@ async function getCurrentDomain(): Promise<string> {
 export async function generateAppleWalletPass({
   cardId,
   userId: providedUserId,
+  serialNumber: providedSerialNumber,
 }: ApplePassData): Promise<AsyncResult<number[]>> {
   const logContext = {
     operation: "generateAppleWalletPass",
     cardId,
+    serialNumber: providedSerialNumber,
   };
 
   logger.info("Pass generation started", logContext);
@@ -60,25 +63,56 @@ export async function generateAppleWalletPass({
 
     logger.debug("User identified", { ...logContext, userId });
 
-    // Check if a pass already exists for this user and card
-    const { data: existingPass } = await supabaseAdmin
-      .from("apple_wallet_passes")
-      .select("serial_number, authentication_token, created_at")
-      .eq("user_id", userId)
-      .eq("card_id", cardId)
-      .single();
+    let serialNumber: string;
+    let authenticationToken: string;
+    let existingPass: {
+      serial_number: string;
+      authentication_token: string;
+      user_id: string;
+      card_id: string;
+    } | null = null;
 
-    // If pass exists, regenerate with same credentials
-    // This ensures the pass can be re-downloaded without breaking registrations
-    const serialNumber = existingPass?.serial_number || generateSerialNumber();
-    const authenticationToken =
-      existingPass?.authentication_token || generateAuthToken();
+    // If serial number provided, fetch existing pass and regenerate
+    if (providedSerialNumber) {
+      const { data, error } = await supabaseAdmin
+        .from("apple_wallet_passes")
+        .select("serial_number, authentication_token, user_id, card_id")
+        .eq("serial_number", providedSerialNumber)
+        .single();
 
-    if (existingPass) {
-      logger.debug("Reusing existing pass credentials", {
+      if (error || !data) {
+        logger.error("Pass not found for serial number", {
+          ...logContext,
+          error: error?.message,
+        });
+        return { success: false, error: "Pass not found" };
+      }
+
+      // Verify the pass belongs to the correct card
+      if (data.card_id !== cardId) {
+        logger.error("Serial number does not match card", {
+          ...logContext,
+          foundCardId: data.card_id,
+        });
+        return { success: false, error: "Invalid pass" };
+      }
+
+      existingPass = data;
+      serialNumber = data.serial_number;
+      authenticationToken = data.authentication_token;
+
+      logger.debug("Regenerating existing pass", {
         ...logContext,
         serialNumber,
-        existingSince: existingPass.created_at,
+      });
+    } else {
+      // No serial number provided - generate new pass
+      serialNumber = generateSerialNumber();
+      authenticationToken = generateAuthToken();
+
+      logger.debug("Generating new pass", {
+        ...logContext,
+        serialNumber,
       });
     }
 
