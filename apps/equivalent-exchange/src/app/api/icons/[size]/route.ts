@@ -1,9 +1,33 @@
 import { headers } from "next/headers";
 import { getOrganizationBySubdomain } from "@app/utils/organization";
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
-import path from "path";
 import { supabaseAdmin } from "@eq-ex/shared/server";
+
+function getDefaultIconPath(size: number): string {
+  // Map requested sizes to available pwa-asset-generator icons
+  switch (size) {
+    case 192:
+      return "/icons/manifest-icon-192.maskable.png";
+    case 512:
+      return "/icons/manifest-icon-512.maskable.png";
+    case 180:
+      return "/icons/apple-icon-180.png";
+    case 152:
+      return "/icons/apple-icon-180.png"; // Closest available size
+    case 144:
+      return "/icons/apple-icon-180.png"; // Closest available size
+    case 128:
+      return "/icons/apple-icon-180.png"; // Closest available size
+    case 96:
+      return "/icons/apple-icon-180.png"; // Closest available size
+    case 72:
+      return "/icons/apple-icon-180.png"; // Closest available size
+    case 384:
+      return "/icons/manifest-icon-512.maskable.png"; // Closest available size
+    default:
+      return "/icons/manifest-icon-192.maskable.png"; // Fallback
+  }
+}
 
 export async function GET(
   request: NextRequest,
@@ -49,30 +73,14 @@ export async function GET(
       }
     }
 
-    // Check for local organization-specific icons (legacy support)
-    if (organizationData && organizationData.subdomain) {
-      const orgIconPath = path.join(
-        process.cwd(),
-        "public",
-        "icons",
-        organizationData.subdomain,
-        `icon-${size}x${size}.png`
-      );
-
-      if (fs.existsSync(orgIconPath)) {
-        const iconPath = `/icons/${organizationData.subdomain}/icon-${size}x${size}.png`;
-        return NextResponse.redirect(new URL(iconPath, request.url));
-      }
-    }
-
-    // Fall back to default icons
-    const defaultIconPath = `/icons/icon-${size}x${size}.png`;
+    // Fall back to default icons (pwa-asset-generator naming)
+    const defaultIconPath = getDefaultIconPath(size);
     return NextResponse.redirect(new URL(defaultIconPath, request.url));
   } catch (error) {
     console.error("Error serving dynamic icon:", error);
 
     // Fall back to default icon - use a common size if params failed
-    const fallbackPath = `/icons/icon-192x192.png`;
+    const fallbackPath = "/icons/manifest-icon-192.maskable.png";
     return NextResponse.redirect(new URL(fallbackPath, request.url));
   }
 }

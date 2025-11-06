@@ -12,8 +12,9 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "update-types-remote": "npx supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts",
-    "update-types-local": "npx supabase gen types --lang=typescript --local > src/utils/data-access/database.types.ts"
+    "generate-app-icons": "npx pwa-asset-generator public/logo.svg public/icons/",
+    "update-types-remote": "supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts",
+    "update-types-local": "supabase gen types --lang=typescript --local > src/utils/data-access/database.types.ts"
   },
   "dependencies": {
     "@eq-ex/auth": "workspace:*",

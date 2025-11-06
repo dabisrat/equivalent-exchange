@@ -22,8 +22,8 @@ export async function GET() {
         ? `${organizationData.organization_name} Rewards`
         : "EQ/EX - Equivalent Exchange",
       short_name: organizationData?.organization_name
-        ? organizationData.organization_name.length > 12
-          ? organizationData.organization_name.substring(0, 12)
+        ? organizationData.organization_name.length > 15
+          ? organizationData.organization_name.substring(0, 15)
           : organizationData.organization_name
         : "EQ/EX",
       description: organizationData?.organization_name
@@ -86,20 +86,21 @@ export async function GET() {
         },
       ],
       categories: ["business", "productivity", "social"],
-      screenshots: [
-        {
-          src: "/icons/screenshot-wide.png",
-          sizes: "1280x720",
-          type: "image/png",
-          form_factor: "wide",
-        },
-        {
-          src: "/icons/screenshot-narrow.png",
-          sizes: "720x1280",
-          type: "image/png",
-          form_factor: "narrow",
-        },
-      ],
+      // TODO: Add screenshots when available
+      // screenshots: [
+      //   {
+      //     src: "/icons/screenshot-wide.png",
+      //     sizes: "1280x720",
+      //     type: "image/png",
+      //     form_factor: "wide",
+      //   },
+      //   {
+      //     src: "/icons/screenshot-narrow.png",
+      //     sizes: "720x1280",
+      //     type: "image/png",
+      //     form_factor: "narrow",
+      //   },
+      // ],
     };
 
     return NextResponse.json(manifest, {
@@ -124,7 +125,7 @@ export async function GET() {
       scope: "/",
       icons: [
         {
-          src: "/icons/icon-192x192.png",
+          src: "/icons/manifest-icon-192.maskable.png",
           sizes: "192x192",
           type: "image/png",
           purpose: "maskable any",
