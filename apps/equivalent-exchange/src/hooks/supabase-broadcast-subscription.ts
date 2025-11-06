@@ -2,6 +2,8 @@
 
 import { createClient } from "@eq-ex/shared/client";
 import { RealtimeChannel } from "@supabase/supabase-js";
+import { useRouter } from "next/navigation";
+
 import { useEffect, useState } from "react";
 
 interface BroadcastSubscriptionStatus {
@@ -43,6 +45,7 @@ export function useBroadcastSubscription(
   table: string,
   options: BroadcastSubscriptionOptions
 ): BroadcastSubscriptionStatus {
+  const router = useRouter();
   const [status, setStatus] = useState<BroadcastSubscriptionStatus>({
     isReady: false,
     error: null,
@@ -207,6 +210,8 @@ export function useBroadcastSubscription(
           //   `🔄 [Broadcast] Detected stale channel for topic: ${topic}, forcing reconnection`
           // );
           await forceReconnect();
+        } else {
+          router.refresh();
         }
       }
     };
