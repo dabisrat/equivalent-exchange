@@ -16,6 +16,7 @@ export interface OrganizationBranding {
 export interface IconGenerationResult {
   success: boolean;
   iconUrls?: Record<string, string>; // size -> Supabase URL
+  splashUrls?: Record<string, string>; // dimensions -> Supabase URL
   error?: string;
 }
 
@@ -28,16 +29,53 @@ export async function generateAndUploadOrgIcons(
 ): Promise<IconGenerationResult> {
   try {
     const iconSizes = [72, 96, 128, 144, 152, 192, 384, 512];
+    const splashDimensions = [
+      "640-1136",
+      "750-1334",
+      "828-1792",
+      "1125-2436",
+      "1136-640",
+      "1170-2532",
+      "1242-2208",
+      "1242-2688",
+      "1284-2778",
+      "1334-750",
+      "1536-2048",
+      "1620-2160",
+      "1668-2224",
+      "1668-2388",
+      "1792-828",
+      "2048-1536",
+      "2048-2732",
+      "2160-1620",
+      "2208-1242",
+      "2224-1668",
+      "2266-1488",
+      "2360-1640",
+      "2388-1668",
+      "2436-1125",
+      "2532-1170",
+      "2556-1179",
+      "2622-1206",
+      "2688-1242",
+      "2732-2048",
+      "2736-1260",
+      "2778-1284",
+      "2796-1290",
+      "2868-1320",
+    ];
     const iconUrls: Record<string, string> = {};
+    const splashUrls: Record<string, string> = {};
 
     console.log(
-      `🚀 Starting icon generation for org: ${branding.name} (${branding.id})`
+      `🚀 Starting icon and splash screen generation for org: ${branding.name} (${branding.id})`
     );
     console.log(
       `🎨 Using colors: ${branding.primaryColor}, ${branding.secondaryColor || "none"}`
     );
     console.log(`🖼️  Logo URL: ${branding.logoUrl || "none - using initials"}`);
 
+    // Generate icons
     for (let i = 0; i < iconSizes.length; i++) {
       const size = iconSizes[i];
       console.log(
@@ -82,16 +120,71 @@ export async function generateAndUploadOrgIcons(
       }
     }
 
+    // Generate splash screens
+    for (let i = 0; i < splashDimensions.length; i++) {
+      const dimensions = splashDimensions[i];
+      const [width, height] = dimensions.split("-").map(Number);
+      console.log(
+        `📐 Generating ${width}x${height} splash screen (${i + 1}/${splashDimensions.length})`
+      );
+
+      try {
+        // Generate splash screen canvas
+        const canvas = await createSplashCanvas(width, height, branding);
+
+        // Convert to blob
+        const blob = await canvasToBlob(canvas, "image/jpeg", 0.9);
+        console.log(
+          `💾 Generated ${width}x${height} splash blob: ${(blob.size / 1024).toFixed(1)}KB`
+        );
+
+        // Upload to Supabase Storage
+        const fileName = `organizations/${branding.id}/splash/apple-splash-${dimensions}.jpg`;
+        const { error } = await supabase.storage
+          .from("card-backgrounds")
+          .upload(fileName, blob, {
+            contentType: "image/jpeg",
+            upsert: true,
+          });
+
+        if (error) {
+          throw new Error(
+            `Failed to upload ${width}x${height} splash screen: ${error.message}`
+          );
+        }
+
+        // Get public URL
+        const { data: publicData } = supabase.storage
+          .from("card-backgrounds")
+          .getPublicUrl(fileName);
+
+        splashUrls[dimensions] = publicData.publicUrl;
+        console.log(
+          `✅ Uploaded ${width}x${height} splash screen successfully`
+        );
+      } catch (sizeError) {
+        console.error(
+          `❌ Failed to generate ${width}x${height} splash screen:`,
+          sizeError
+        );
+        throw sizeError; // Re-throw to stop the entire process
+      }
+    }
+
     console.log(
-      `🎉 Successfully generated all ${iconSizes.length} icons for ${branding.name}`
+      `🎉 Successfully generated all ${iconSizes.length} icons and ${splashDimensions.length} splash screens for ${branding.name}`
     );
 
     return {
       success: true,
       iconUrls,
+      splashUrls,
     };
   } catch (error) {
-    console.error(`💥 Icon generation failed for ${branding.name}:`, error);
+    console.error(
+      `💥 Icon/splash generation failed for ${branding.name}:`,
+      error
+    );
     return {
       success: false,
       error: error instanceof Error ? error.message : "Unknown error",
@@ -100,8 +193,118 @@ export async function generateAndUploadOrgIcons(
 }
 
 /**
- * Create icon canvas using HTML5 Canvas API
+ * Create splash screen canvas using HTML5 Canvas API
+ * Splash screens are full-bleed backgrounds with logo overlay
  */
+async function createSplashCanvas(
+  width: number,
+  height: number,
+  branding: OrganizationBranding
+): Promise<HTMLCanvasElement> {
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext("2d")!;
+
+  // Fill with primary color background
+  ctx.fillStyle = branding.primaryColor || "#ffffff";
+  ctx.fillRect(0, 0, width, height);
+
+  // Add subtle gradient overlay for depth
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, "rgba(255, 255, 255, 0.1)");
+  gradient.addColorStop(1, "rgba(0, 0, 0, 0.1)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  // Option 1: Use logo if available
+  if (branding.logoUrl) {
+    try {
+      const img = await loadImageWithRetry(branding.logoUrl);
+      console.log(`✅ Logo loaded for splash: ${img.width}x${img.height}`);
+
+      // Calculate logo size - smaller for splash screens
+      const logoSize = Math.min(width, height) * 0.3; // 30% of smaller dimension
+      const logoX = (width - logoSize) / 2;
+      const logoY = (height - logoSize) / 2;
+
+      // Draw logo with object-fit: contain behavior
+      const aspectRatio = img.width / img.height;
+      let drawWidth = logoSize;
+      let drawHeight = logoSize;
+      let drawX = logoX;
+      let drawY = logoY;
+
+      if (aspectRatio > 1) {
+        // Logo is wider than tall
+        drawHeight = logoSize / aspectRatio;
+        drawY = logoY + (logoSize - drawHeight) / 2;
+      } else {
+        // Logo is taller than wide
+        drawWidth = logoSize * aspectRatio;
+        drawX = logoX + (logoSize - drawWidth) / 2;
+      }
+
+      ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
+      console.log(
+        `✅ Logo rendered on splash at ${drawX},${drawY} size ${drawWidth}x${drawHeight}`
+      );
+    } catch (logoError) {
+      console.warn(
+        "⚠️  Failed to load logo for splash, using text fallback:",
+        logoError
+      );
+      // Fall back to text-based splash
+      await createTextSplash(ctx, width, height, branding);
+    }
+  } else {
+    // Option 2: Text-based splash screen
+    await createTextSplash(ctx, width, height, branding);
+  }
+
+  return canvas;
+}
+
+/**
+ * Create text-based splash screen (fallback when no logo)
+ */
+async function createTextSplash(
+  ctx: CanvasRenderingContext2D,
+  width: number,
+  height: number,
+  branding: OrganizationBranding
+) {
+  // Background is already filled in main function
+
+  // Get initials or short name
+  const displayText =
+    branding.name.length > 10 ? getInitials(branding.name) : branding.name;
+
+  // Use contrasting color for text
+  const textColor = getContrastColor(branding.primaryColor || "#ffffff");
+
+  // Text styling
+  const fontSize = Math.min(width, height) * 0.15; // 15% of smaller dimension
+  ctx.fillStyle = textColor;
+  ctx.font = `bold ${fontSize}px -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif`;
+  ctx.textAlign = "center";
+  ctx.textBaseline = "middle";
+
+  // Add subtle shadow
+  ctx.shadowColor = "rgba(0, 0, 0, 0.3)";
+  ctx.shadowBlur = Math.min(width, height) * 0.005;
+  ctx.shadowOffsetX = Math.min(width, height) * 0.002;
+  ctx.shadowOffsetY = Math.min(width, height) * 0.002;
+
+  // Draw text
+  ctx.fillText(displayText, width / 2, height / 2);
+
+  // Reset shadow
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
+  ctx.shadowOffsetX = 0;
+  ctx.shadowOffsetY = 0;
+}
 async function createIconCanvas(
   size: number,
   branding: OrganizationBranding
@@ -274,12 +477,20 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 }
 
-function canvasToBlob(canvas: HTMLCanvasElement): Promise<Blob> {
+function canvasToBlob(
+  canvas: HTMLCanvasElement,
+  format: string = "image/png",
+  quality?: number
+): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    canvas.toBlob((blob) => {
-      if (blob) resolve(blob);
-      else reject(new Error("Failed to convert canvas to blob"));
-    }, "image/png");
+    canvas.toBlob(
+      (blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error("Failed to convert canvas to blob"));
+      },
+      format,
+      quality
+    );
   });
 }
 

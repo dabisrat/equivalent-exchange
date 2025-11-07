@@ -181,9 +181,14 @@ export function CardBackgroundUpload() {
           },
           supabase
         );
-        console.log("✅ PWA icons regenerated with new logo");
+        console.log(
+          "✅ PWA icons and splash screens regenerated with new logo"
+        );
       } catch (iconError) {
-        console.warn("⚠️ Logo updated but icon generation failed:", iconError);
+        console.warn(
+          "⚠️ Logo updated but icon and splash screen generation failed:",
+          iconError
+        );
       } finally {
         setIsGeneratingIcons(false);
       }
@@ -220,9 +225,12 @@ export function CardBackgroundUpload() {
           },
           supabase
         );
-        console.log("✅ PWA icons regenerated without logo");
+        console.log("✅ PWA icons and splash screens regenerated without logo");
       } catch (iconError) {
-        console.warn("⚠️ Logo removed but icon generation failed:", iconError);
+        console.warn(
+          "⚠️ Logo removed but icon and splash screen generation failed:",
+          iconError
+        );
       } finally {
         setIsGeneratingIcons(false);
       }
@@ -241,8 +249,8 @@ export function CardBackgroundUpload() {
         <CardTitle>Branding & Design</CardTitle>
         <CardDescription>
           Upload your organization logo and custom background images for reward
-          cards. Logo uploads automatically generate PWA app icons for mobile
-          installations.
+          cards. Logo uploads automatically generate PWA app icons and splash
+          screens for mobile installations.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -258,8 +266,8 @@ export function CardBackgroundUpload() {
               <h3 className="text-lg font-medium mb-2">Organization Logo</h3>
               <p className="text-sm text-muted-foreground mb-4">
                 Upload your organization logo. This will automatically generate
-                PWA app icons for mobile installations and appear on reward
-                cards.
+                PWA app icons and splash screens for mobile installations and
+                appear on reward cards.
               </p>
               <FileUpload
                 label="Organization Logo"
@@ -274,7 +282,7 @@ export function CardBackgroundUpload() {
               />
               {isGeneratingIcons && (
                 <div className="mt-2 text-sm text-blue-600">
-                  🔄 Generating PWA icons with new logo...
+                  🔄 Generating PWA icons and splash screens with new logo...
                 </div>
               )}
             </div>
@@ -378,8 +386,8 @@ export function CardBackgroundUpload() {
           </p>
           <p>
             Background images will be automatically scaled and positioned to fit
-            the card. Logo uploads automatically generate PWA app icons in
-            multiple sizes.
+            the card. Logo uploads automatically generate PWA app icons and
+            splash screens in multiple sizes.
           </p>
         </div>
       </CardContent>
