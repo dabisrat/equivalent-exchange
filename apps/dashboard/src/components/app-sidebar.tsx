@@ -1,18 +1,25 @@
 "use client";
 
-import * as React from "react";
 import {
-  IconDashboard,
-  IconInnerShadowTop,
-  IconUsers,
-  IconPalette,
   IconBell,
+  IconDashboard,
+  IconPalette,
+  IconUsers,
 } from "@tabler/icons-react";
+import * as React from "react";
 
 // import { NavDocuments } from "@app/components/nav-documents";
 import { NavMain } from "@app/components/nav-main";
 // import { NavSecondary } from "@app/components/nav-secondary";
+import iconSrc from "@app/app/icon.svg";
 import { OrganizationSwitcher } from "@app/components/organization-switcher";
+import { useMultiOrgContext } from "@app/contexts/multi-org-context";
+import { useAuth } from "@app/hooks/use-auth";
+import {
+  DropdownMenuGroup,
+  DropdownMenuItem,
+} from "@eq-ex/ui/components/dropdown-menu";
+import { NavUser } from "@eq-ex/ui/components/nav-user";
 import {
   Sidebar,
   SidebarContent,
@@ -22,14 +29,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@eq-ex/ui/components/sidebar";
-import { useMultiOrgContext } from "@app/contexts/multi-org-context";
-import { NavUser } from "@eq-ex/ui/components/nav-user";
-import {
-  DropdownMenuGroup,
-  DropdownMenuItem,
-} from "@eq-ex/ui/components/dropdown-menu";
 import { CreditCard, User } from "lucide-react";
-import { useAuth } from "@app/hooks/use-auth";
+import Image from "next/image";
 import Link from "next/link";
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, organizations, activeOrganization } = useMultiOrgContext();
@@ -99,7 +100,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             ) : (
               // Show static organization name when user has only one org
               <SidebarMenuButton className="data-[slot=sidebar-menu-button]:!p-1.5">
-                <IconInnerShadowTop className="!size-5" />
+                <Image
+                  src={iconSrc}
+                  alt="Organization icon"
+                  width={20}
+                  height={20}
+                  className="!size-5"
+                />
                 <span className="text-base font-semibold">
                   {activeOrganization?.organization_name || "Organization"}
                 </span>

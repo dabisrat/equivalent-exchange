@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
-import {
-  SidebarMenuButton,
-} from "@eq-ex/ui/components/sidebar";
+import { SidebarMenuButton } from "@eq-ex/ui/components/sidebar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,20 +12,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@eq-ex/ui/components/dropdown-menu";
-import { IconChevronDown, IconCheck, IconInnerShadowTop } from "@tabler/icons-react";
+import { IconChevronDown, IconCheck } from "@tabler/icons-react";
+import iconSrc from "@app/app/icon.svg";
 
 export function OrganizationSwitcher() {
-  const { organizations, activeOrganization, switchOrganization } = useMultiOrgContext();
+  const { organizations, activeOrganization, switchOrganization } =
+    useMultiOrgContext();
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSwitchOrganization = async (organizationId: string) => {
     if (organizationId === activeOrganization?.id) return;
-    
+
     try {
       setIsLoading(true);
       await switchOrganization(organizationId);
     } catch (error) {
-      console.error('Failed to switch organization:', error);
+      console.error("Failed to switch organization:", error);
       // You could add toast notification here
     } finally {
       setIsLoading(false);
@@ -40,8 +41,17 @@ export function OrganizationSwitcher() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <SidebarMenuButton className="data-[slot=sidebar-menu-button]:!p-1.5 w-full" disabled={isLoading}>
-          <IconInnerShadowTop className="!size-5" />
+        <SidebarMenuButton
+          className="data-[slot=sidebar-menu-button]:!p-1.5 w-full"
+          disabled={isLoading}
+        >
+          <Image
+            src={iconSrc}
+            alt="Organization icon"
+            width={20}
+            height={20}
+            className="!size-5"
+          />
           <span className="text-base font-semibold truncate">
             {activeOrganization?.organization_name || "Select Organization"}
           </span>

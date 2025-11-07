@@ -12,7 +12,7 @@
     "start": "next start",
     "lint": "next lint",
     "test": "vitest",
-    "generate-app-icons": "npx pwa-asset-generator public/logo.svg public/icons/",
+    "generate-app-icons": "npx pwa-asset-generator public/icon.svg public/icons/",
     "update-types-remote": "supabase gen types typescript --project-id \"rmqapnhhasgkxtpwtzuc\" > src/utils/data-access/database.types.ts",
     "update-types-local": "supabase gen types --lang=typescript --local > src/utils/data-access/database.types.ts"
   },
