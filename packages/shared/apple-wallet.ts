@@ -448,6 +448,24 @@ export async function notifyPassUpdate(
       count: passes.length,
     });
 
+    // Update last_updated_at for all registrations to indicate pass has changed
+    const now = new Date().toISOString();
+    const { error: updateError } = await supabaseAdmin
+      .from("apple_wallet_passes")
+      .update({ last_updated_at: now })
+      .eq("card_id", cardId)
+      .not("push_token", "is", null);
+
+    if (updateError) {
+      logger.error("Error updating last_updated_at for passes", {
+        ...logContext,
+        error: updateError.message,
+      });
+      // Continue with notifications even if update failed
+    } else {
+      logger.debug("Updated last_updated_at for passes", logContext);
+    }
+
     // Send notifications to all registered devices
     const results = await Promise.all(
       passes.map(async (pass) => {
