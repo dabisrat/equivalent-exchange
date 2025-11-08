@@ -14,6 +14,7 @@ import { getRewardsCardId } from "@app/utils/data-access";
 import { revalidatePath } from "next/cache";
 import { updateGoogleWalletPass } from "./update-google-pass";
 import { updateAppleWalletPass } from "./update-apple-pass";
+import { waitUntil } from "@vercel/functions";
 
 // don't export this with out verifying the RSL policies on the rewards_card table
 async function addRewardPoints(card_id: string) {
@@ -105,8 +106,15 @@ export async function redeemRewards(cardId: string) {
   if (e) {
     throw e;
   }
-  updateGoogleWalletPass(cardId, card.organization_id);
-  updateAppleWalletPass(cardId);
+
+  // TODO: find a way to do this without vercel specific code
+  waitUntil(
+    Promise.all([
+      updateGoogleWalletPass(cardId, card.organization_id),
+      updateAppleWalletPass(cardId),
+    ])
+  );
+
   revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
@@ -144,8 +152,14 @@ export async function updateStampById(cardId: string, stampIndex: number) {
     ]);
     addRewardPoints(cardId);
   }
-  updateGoogleWalletPass(cardId, card.organization_id);
-  updateAppleWalletPass(cardId);
+  // TODO: find a way to do this without vercel specific code
+  waitUntil(
+    Promise.all([
+      updateGoogleWalletPass(cardId, card.organization_id),
+      updateAppleWalletPass(cardId),
+    ])
+  );
+
   revalidatePath(`/${card.organization_id}/${cardId}`);
 }
 
