@@ -19,8 +19,7 @@ import {
 import { createOrganization } from "@app/data-access/actions/organizations";
 import { useAuth } from "@app/hooks/use-auth";
 import { ModeToggle } from "@eq-ex/ui/components/theme-toggle";
-import { createClient } from "@eq-ex/shared/client";
-import { generateAndUploadOrgIcons } from "@app/utils/icon-generation";
+import { generateClientAssets } from "@app/data-access/actions/client-assets";
 import { LogOut } from "lucide-react";
 import { signOut } from "@eq-ex/auth";
 import {
@@ -132,20 +131,14 @@ export default function OrganizationSetupPage() {
       if (result.success) {
         // Start icon generation in the background (non-blocking)
         const generateIconsInBackground = async () => {
-          try {
-            const supabase = createClient();
+          if (!organizationData.logo_url) return;
 
-            await generateAndUploadOrgIcons(
-              {
-                id: result.data, // Organization ID
-                name: data.organization_name,
-                primaryColor: data.primary_color || "#4A90E2", // Default blue
-                secondaryColor: data.secondary_color || "#7B68EE", // Default purple
-                logoUrl: data.logo_url || undefined,
-                subdomain: data.subdomain,
-              },
-              supabase
-            );
+          try {
+            await generateClientAssets({
+              organizationId: result.data, // Organization ID
+              logoUrl: data.logo_url,
+              primaryColor: data.primary_color || "#4A90E2",
+            });
 
             console.log(
               "✅ PWA icons generated successfully for org:",

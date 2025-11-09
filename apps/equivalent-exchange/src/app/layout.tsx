@@ -21,7 +21,7 @@ const fontSans = Inter({
 });
 
 export const metadata = {
-  title: "EQ/EX",
+  title: "",
   description: "change it up",
 };
 
@@ -115,6 +115,11 @@ export default async function RootLayout({
         <meta name="msapplication-TileColor" content={themeColor} />
         <meta name="msapplication-tap-highlight" content="no" />
         <meta name="theme-color" content={themeColor} />
+
+        {/* Favicon */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/api/icons/32" />
+        <link rel="icon" type="image/png" sizes="16x16" href="/api/icons/16" />
+        <link rel="shortcut icon" href="/api/icons/32" />
 
         <link rel="apple-touch-icon" href="/api/icons/180" />
         <link rel="apple-touch-icon" sizes="152x152" href="/api/icons/152" />
@@ -253,25 +258,13 @@ export default async function RootLayout({
           media="(device-width: 320px) and (device-height: 568px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)"
         />
 
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="32x32"
-          href="/icons/icon-32x32.png"
-        />
-        <link
-          rel="icon"
-          type="image/png"
-          sizes="16x16"
-          href="/icons/icon-16x16.png"
-        />
         <link rel="manifest" href="/manifest.json" />
+
         <link
           rel="mask-icon"
           href="/icons/safari-pinned-tab.svg"
           color="#5bbad5"
         />
-        <link rel="shortcut icon" href="/favicon.ico" />
 
         <meta name="twitter:card" content="summary" />
         <meta name="twitter:url" content="https://yourdomain.com" />

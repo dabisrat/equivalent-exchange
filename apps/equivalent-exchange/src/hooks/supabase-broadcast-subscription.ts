@@ -209,9 +209,8 @@ export function useBroadcastSubscription(
           // console.log(
           //   `🔄 [Broadcast] Detected stale channel for topic: ${topic}, forcing reconnection`
           // );
-          await forceReconnect();
-        } else {
           router.refresh();
+          await forceReconnect();
         }
       }
     };

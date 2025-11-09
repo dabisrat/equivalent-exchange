@@ -24,8 +24,10 @@ import {
   TabsList,
   TabsTrigger,
 } from "@eq-ex/ui/components/tabs";
-import { generateAndUploadOrgIcons } from "@app/utils/icon-generation";
-import { createClient } from "@eq-ex/shared/client";
+import {
+  generateClientAssets,
+  deleteClientAssets,
+} from "@app/data-access/actions/client-assets";
 
 export function CardBackgroundUpload() {
   const { activeOrganization } = useMultiOrgContext();
@@ -166,27 +168,18 @@ export function CardBackgroundUpload() {
       // Update organization logo URL
       await updateOrganizationLogo(activeOrganization.id, result.url);
 
-      // Generate PWA icons with new logo
+      // Delete existing PWA icons
       setIsGeneratingIcons(true);
       try {
-        const supabase = createClient();
-        await generateAndUploadOrgIcons(
-          {
-            id: activeOrganization.id,
-            name: activeOrganization.organization_name || "Organization",
-            primaryColor: activeOrganization.primary_color || "#4A90E2",
-            secondaryColor: activeOrganization.secondary_color || "#7B68EE",
-            logoUrl: result.url,
-            subdomain: activeOrganization.subdomain || "",
-          },
-          supabase
-        );
-        console.log(
-          "✅ PWA icons and splash screens regenerated with new logo"
-        );
+        await generateClientAssets({
+          organizationId: activeOrganization.id,
+          logoUrl: result.url,
+          primaryColor: activeOrganization.primary_color || "#000000",
+        });
+        console.log("✅ PWA icons and splash screens deleted");
       } catch (iconError) {
         console.warn(
-          "⚠️ Logo updated but icon and splash screen generation failed:",
+          "⚠️ Logo updated but icon and splash screen deletion failed:",
           iconError
         );
       } finally {
@@ -210,25 +203,16 @@ export function CardBackgroundUpload() {
       // Remove organization logo
       await updateOrganizationLogo(activeOrganization.id, null);
 
-      // Regenerate PWA icons without logo (will use initials)
+      // Delete existing PWA icons
       setIsGeneratingIcons(true);
       try {
-        const supabase = createClient();
-        await generateAndUploadOrgIcons(
-          {
-            id: activeOrganization.id,
-            name: activeOrganization.organization_name || "Organization",
-            primaryColor: activeOrganization.primary_color || "#4A90E2",
-            secondaryColor: activeOrganization.secondary_color || "#7B68EE",
-            logoUrl: undefined,
-            subdomain: activeOrganization.subdomain || "",
-          },
-          supabase
-        );
-        console.log("✅ PWA icons and splash screens regenerated without logo");
+        await deleteClientAssets({
+          organizationId: activeOrganization.id,
+        });
+        console.log("✅ PWA icons and splash screens deleted");
       } catch (iconError) {
         console.warn(
-          "⚠️ Logo removed but icon and splash screen generation failed:",
+          "⚠️ Logo removed but icon and splash screen deletion failed:",
           iconError
         );
       } finally {
@@ -249,8 +233,8 @@ export function CardBackgroundUpload() {
         <CardTitle>Branding & Design</CardTitle>
         <CardDescription>
           Upload your organization logo and custom background images for reward
-          cards. Logo uploads automatically generate PWA app icons and splash
-          screens for mobile installations.
+          cards. Logo uploads will delete any existing PWA app icons and splash
+          screens.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -265,9 +249,9 @@ export function CardBackgroundUpload() {
             <div>
               <h3 className="text-lg font-medium mb-2">Organization Logo</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Upload your organization logo. This will automatically generate
-                PWA app icons and splash screens for mobile installations and
-                appear on reward cards.
+                Upload your organization logo. This will automatically delete
+                any existing PWA app icons and splash screens and appear on
+                reward cards.
               </p>
               <FileUpload
                 label="Organization Logo"
@@ -282,7 +266,7 @@ export function CardBackgroundUpload() {
               />
               {isGeneratingIcons && (
                 <div className="mt-2 text-sm text-blue-600">
-                  🔄 Generating PWA icons and splash screens with new logo...
+                  �️ Deleting PWA icons and splash screens...
                 </div>
               )}
             </div>
@@ -386,8 +370,8 @@ export function CardBackgroundUpload() {
           </p>
           <p>
             Background images will be automatically scaled and positioned to fit
-            the card. Logo uploads automatically generate PWA app icons and
-            splash screens in multiple sizes.
+            the card. Logo uploads will delete any existing PWA app icons and
+            splash screens.
           </p>
         </div>
       </CardContent>

@@ -10,6 +10,7 @@ import {
 } from "@eq-ex/ui/components/dialog";
 import { addOrganizationMember } from "../utils/organization";
 import { toast } from "sonner";
+import { Button } from "@eq-ex/ui/components/button";
 
 export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
   const { activeOrganization: organization } = useMultiOrgContext();
@@ -69,9 +70,7 @@ export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <button className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-white shadow hover:bg-primary/90">
-          Add Member
-        </button>
+        <Button className="">Add Member</Button>
       </DialogTrigger>
       <DialogContent className="max-w-sm">
         <DialogHeader>
@@ -132,21 +131,16 @@ export function AddUserDialog({ onSuccess }: { onSuccess?: () => void }) {
           </div>
           {error && <div className="text-destructive text-sm">{error}</div>}
           <div className="flex gap-2">
-            <button
-              type="submit"
-              className="flex-1 rounded bg-primary px-3 py-2 text-sm font-medium text-white shadow hover:bg-primary/90"
-              disabled={loading}
-            >
+            <Button type="submit" disabled={loading}>
               {loading ? "Adding..." : "Add"}
-            </button>
-            <button
-              type="button"
-              className="flex-1 rounded bg-muted px-3 py-2 text-sm font-medium"
+            </Button>
+            <Button
+              variant="secondary"
               onClick={() => setOpen(false)}
               disabled={loading}
             >
               Cancel
-            </button>
+            </Button>
           </div>
         </form>
       </DialogContent>
