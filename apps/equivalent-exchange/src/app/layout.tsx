@@ -326,6 +326,54 @@ export default async function RootLayout({
             }}
           />
         )}
+
+        {/* Preload background images */}
+        {organizationData?.card_config?.card_front_config?.background_image && (
+          <link
+            rel="preload"
+            href={
+              organizationData.card_config.card_front_config.background_image
+            }
+            as="image"
+          />
+        )}
+        {organizationData?.card_config?.card_front_config
+          ?.dark_background_image &&
+          organizationData.card_config.card_front_config
+            .dark_background_image !==
+            organizationData.card_config.card_front_config.background_image && (
+            <link
+              rel="preload"
+              href={
+                organizationData.card_config.card_front_config
+                  .dark_background_image
+              }
+              as="image"
+            />
+          )}
+        {organizationData?.card_config?.card_back_config?.background_image && (
+          <link
+            rel="preload"
+            href={
+              organizationData.card_config.card_back_config.background_image
+            }
+            as="image"
+          />
+        )}
+        {organizationData?.card_config?.card_back_config
+          ?.dark_background_image &&
+          organizationData.card_config.card_back_config
+            .dark_background_image !==
+            organizationData.card_config.card_back_config.background_image && (
+            <link
+              rel="preload"
+              href={
+                organizationData.card_config.card_back_config
+                  .dark_background_image
+              }
+              as="image"
+            />
+          )}
       </head>
       <body className={cn(fontSans.variable)}>
         <ThemeProvider
