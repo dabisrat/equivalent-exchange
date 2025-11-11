@@ -3,6 +3,7 @@ import "server-only";
 import { Template } from "@walletpass/pass-js";
 import apn from "node-apn";
 import crypto from "crypto";
+import sharp from "sharp";
 import { supabaseAdmin } from "./server";
 import { createLogger } from "./logger";
 
@@ -181,14 +182,20 @@ async function downloadImage(url: string): Promise<Buffer | null> {
 
 /**
  * Process and validate an image for Apple Wallet pass
- * Returns the original buffer - Apple Wallet will handle scaling based on filename (@2x, @3x)
- * Just validates the image is a valid format
+ * Resizes and compresses images to reduce file size while maintaining quality
+ * Apple Wallet image size requirements:
+ * - icon: max 87x87px (square)
+ * - logo: max 160x50px
+ * - strip: max 312x123px
  */
 async function processPassImage(
   imageBuffer: Buffer,
   type: "icon" | "logo" | "strip"
 ): Promise<Buffer | null> {
   try {
+    // Dynamic import of sharp to avoid bundling issues
+    // const sharp = (await import("sharp")).default;
+
     // Basic validation - check if it's a valid image by checking magic bytes
     const magicNumbers: { [key: string]: number[] } = {
       png: [0x89, 0x50, 0x4e, 0x47],
@@ -207,8 +214,59 @@ async function processPassImage(
       return null;
     }
 
-    // Return original buffer - Apple Wallet handles scaling
-    return imageBuffer;
+    // Get image metadata
+    const metadata = await sharp(imageBuffer).metadata();
+    const { width = 0, height = 0, format } = metadata;
+
+    let processedBuffer: Buffer;
+
+    // Resize and compress based on image type
+    switch (type) {
+      case "icon":
+        // Icon should be square, max 87x87px
+        const iconSize = Math.min(width, height, 87);
+        processedBuffer = await sharp(imageBuffer)
+          .resize(iconSize, iconSize, {
+            fit: "cover",
+            position: "center",
+          })
+          .png({ quality: 90, compressionLevel: 9 })
+          .toBuffer();
+        break;
+
+      case "logo":
+        // Logo max 160x50px, maintain aspect ratio
+        processedBuffer = await sharp(imageBuffer)
+          .resize(160, 50, {
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .png({ quality: 90, compressionLevel: 9 })
+          .toBuffer();
+        break;
+
+      case "strip":
+        // Strip max 312x123px, maintain aspect ratio
+        processedBuffer = await sharp(imageBuffer)
+          .resize(312, 123, {
+            fit: "inside",
+            withoutEnlargement: true,
+          })
+          .png({ quality: 90, compressionLevel: 9 })
+          .toBuffer();
+        break;
+
+      default:
+        // Fallback: just compress without resizing
+        processedBuffer = await sharp(imageBuffer)
+          .png({ quality: 90, compressionLevel: 9 })
+          .toBuffer();
+    }
+
+    console.log(
+      `Processed ${type} image: ${width}x${height} -> ${processedBuffer.length} bytes`
+    );
+    return processedBuffer;
   } catch (error) {
     console.error(`Error processing ${type} image:`, error);
     return null;
@@ -217,9 +275,13 @@ async function processPassImage(
 
 /**
  * Download and process images for Apple Wallet pass
+ * Downloads images from HTTPS URLs, resizes to Apple Wallet requirements, and compresses for optimal file size
  * Returns processed images ready to be added to the pass
- * Note: Images should be provided at @2x or @3x resolution
- * Apple Wallet will automatically scale based on filename
+ *
+ * Image size limits (Apple Wallet guidelines):
+ * - icon: max 87x87px (square, will be resized and cropped)
+ * - logo: max 160x50px (aspect ratio maintained)
+ * - strip: max 312x123px (aspect ratio maintained)
  *
  * Security measures:
  * - Only HTTPS URLs allowed (unless NODE_ENV=development for local testing)
@@ -228,6 +290,7 @@ async function processPassImage(
  * - 5MB file size limit to prevent memory exhaustion
  * - Content-Type validation (PNG, JPEG, WebP, SVG only)
  * - Magic byte validation to ensure valid image format
+ * - Sharp processing for resizing and compression
  */
 export async function downloadAndProcessPassImages(config: {
   iconImage?: string;

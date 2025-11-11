@@ -295,6 +295,7 @@ interface PassConfiguration {
     messageEncoding: string;
   }>;
   storeCard: {
+    headerFields: Array<{ key: string; label: string; value: string }>;
     primaryFields: Array<{ key: string; label: string; value: string }>;
     auxiliaryFields: Array<{ key: string; label: string; value: string }>;
     backFields: Array<{ key: string; label: string; value: string }>;
@@ -347,13 +348,14 @@ async function buildPassConfiguration(
       },
     ],
     storeCard: {
-      primaryFields: [
+      headerFields: [
         {
           key: "stamps",
           label: "Stamps",
           value: `${currentStamps}/${maxPoints}`,
         },
       ],
+      primaryFields: [],
       auxiliaryFields: [
         {
           key: "organization",
