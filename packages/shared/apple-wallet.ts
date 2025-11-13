@@ -235,22 +235,22 @@ async function processPassImage(
         break;
 
       case "logo":
-        // Logo max 160x50px, maintain aspect ratio
         processedBuffer = await sharp(imageBuffer)
-          .resize(160, 50, {
+          .resize(480, 150, {
             fit: "inside",
             withoutEnlargement: true,
+            kernel: "lanczos3",
           })
           .png({ quality: 90, compressionLevel: 9 })
           .toBuffer();
         break;
 
       case "strip":
-        // Strip max 312x123px, maintain aspect ratio
         processedBuffer = await sharp(imageBuffer)
-          .resize(312, 123, {
+          .resize(1125, 432, {
             fit: "inside",
             withoutEnlargement: true,
+            kernel: "lanczos3",
           })
           .png({ quality: 90, compressionLevel: 9 })
           .toBuffer();
