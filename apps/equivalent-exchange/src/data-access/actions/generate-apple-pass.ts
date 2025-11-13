@@ -408,11 +408,14 @@ async function generatePassBuffer(
 
     // Download and process images from configured URLs
     const appleConfig = cardConfig.cardConfig?.apple_wallet_pass_config;
-    const images = await downloadAndProcessPassImages({
-      iconImage: appleConfig?.iconImage,
-      logoImage: appleConfig?.logoImage,
-      stripImage: appleConfig?.stripImage,
-    });
+    const images = await downloadAndProcessPassImages(
+      {
+        iconImage: appleConfig?.iconImage,
+        logoImage: appleConfig?.logoImage,
+        stripImage: appleConfig?.stripImage,
+      },
+      cardConfig.organizationId
+    );
 
     // Add images to the pass if available
     if (images.icon) {
