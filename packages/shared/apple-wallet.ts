@@ -476,21 +476,12 @@ export async function downloadAndProcessPassImages(
   return results;
 }
 
-// Cache the template in memory to avoid recreating it on every request
-// Note: Only static fields (certificates, IDs) are cached
-// Dynamic fields (organizationName, description) are set per pass
-let cachedTemplate: Template | null = null;
-
 /**
  * Get or create the Apple Wallet pass template with certificates
  * Template is cached in memory after first creation for performance
  * Only caches static configuration - dynamic fields are set when creating individual passes
  */
 export async function getPassTemplate() {
-  if (cachedTemplate) {
-    return cachedTemplate;
-  }
-
   const credentials = getAppleWalletCredentials();
 
   // Create template with only required static fields
@@ -504,7 +495,6 @@ export async function getPassTemplate() {
   template.setCertificate(credentials.certificates.signerCert);
   template.setPrivateKey(credentials.certificates.signerKey);
 
-  cachedTemplate = template;
   return template;
 }
 
