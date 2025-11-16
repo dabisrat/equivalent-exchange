@@ -112,6 +112,11 @@ export async function generateGoogleWalletPass({
               body: org.organization_name,
               id: "organization",
             },
+            {
+              header: "Email",
+              body: user.email || "Not Available",
+              id: "email",
+            },
           ],
         },
       ],

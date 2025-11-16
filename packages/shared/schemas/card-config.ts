@@ -43,12 +43,6 @@ export interface CardBackConfig {
  * Punch node (stamp) configuration - controls individual stamp appearance and behavior
  */
 export interface PunchNodeConfig {
-  /** Unique identifier for the punch node */
-  id: string;
-  /** Display name for the punch node */
-  name: string;
-  /** Type of punch node */
-  type: "standard" | "special" | "bonus";
   /** Size configuration for different states */
   size: {
     /** Size when punched/stamped */
@@ -234,50 +228,41 @@ export const appleWalletPassConfigSchema = z.object({
     .optional(),
   stripImage: z
     .string()
-    .refine(
-      (val: string) => {
-        if (!val) return true;
-        try {
-          const url = new URL(val);
-          return url.protocol === "https:";
-        } catch {
-          return false;
-        }
-      },
-      "Must be a valid HTTPS URL"
-    )
+    .refine((val: string) => {
+      if (!val) return true;
+      try {
+        const url = new URL(val);
+        return url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Must be a valid HTTPS URL")
     .optional()
     .or(z.literal("")),
   iconImage: z
     .string()
-    .refine(
-      (val: string) => {
-        if (!val) return true;
-        try {
-          const url = new URL(val);
-          return url.protocol === "https:";
-        } catch {
-          return false;
-        }
-      },
-      "Must be a valid HTTPS URL"
-    )
+    .refine((val: string) => {
+      if (!val) return true;
+      try {
+        const url = new URL(val);
+        return url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Must be a valid HTTPS URL")
     .optional()
     .or(z.literal("")),
   logoImage: z
     .string()
-    .refine(
-      (val: string) => {
-        if (!val) return true;
-        try {
-          const url = new URL(val);
-          return url.protocol === "https:";
-        } catch {
-          return false;
-        }
-      },
-      "Must be a valid HTTPS URL"
-    )
+    .refine((val: string) => {
+      if (!val) return true;
+      try {
+        const url = new URL(val);
+        return url.protocol === "https:";
+      } catch {
+        return false;
+      }
+    }, "Must be a valid HTTPS URL")
     .optional()
     .or(z.literal("")),
 }) satisfies z.ZodType<AppleWalletPassConfig>;

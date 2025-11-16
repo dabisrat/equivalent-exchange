@@ -76,9 +76,6 @@ const COLOR_CLASSES: Record<NodeState, string> = {
 };
 
 const DEFAULT_CONFIG: PunchNodeConfig = {
-  id: "default-free",
-  name: "Free Tier Default",
-  type: "standard",
   size: { punched: "large", unpunched: "medium", loading: "large" },
   icons: {
     punched: "RiExchangeFill",
