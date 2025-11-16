@@ -98,7 +98,6 @@ export interface CardLayoutConfig {
     | "grid-first"
     | "two-column"
     | "two-column-reverse"
-    | "overlay"
     | "custom";
   /** Optional layout customization settings */
   options?: {

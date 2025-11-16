@@ -218,7 +218,7 @@ export function FileUpload({
           <img
             src={displayImage}
             alt="Preview"
-            className="w-full h-32 object-cover rounded-md border"
+            className="w-32 h-20 object-cover rounded border"
           />
           {onRemove && (
             <Button

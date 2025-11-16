@@ -91,10 +91,7 @@ export async function updateOrganizationLogo(
  */
 export async function updateCardConfig(
   organizationId: string,
-  config: {
-    card_front_config?: OrganizationCardConfig["card_front_config"];
-    card_back_config?: OrganizationCardConfig["card_back_config"];
-  }
+  config: Partial<OrganizationCardConfig>
 ) {
   try {
     const user = await getUser();
@@ -132,6 +129,7 @@ export async function updateCardConfig(
       (org.card_config as any) || {};
     const updatedConfig = {
       ...currentConfig,
+      ...config,
       card_front_config: {
         ...currentConfig.card_front_config,
         ...config.card_front_config,
@@ -139,6 +137,30 @@ export async function updateCardConfig(
       card_back_config: {
         ...currentConfig.card_back_config,
         ...config.card_back_config,
+      },
+      card_layout_config: {
+        ...currentConfig.card_layout_config,
+        ...config.card_layout_config,
+      },
+      punch_node_config: {
+        ...currentConfig.punch_node_config,
+        ...config.punch_node_config,
+        size: {
+          ...currentConfig.punch_node_config?.size,
+          ...config.punch_node_config?.size,
+        },
+        icons: {
+          ...currentConfig.punch_node_config?.icons,
+          ...config.punch_node_config?.icons,
+        },
+        animation: {
+          ...currentConfig.punch_node_config?.animation,
+          ...config.punch_node_config?.animation,
+          loading: {
+            ...currentConfig.punch_node_config?.animation?.loading,
+            ...config.punch_node_config?.animation?.loading,
+          },
+        },
       },
     };
 

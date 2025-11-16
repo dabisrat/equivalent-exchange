@@ -2,19 +2,11 @@
 
 import { updateStampById } from "@app/data-access/actions/rewards-card";
 import { MouseEvent, useState } from "react";
+import { MdCircle } from "react-icons/md";
 import {
-  MdCircle,
-  MdStars,
-  MdStar,
-  MdStarBorder,
-  MdAutorenew,
-  MdDiamond,
-  MdOutlineDiamond,
-  MdFavorite,
-  MdFavoriteBorder,
-} from "react-icons/md";
-import { RiExchangeFill } from "react-icons/ri";
-import { FaRegLemon, FaLemon } from "react-icons/fa6";
+  PUNCH_ICONS,
+  type PunchIconKey,
+} from "@eq-ex/shared/utils/punch-icons";
 import { PunchNodeConfig } from "@eq-ex/shared/utils/shared.types";
 
 // Interfaces and Types
@@ -34,25 +26,12 @@ interface FillAnimationProps {
 }
 
 type NodeState = "loading" | "punched" | "unpunched";
-type IconKey = keyof typeof ICONS;
+type IconKey = PunchIconKey;
 type SizeKey = "small" | "medium" | "large";
 type AnimationType = "spin" | "pulse" | "bounce" | "ping" | "flip" | "fill";
 
 // Constants
-const ICONS = {
-  MdCircle,
-  MdStars,
-  MdStar,
-  MdStarBorder,
-  MdAutorenew,
-  MdDiamond,
-  MdOutlineDiamond,
-  MdFavorite,
-  MdFavoriteBorder,
-  RiExchangeFill,
-  FaRegLemon,
-  FaLemon,
-} as const;
+const ICONS = PUNCH_ICONS;
 
 const SIZES: Record<SizeKey, number> = {
   small: 16,

@@ -2,7 +2,9 @@
 import { AsyncResult } from "@app/schemas/responses";
 import {
   createOrganizationSchema,
+  updateOrganizationSchema,
   type CreateOrganizationInput,
+  type UpdateOrganizationInput,
 } from "../../schemas/organization";
 import {
   createOrganizationMember,
@@ -308,5 +310,63 @@ export async function addOrganizationMember(
   } catch (error) {
     console.error("Unexpected error adding organization member:", error);
     return { success: false, message: "Error adding organization member" };
+  }
+}
+
+export async function updateOrganization(
+  organizationId: string,
+  data: UpdateOrganizationInput
+): AsyncResult<void> {
+  try {
+    // Validate the input data
+    const validatedData = updateOrganizationSchema.safeParse(data);
+
+    if (!validatedData.success) {
+      return { success: false, message: validatedData.error.message };
+    }
+
+    const supabase = await createServerClient();
+
+    // Authentication check
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      console.error("Unauthorized access:", authError);
+      return { success: false, message: "Unauthorized" };
+    }
+
+    // Verify user has permission to update this organization
+    const { data: orgMember } = await supabase
+      .from("organization_members")
+      .select("role")
+      .eq("organization_id", organizationId)
+      .eq("user_id", user.id)
+      .single();
+
+    if (!orgMember || !["owner", "admin"].includes(orgMember.role)) {
+      return {
+        success: false,
+        message: "Insufficient permissions to update organization",
+      };
+    }
+
+    // Update organization
+    const { error } = await supabase
+      .from("organization")
+      .update(validatedData.data)
+      .eq("id", organizationId);
+
+    if (error) {
+      console.error("Error updating organization:", error);
+      return { success: false, message: "Failed to update organization" };
+    }
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    console.error("Unexpected error updating organization:", error);
+    return { success: false, message: "Error updating organization" };
   }
 }

@@ -54,7 +54,11 @@ export const createOrganizationSchema = z.object({
 >;
 
 // 4. Update schema (partial input validation)
-export const updateOrganizationSchema = createOrganizationSchema.partial();
+export const updateOrganizationSchema = createOrganizationSchema
+  .partial()
+  .extend({
+    primary_color: commonValidations.hexColor.nullable().optional(),
+  });
 
 // 5. Inferred types
 export type Organization = z.infer<typeof organizationSchema>;
