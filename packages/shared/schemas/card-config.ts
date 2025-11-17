@@ -23,6 +23,8 @@ export interface CardFrontConfig {
   background_image?: string;
   /** Optional dark mode background image URL or file path */
   dark_background_image?: string;
+  /** Whether to show content overlay on front of card (defaults to true) */
+  show_content?: boolean;
 }
 
 /**

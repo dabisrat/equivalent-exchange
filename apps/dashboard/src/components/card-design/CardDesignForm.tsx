@@ -73,6 +73,7 @@ const cardDesignSchema = z.object({
   company_name: z.string().max(100),
   offer_description: z.string().max(200),
   front_website_link: z.string().url().or(z.literal("")),
+  show_front_content: z.boolean(),
 
   // Back card config
   back_website_link: z.string().url().or(z.literal("")),
@@ -144,6 +145,7 @@ export function CardDesignForm({
     offer_description:
       normalizedConfig.card_front_config.offer_description || "",
     front_website_link: normalizedConfig.card_front_config.website_link || "",
+    show_front_content: normalizedConfig.card_front_config.show_content ?? true,
     back_website_link: normalizedConfig.card_back_config.website_link || "",
     description: normalizedConfig.card_back_config.description || "",
     layout_variant: normalizedConfig.card_layout_config.variant,
@@ -381,6 +383,7 @@ export function CardDesignForm({
           company_name: data.company_name,
           offer_description: data.offer_description,
           website_link: data.front_website_link,
+          show_content: data.show_front_content,
         },
         card_back_config: {
           website_link: data.back_website_link,
@@ -393,10 +396,12 @@ export function CardDesignForm({
           size: {
             punched: data.punch_size_punched,
             unpunched: data.punch_size_unpunched,
+            loading: data.punch_size_punched,
           },
           icons: {
             punched: data.punch_icon_punched,
             unpunched: data.punch_icon_unpunched,
+            loading: data.punch_icon_punched,
           },
           animation: {
             enabled: data.punch_animation_enabled,
@@ -559,6 +564,27 @@ export function CardDesignForm({
                           <Input placeholder="https://example.com" {...field} />
                         </FormControl>
                         <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="show_front_content"
+                    render={({ field }) => (
+                      <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <div className="space-y-1 leading-none">
+                          <FormLabel>Show Content Overlay</FormLabel>
+                          <p className="text-sm text-muted-foreground">
+                            Display company name, logo, and offer details on the
+                            front of the card
+                          </p>
+                        </div>
                       </FormItem>
                     )}
                   />

@@ -7,6 +7,7 @@ const DEFAULT_CARD_FRONT_CONFIG = {
   company_name: "",
   offer_description: "",
   website_link: "",
+  show_content: true,
 };
 
 const DEFAULT_CARD_BACK_CONFIG = {

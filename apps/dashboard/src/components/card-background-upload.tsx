@@ -29,6 +29,11 @@ import {
   deleteClientAssets,
 } from "@app/data-access/actions/client-assets";
 
+/**
+ * @deprecated This component is deprecated and no longer used.
+ * Use {@link CardDesignForm} instead, which provides a more comprehensive
+ * interface for managing card design, branding, and file uploads.
+ */
 export function CardBackgroundUpload() {
   const { activeOrganization } = useMultiOrgContext();
   const router = useRouter();
