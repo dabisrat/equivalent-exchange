@@ -129,17 +129,24 @@ export function CardDesignForm({
 
   const normalizedConfig = normalizeCardConfig(initialConfig);
 
-  // Extract current background URLs for previews
-  const frontBackgroundUrl =
-    normalizedConfig.card_front_config.background_image;
-  const frontDarkBackgroundUrl =
-    normalizedConfig.card_front_config.dark_background_image;
-  const backBackgroundUrl = normalizedConfig.card_back_config.background_image;
-  const backDarkBackgroundUrl =
-    normalizedConfig.card_back_config.dark_background_image;
+  // Local state for image URLs to enable immediate preview updates
+  const [currentImages, setCurrentImages] = useState<{
+    frontBackground: string | null | undefined;
+    frontDarkBackground: string | null | undefined;
+    backBackground: string | null | undefined;
+    backDarkBackground: string | null | undefined;
+    logo: string | null | undefined;
+  }>({
+    frontBackground: normalizedConfig.card_front_config.background_image,
+    frontDarkBackground:
+      normalizedConfig.card_front_config.dark_background_image,
+    backBackground: normalizedConfig.card_back_config.background_image,
+    backDarkBackground: normalizedConfig.card_back_config.dark_background_image,
+    logo: activeOrganization?.logo_url,
+  });
 
   const defaultValues: CardDesignFormData = {
-    primary_color: primaryColor || "#000000",
+    primary_color: primaryColor || null,
     max_points: maxPoints,
     company_name: normalizedConfig.card_front_config.company_name || "",
     offer_description:
@@ -166,13 +173,24 @@ export function CardDesignForm({
     defaultValues,
   });
 
-  // Watch for changes and call onChange
+  // Sync local state with props when they change
   useEffect(() => {
-    const subscription = form.watch((data) => {
-      onChange?.(data as CardDesignFormData);
+    setCurrentImages({
+      frontBackground: normalizedConfig.card_front_config.background_image,
+      frontDarkBackground:
+        normalizedConfig.card_front_config.dark_background_image,
+      backBackground: normalizedConfig.card_back_config.background_image,
+      backDarkBackground:
+        normalizedConfig.card_back_config.dark_background_image,
+      logo: activeOrganization?.logo_url,
     });
-    return () => subscription.unsubscribe();
-  }, [form.watch, onChange]);
+  }, [
+    normalizedConfig.card_front_config.background_image,
+    normalizedConfig.card_front_config.dark_background_image,
+    normalizedConfig.card_back_config.background_image,
+    normalizedConfig.card_back_config.dark_background_image,
+    activeOrganization?.logo_url,
+  ]);
 
   const handleFrontBackgroundUpload = async (result: {
     url: string;
@@ -183,6 +201,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardFrontBackground(activeOrganization.id, result.url);
+      setCurrentImages((prev) => ({ ...prev, frontBackground: result.url }));
       router.refresh(); // Refresh to show updated background
     } catch (error) {
       console.error("Failed to update front background:", error);
@@ -200,6 +219,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardBackBackground(activeOrganization.id, result.url);
+      setCurrentImages((prev) => ({ ...prev, backBackground: result.url }));
       router.refresh(); // Refresh to show updated background
     } catch (error) {
       console.error("Failed to update back background:", error);
@@ -214,6 +234,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardFrontBackground(activeOrganization.id, null);
+      setCurrentImages((prev) => ({ ...prev, frontBackground: null }));
       router.refresh();
     } catch (error) {
       console.error("Failed to remove front background:", error);
@@ -228,6 +249,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardBackBackground(activeOrganization.id, null);
+      setCurrentImages((prev) => ({ ...prev, backBackground: null }));
       router.refresh();
     } catch (error) {
       console.error("Failed to remove back background:", error);
@@ -245,6 +267,10 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardFrontDarkBackground(activeOrganization.id, result.url);
+      setCurrentImages((prev) => ({
+        ...prev,
+        frontDarkBackground: result.url,
+      }));
       router.refresh(); // Refresh to show updated background
     } catch (error) {
       console.error("Failed to update front dark background:", error);
@@ -262,6 +288,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardBackDarkBackground(activeOrganization.id, result.url);
+      setCurrentImages((prev) => ({ ...prev, backDarkBackground: result.url }));
       router.refresh(); // Refresh to show updated background
     } catch (error) {
       console.error("Failed to update back dark background:", error);
@@ -276,6 +303,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardFrontDarkBackground(activeOrganization.id, null);
+      setCurrentImages((prev) => ({ ...prev, frontDarkBackground: null }));
       router.refresh();
     } catch (error) {
       console.error("Failed to remove front dark background:", error);
@@ -290,6 +318,7 @@ export function CardDesignForm({
     try {
       setIsUpdating(true);
       await updateCardBackDarkBackground(activeOrganization.id, null);
+      setCurrentImages((prev) => ({ ...prev, backDarkBackground: null }));
       router.refresh();
     } catch (error) {
       console.error("Failed to remove back dark background:", error);
@@ -306,6 +335,7 @@ export function CardDesignForm({
 
       // Update organization logo URL
       await updateOrganizationLogo(activeOrganization.id, result.url);
+      setCurrentImages((prev) => ({ ...prev, logo: result.url }));
 
       // Delete existing PWA icons
       setIsGeneratingIcons(true);
@@ -341,6 +371,7 @@ export function CardDesignForm({
 
       // Remove organization logo
       await updateOrganizationLogo(activeOrganization.id, null);
+      setCurrentImages((prev) => ({ ...prev, logo: null }));
 
       // Delete existing PWA icons
       setIsGeneratingIcons(true);
@@ -455,7 +486,7 @@ export function CardDesignForm({
                               <Input
                                 type="color"
                                 {...field}
-                                value={field.value || "#000000"}
+                                value={field.value || ""}
                               />
                               <Button
                                 type="button"
@@ -505,13 +536,13 @@ export function CardDesignForm({
                     </p>
                     <FileUpload
                       label="Organization Logo"
-                      currentImage={activeOrganization?.logo_url || undefined}
+                      currentImage={currentImages.logo || undefined}
                       bucket="card-backgrounds"
                       folder={`organizations/${activeOrganization?.id}/logo`}
                       onUploadComplete={handleLogoUpload}
                       onRemove={handleLogoRemove}
                       accept="image/*"
-                      maxSizeMB={5}
+                      maxSizeMB={1}
                       disabled={isUpdating || isGeneratingIcons}
                     />
                     {isGeneratingIcons && (
@@ -598,13 +629,13 @@ export function CardDesignForm({
                     </p>
                     <FileUpload
                       label="Front Background Image (Light)"
-                      currentImage={frontBackgroundUrl}
+                      currentImage={currentImages.frontBackground || undefined}
                       bucket="card-backgrounds"
                       folder={`organizations/${activeOrganization?.id}/front`}
                       onUploadComplete={handleFrontBackgroundUpload}
                       onRemove={handleFrontBackgroundRemove}
                       accept="image/*"
-                      maxSizeMB={5}
+                      maxSizeMB={1}
                       disabled={isUpdating}
                     />
                   </div>
@@ -618,13 +649,15 @@ export function CardDesignForm({
                     </p>
                     <FileUpload
                       label="Front Background Image (Dark)"
-                      currentImage={frontDarkBackgroundUrl}
+                      currentImage={
+                        currentImages.frontDarkBackground || undefined
+                      }
                       bucket="card-backgrounds"
                       folder={`organizations/${activeOrganization?.id}/front-dark`}
                       onUploadComplete={handleFrontDarkBackgroundUpload}
                       onRemove={handleFrontDarkBackgroundRemove}
                       accept="image/*"
-                      maxSizeMB={5}
+                      maxSizeMB={1}
                       disabled={isUpdating}
                     />
                   </div>
@@ -672,13 +705,13 @@ export function CardDesignForm({
                     </p>
                     <FileUpload
                       label="Back Background Image (Light)"
-                      currentImage={backBackgroundUrl}
+                      currentImage={currentImages.backBackground || undefined}
                       bucket="card-backgrounds"
                       folder={`organizations/${activeOrganization?.id}/back`}
                       onUploadComplete={handleBackBackgroundUpload}
                       onRemove={handleBackBackgroundRemove}
                       accept="image/*"
-                      maxSizeMB={5}
+                      maxSizeMB={1}
                       disabled={isUpdating}
                     />
                   </div>
@@ -692,13 +725,15 @@ export function CardDesignForm({
                     </p>
                     <FileUpload
                       label="Back Background Image (Dark)"
-                      currentImage={backDarkBackgroundUrl}
+                      currentImage={
+                        currentImages.backDarkBackground || undefined
+                      }
                       bucket="card-backgrounds"
                       folder={`organizations/${activeOrganization?.id}/back-dark`}
                       onUploadComplete={handleBackDarkBackgroundUpload}
                       onRemove={handleBackDarkBackgroundRemove}
                       accept="image/*"
-                      maxSizeMB={5}
+                      maxSizeMB={1}
                       disabled={isUpdating}
                     />
                   </div>

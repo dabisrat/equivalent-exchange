@@ -56,7 +56,7 @@ export function FileUpload({
   disabled = false,
   className,
   accept = "image/*",
-  maxSizeMB = 5,
+  maxSizeMB = 1,
   showPreview = true,
   uploadButtonText = "Choose File",
   allowDragDrop = true,
@@ -113,21 +113,18 @@ export function FileUpload({
       try {
         const supabase = createClient();
 
-        // Generate unique filename
         const fileExt = file.name.split(".").pop();
-        const fileName = `${Date.now()}-${Math.random()
-          .toString(36)
-          .substring(2, 15)}.${fileExt}`;
+        const fileName = `image.${fileExt}`;
 
         // Create path with optional folder
         const filePath = folder ? `${folder}/${fileName}` : fileName;
 
-        // Upload file directly to Supabase Storage
+        // Upload file directly to Supabase Storage (allow overwrite)
         const { data, error } = await supabase.storage
           .from(bucket)
           .upload(filePath, file, {
             cacheControl: "3600",
-            upsert: false,
+            upsert: true,
           });
 
         if (error) {
