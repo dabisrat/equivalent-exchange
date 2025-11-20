@@ -373,6 +373,9 @@ importers:
       next:
         specifier: ^15.3.3
         version: 15.5.0(@babel/core@7.28.3)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-icons:
+        specifier: ^5.5.0
+        version: 5.5.0(react@19.1.1)
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
