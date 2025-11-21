@@ -278,7 +278,7 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
               </div>
 
               {/* Main content container */}
-              {organization?.card_config?.card_front_config.show_content !==
+              {organization?.card_config?.card_front_config?.show_content !==
                 false && (
                 <div className="flex flex-col items-center justify-center p-4 text-center">
                   {/* Company Logo */}

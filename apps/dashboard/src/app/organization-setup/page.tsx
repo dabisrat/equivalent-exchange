@@ -137,7 +137,7 @@ export default function OrganizationSetupPage() {
             await generateClientAssets({
               organizationId: result.data, // Organization ID
               logoUrl: data.logo_url,
-              primaryColor: data.primary_color || "#4A90E2",
+              primaryColor: "#ffffff",
             });
 
             console.log(

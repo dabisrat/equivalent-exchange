@@ -343,7 +343,7 @@ export function CardDesignForm({
         await generateClientAssets({
           organizationId: activeOrganization.id,
           logoUrl: result.url,
-          primaryColor: activeOrganization.primary_color || "#000000",
+          primaryColor: "#ffffff",
         });
         console.log("✅ PWA icons and splash screens deleted");
       } catch (iconError) {
