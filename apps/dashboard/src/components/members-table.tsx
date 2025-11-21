@@ -38,6 +38,20 @@ import {
   TableHeader,
   TableRow,
 } from "@eq-ex/ui/components/table";
+import { IconTrash } from "@tabler/icons-react";
+import { Button } from "@eq-ex/ui/components/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@eq-ex/ui/components/dialog";
+import { removeOrganizationMember } from "@app/data-access/actions/organizations";
+import { useMultiOrgContext } from "@app/contexts/multi-org-context";
+import { toast } from "sonner";
 
 function DragHandle({ id }: { id: string }) {
   const { attributes, listeners } = useSortable({ id });
@@ -54,42 +68,70 @@ function DragHandle({ id }: { id: string }) {
   );
 }
 
-const columns: ColumnDef<OrganizationMember>[] = [
-  {
-    id: "drag",
-    header: () => null,
-    cell: ({ row }) =>
-      row.original.user_id ? <DragHandle id={row.original.user_id} /> : null,
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: "Name",
-    cell: ({ row }) => row.original.name,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => row.original.email,
-  },
-  {
-    accessorKey: "role",
-    header: "Role",
-    cell: ({ row }) => {
-      const isActive = row.original.is_active;
-      return (
-        <Badge variant="outline" className="px-1.5 flex items-center gap-2">
-          <span
-            className={`inline-block w-2 h-2 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
-            aria-label={isActive ? "Active" : "Inactive"}
-          />
-          {row.original.role}
-        </Badge>
-      );
-    },
-  },
-];
+function MemberActions({
+  member,
+  onReload,
+}: {
+  member: OrganizationMember;
+  onReload?: () => void;
+}) {
+  const { activeOrganization } = useMultiOrgContext();
+  const [open, setOpen] = React.useState(false);
+  const [loading, setLoading] = React.useState(false);
+
+  async function handleRemove() {
+    if (!activeOrganization?.id || !member.user_id) return;
+    setLoading(true);
+    const result = await removeOrganizationMember({
+      organization_id: activeOrganization.id,
+      user_id: member.user_id,
+    });
+    setLoading(false);
+    if (!result.success) {
+      toast.error(result.message);
+    } else {
+      toast.success("Member removed successfully");
+      setOpen(false);
+      if (onReload) onReload();
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" className="h-8 w-8 p-0">
+          <span className="sr-only">Open menu</span>
+          <IconTrash className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Remove Member</DialogTitle>
+          <DialogDescription>
+            Are you sure you want to remove {member.name} from the organization?
+            This action cannot be undone.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button
+            variant="outline"
+            onClick={() => setOpen(false)}
+            disabled={loading}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleRemove}
+            disabled={loading}
+          >
+            {loading ? "Removing..." : "Remove"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 export function MembersTable({
   members,
@@ -102,6 +144,54 @@ export function MembersTable({
   isError: boolean;
   onReload?: () => void;
 }) {
+  const columns = React.useMemo<ColumnDef<OrganizationMember>[]>(
+    () => [
+      {
+        id: "drag",
+        header: () => null,
+        cell: ({ row }) =>
+          row.original.user_id ? (
+            <DragHandle id={row.original.user_id} />
+          ) : null,
+        enableSorting: false,
+        enableHiding: false,
+      },
+      {
+        accessorKey: "name",
+        header: "Name",
+        cell: ({ row }) => row.original.name,
+      },
+      {
+        accessorKey: "email",
+        header: "Email",
+        cell: ({ row }) => row.original.email,
+      },
+      {
+        accessorKey: "role",
+        header: "Role",
+        cell: ({ row }) => {
+          const isActive = row.original.is_active;
+          return (
+            <Badge variant="outline" className="px-1.5 flex items-center gap-2">
+              <span
+                className={`inline-block w-2 h-2 rounded-full ${isActive ? "bg-green-500" : "bg-red-500"}`}
+                aria-label={isActive ? "Active" : "Inactive"}
+              />
+              {row.original.role}
+            </Badge>
+          );
+        },
+      },
+      {
+        id: "actions",
+        cell: ({ row }) => (
+          <MemberActions member={row.original} onReload={onReload} />
+        ),
+      },
+    ],
+    [onReload]
+  );
+
   const [data, setData] = React.useState(members ?? []);
   React.useEffect(() => {
     setData(members);

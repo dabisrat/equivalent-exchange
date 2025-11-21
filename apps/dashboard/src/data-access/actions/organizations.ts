@@ -370,3 +370,84 @@ export async function updateOrganization(
     return { success: false, message: "Error updating organization" };
   }
 }
+
+export async function removeOrganizationMember({
+  organization_id,
+  user_id,
+}: {
+  organization_id: string;
+  user_id: string;
+}): AsyncResult<void> {
+  try {
+    const validatedOrgId = commonValidations.id.safeParse(organization_id);
+    const validatedUserId = commonValidations.id.safeParse(user_id);
+
+    if (!validatedOrgId.success || !validatedUserId.success) {
+      return { success: false, message: "Invalid ID format" };
+    }
+
+    const supabase = await createServerClient();
+
+    // Authentication check
+    const {
+      data: { user },
+      error: authError,
+    } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return { success: false, message: "Unauthorized" };
+    }
+
+    // Prevent removing oneself
+    if (user_id === user.id) {
+      return { success: false, message: "Cannot remove yourself" };
+    }
+
+    // Verify user has permission to remove members (must be owner or admin)
+    const { data: membership, error: membershipError } = await supabaseAdmin
+      .from("organization_members")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("organization_id", organization_id)
+      .eq("is_active", true)
+      .in("role", rolesWithMemberManagementPermission)
+      .single();
+
+    if (membershipError || !membership) {
+      return { success: false, message: "Access denied" };
+    }
+
+    // Check target member's role to prevent removing owners
+    const { data: targetMember, error: targetError } = await supabaseAdmin
+      .from("organization_members")
+      .select("role")
+      .eq("user_id", user_id)
+      .eq("organization_id", organization_id)
+      .single();
+
+    if (targetError || !targetMember) {
+      return { success: false, message: "Member not found" };
+    }
+
+    if (targetMember.role === "owner") {
+      return { success: false, message: "Cannot remove an owner" };
+    }
+
+    // Delete the member
+    const { error: deleteError } = await supabaseAdmin
+      .from("organization_members")
+      .delete()
+      .eq("organization_id", organization_id)
+      .eq("user_id", user_id);
+
+    if (deleteError) {
+      console.error("Error removing member:", deleteError);
+      return { success: false, message: "Failed to remove member" };
+    }
+
+    return { success: true, data: undefined };
+  } catch (error) {
+    console.error("Unexpected error removing organization member:", error);
+    return { success: false, message: "Error removing organization member" };
+  }
+}
