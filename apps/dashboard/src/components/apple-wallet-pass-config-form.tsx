@@ -121,9 +121,7 @@ export function AppleWalletPassConfigForm() {
   const defaultLogoText =
     appleConfig?.logoText || activeOrganization?.organization_name || "";
   const defaultDescription =
-    appleConfig?.description ||
-    `${activeOrganization?.organization_name} Loyalty Card` ||
-    "";
+    cardConfig?.card_front_config?.offer_description || "";
   const defaultStripImage = appleConfig?.stripImage || "";
   const defaultIconImage =
     appleConfig?.iconImage || activeOrganization?.logo_url || "";
@@ -169,10 +167,7 @@ export function AppleWalletPassConfigForm() {
         labelColor: appleConfig?.labelColor || "#e5e7eb",
         logoText:
           appleConfig?.logoText || activeOrganization?.organization_name || "",
-        description:
-          appleConfig?.description ||
-          `${activeOrganization?.organization_name} Loyalty Card` ||
-          "",
+        description: cardConfig?.card_front_config?.offer_description || "",
         stripImage: appleConfig?.stripImage || "",
         iconImage: appleConfig?.iconImage || activeOrganization?.logo_url || "",
         logoImage: appleConfig?.logoImage || activeOrganization?.logo_url || "",
@@ -312,25 +307,8 @@ export function AppleWalletPassConfigForm() {
               />
             </div>
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }: { field: any }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="e.g., Loyalty rewards card"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Brief description of the pass
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {/* Hidden description field - still part of form but not visible */}
+            <input type="hidden" {...form.register("description")} />
 
             <div className="grid grid-cols-1 gap-4">
               <FormField
