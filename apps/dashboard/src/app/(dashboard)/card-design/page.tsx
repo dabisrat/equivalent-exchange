@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from "@eq-ex/ui/components/tabs";
-import { WalletClassConfigForm } from "@app/components/wallet-class-config-form";
+import { GoogleWalletClassConfigForm } from "@app/components/google-wallet-class-config-form";
 import { AppleWalletPassConfigForm } from "@app/components/apple-wallet-pass-config-form";
 
 export default function CardDesignPage() {
@@ -104,7 +104,7 @@ export default function CardDesignPage() {
           </TabsContent>
 
           <TabsContent value="google-wallet" className="space-y-4">
-            <WalletClassConfigForm />
+            <GoogleWalletClassConfigForm />
           </TabsContent>
         </Tabs>
       </div>

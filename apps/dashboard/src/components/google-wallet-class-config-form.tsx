@@ -20,6 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@eq-ex/ui/components/form";
 import { useMultiOrgContext } from "@app/contexts/multi-org-context";
 import { updateGoogleWalletClassConfig } from "@app/data-access/actions/create-google-wallet-class";
@@ -52,7 +53,7 @@ const walletClassConfigSchema = z.object({
 
 type WalletClassConfigFormData = z.infer<typeof walletClassConfigSchema>;
 
-export function WalletClassConfigForm() {
+export function GoogleWalletClassConfigForm() {
   const { activeOrganization } = useMultiOrgContext();
   const [loading, setLoading] = useState(true);
   const [cardConfig, setCardConfig] = useState<OrganizationCardConfig | null>(
@@ -174,126 +175,143 @@ export function WalletClassConfigForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="flex justify-between flex-wrap">
-          {/* Form Column */}
-          <div className="w-140">
-            <Form {...form}>
-              <form
-                onSubmit={form.handleSubmit(handleApplyConfig)}
-                className="space-y-4"
-              >
-                <FormField
-                  control={form.control}
-                  name="programName"
-                  render={({ field }: { field: any }) => (
-                    <FormItem>
-                      <FormLabel>Program Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., My Rewards Program"
-                          {...field}
+        <Form {...form}>
+          <form
+            onSubmit={form.handleSubmit(handleApplyConfig)}
+            className="space-y-4"
+          >
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FormField
+                control={form.control}
+                name="programName"
+                render={({ field }: { field: any }) => (
+                  <FormItem>
+                    <FormLabel>Program Name</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="e.g., My Rewards Program"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Name displayed on the Google Wallet pass
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="hexBackgroundColor"
+                render={({ field }: { field: any }) => (
+                  <FormItem>
+                    <FormLabel>Background Color</FormLabel>
+                    <FormControl>
+                      <Input type="color" {...field} className="h-10" />
+                    </FormControl>
+                    <FormDescription>
+                      Background color of the pass
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-4">
+              <FormField
+                control={form.control}
+                name="programLogoUrl"
+                render={({ field }: { field: any }) => (
+                  <FormItem>
+                    <FormLabel>Program Logo URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/logo.png"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Logo displayed on the pass. Provide at high resolution for
+                      best quality.
+                    </FormDescription>
+                    {field.value && (
+                      <div className="mt-2">
+                        <img
+                          src={field.value}
+                          alt="Logo preview"
+                          className="w-16 h-16 object-cover rounded border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-                <FormField
-                  control={form.control}
-                  name="hexBackgroundColor"
-                  render={({ field }: { field: any }) => (
-                    <FormItem>
-                      <FormLabel>Background Color</FormLabel>
-                      <FormControl>
-                        <Input type="color" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="programLogoUrl"
-                  render={({ field }: { field: any }) => (
-                    <FormItem>
-                      <FormLabel>Program Logo URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/logo.png"
-                          {...field}
+              <FormField
+                control={form.control}
+                name="heroImageUrl"
+                render={({ field }: { field: any }) => (
+                  <FormItem>
+                    <FormLabel>Hero Image URL</FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder="https://example.com/hero.png"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Hero image displayed prominently on the pass. Provide at
+                      high resolution for best quality.
+                    </FormDescription>
+                    {field.value && (
+                      <div className="mt-2">
+                        <img
+                          src={field.value}
+                          alt="Hero image preview"
+                          className="w-32 h-20 object-cover rounded border"
+                          onError={(e) => {
+                            e.currentTarget.style.display = "none";
+                          }}
                         />
-                      </FormControl>
-                      {field.value && (
-                        <div className="mt-2">
-                          <img
-                            src={field.value}
-                            alt="Logo preview"
-                            className="w-16 h-16 object-cover rounded border"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                      </div>
+                    )}
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
 
-                <FormField
-                  control={form.control}
-                  name="heroImageUrl"
-                  render={({ field }: { field: any }) => (
-                    <FormItem>
-                      <FormLabel>Hero Image URL</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="https://example.com/hero.png"
-                          {...field}
-                        />
-                      </FormControl>
-                      {field.value && (
-                        <div className="mt-2">
-                          <img
-                            src={field.value}
-                            alt="Hero image preview"
-                            className="w-32 h-20 object-cover rounded border"
-                            onError={(e) => {
-                              e.currentTarget.style.display = "none";
-                            }}
-                          />
-                        </div>
-                      )}
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
+            <div className="flex items-start gap-6">
+              <div className="flex-1">
                 <Button type="submit" disabled={form.formState.isSubmitting}>
                   {form.formState.isSubmitting
                     ? "Applying..."
-                    : "Apply Configuration"}
+                    : "Save Configuration"}
                 </Button>
-              </form>
-            </Form>
-          </div>
+              </div>
 
-          {/* Preview Column */}
-          <div className="w-90">
-            <h3 className="text-lg mb-4">Pass Preview</h3>
-            {/* TODO: get max points and pass to the preview component */}
-            <PreviewWalletPass
-              className="p-0 rounded-3xl gap-0"
-              programName={form.watch("programName")}
-              hexBackgroundColor={form.watch("hexBackgroundColor")}
-              programLogoUrl={form.watch("programLogoUrl")}
-              heroImageUrl={form.watch("heroImageUrl")}
-              issuerName={activeOrganization?.organization_name || undefined}
-            />
-          </div>
-        </div>
+              {/* Preview Column */}
+              <div className="w-80 hidden md:block">
+                <PreviewWalletPass
+                  className="p-0 rounded-3xl gap-0"
+                  programName={form.watch("programName")}
+                  hexBackgroundColor={form.watch("hexBackgroundColor")}
+                  programLogoUrl={form.watch("programLogoUrl")}
+                  heroImageUrl={form.watch("heroImageUrl")}
+                  issuerName={
+                    activeOrganization?.organization_name || undefined
+                  }
+                />
+              </div>
+            </div>
+          </form>
+        </Form>
       </CardContent>
     </Card>
   );
