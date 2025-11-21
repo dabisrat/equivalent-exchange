@@ -314,24 +314,26 @@ const RewardsCard: React.FC<PropsWithChildren<RewardsCardProps>> = ({
                         `Collect ${maxPoints} stamps & get a free reward!`}
                     </p>
                   </div>
+                </div>
+              )}
 
-                  {organization?.card_config?.card_front_config
-                    ?.website_link && (
-                    <Link
-                      href={
-                        organization.card_config.card_front_config.website_link
-                      }
-                      target="_blank"
-                      title="Visit website"
-                      className={cn(
-                        buttonVariants({ variant: "link" }),
-                        "p-0 items-start h-[25px]"
-                      )}
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Visit us online
-                    </Link>
-                  )}
+              {/* Website Link - Always visible at bottom if provided */}
+              {organization?.card_config?.card_front_config?.website_link && (
+                <div className="absolute bottom-2 left-0 right-0 flex justify-center">
+                  <Link
+                    href={
+                      organization.card_config.card_front_config.website_link
+                    }
+                    target="_blank"
+                    title="Visit website"
+                    className={cn(
+                      buttonVariants({ variant: "link" }),
+                      "p-0 items-end h-[25px]"
+                    )}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    Visit us online
+                  </Link>
                 </div>
               )}
             </div>
