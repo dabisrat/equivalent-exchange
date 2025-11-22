@@ -231,12 +231,14 @@
   /* Remove tap highlight on mobile Safari */
   html {
     -webkit-tap-highlight-color: transparent;
+    min-height: 100dvh;
   }
 
   /* Base body styling with theme colors and typography */
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100dvh;
     /* Enable ligatures */
   }
 
