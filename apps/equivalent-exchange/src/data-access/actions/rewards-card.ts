@@ -107,6 +107,16 @@ export async function redeemRewards(cardId: string) {
     throw e;
   }
 
+  // Log transaction history
+  await supabaseAdmin.from("transaction_history").insert({
+    organization_id: card.organization_id,
+    user_id: card.user_id,
+    card_id: cardId,
+    stamper_id: user.id,
+    action_type: "redeem",
+    metadata: { points_redeemed: card.points },
+  });
+
   // TODO: find a way to do this without vercel specific code
   waitUntil(
     Promise.all([
@@ -142,6 +152,16 @@ export async function updateStampById(cardId: string, stampIndex: number) {
       .eq("stamp_index", stamp.stamp_index)
       .eq("reward_card_id", stamp.reward_card_id);
     stamp.stamped ? removeRewardPoints(cardId) : addRewardPoints(cardId);
+
+    // Log transaction history
+    await supabaseAdmin.from("transaction_history").insert({
+      organization_id: card.organization_id,
+      user_id: card.user_id,
+      card_id: cardId,
+      stamper_id: user.id,
+      action_type: stamp.stamped ? "unstamp" : "stamp",
+      metadata: { stamp_index: stampIndex },
+    });
   } else {
     await supabaseAdmin.from("stamp").insert([
       {
@@ -151,6 +171,16 @@ export async function updateStampById(cardId: string, stampIndex: number) {
       },
     ]);
     addRewardPoints(cardId);
+
+    // Log transaction history
+    await supabaseAdmin.from("transaction_history").insert({
+      organization_id: card.organization_id,
+      user_id: card.user_id,
+      card_id: cardId,
+      stamper_id: user.id,
+      action_type: "stamp",
+      metadata: { stamp_index: stampIndex },
+    });
   }
   // TODO: find a way to do this without vercel specific code
   waitUntil(

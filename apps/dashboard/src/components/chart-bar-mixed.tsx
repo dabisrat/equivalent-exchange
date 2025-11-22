@@ -1,7 +1,7 @@
-"use client"
+"use client";
 
-import { TrendingUp } from "lucide-react"
-import { Bar, BarChart, XAxis, YAxis } from "recharts"
+import * as React from "react";
+import { Bar, BarChart, XAxis, YAxis } from "recharts";
 
 import {
   Card,
@@ -10,91 +10,76 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@eq-ex/ui/components/card"
+} from "@eq-ex/ui/components/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@eq-ex/ui/components/chart"
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 187, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 90, fill: "var(--color-other)" },
-]
+} from "@eq-ex/ui/components/chart";
+export const description = "A mixed bar chart";
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  count: {
+    label: "Stamps",
+    color: "var(--primary)",
   },
-  chrome: {
-    label: "Chrome",
-    color: "var(--chart-1)",
-  },
-  safari: {
-    label: "Safari",
-    color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function ChartBarMixed() {
+export function ChartBarMixed({
+  data,
+}: {
+  data: { day: string; count: number }[];
+}) {
+  const maxDay = React.useMemo(() => {
+    if (!data.length) return null;
+    return data.reduce((prev, current) =>
+      prev.count > current.count ? prev : current
+    );
+  }, [data]);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Bar Chart - Mixed</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Peak Activity</CardTitle>
+        <CardDescription>Stamps by day of week</CardDescription>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig}>
           <BarChart
             accessibilityLayer
-            data={chartData}
-            layout="vertical"
+            data={data}
             margin={{
               left: 0,
             }}
           >
-            <YAxis
-              dataKey="browser"
+            <XAxis
+              dataKey="day"
               type="category"
               tickLine={false}
               tickMargin={10}
               axisLine={false}
-              tickFormatter={(value) =>
-                chartConfig[value as keyof typeof chartConfig]?.label
-              }
+              tickFormatter={(value) => value.slice(0, 3)}
             />
-            <XAxis dataKey="visitors" type="number" hide />
+            <YAxis dataKey="count" type="number" hide />
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent hideLabel />}
             />
-            <Bar dataKey="visitors" layout="vertical" radius={5} />
+            <Bar dataKey="count" radius={5} fill="var(--color-count)" />
           </BarChart>
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
+        {maxDay && (
+          <div className="flex gap-2 font-medium leading-none">
+            Busiest day: {maxDay.day} ({maxDay.count} stamps)
+          </div>
+        )}
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total stamps for the last 3 months
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }

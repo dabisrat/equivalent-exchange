@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { TrendingUp } from "lucide-react"
-import { Label, Pie, PieChart } from "recharts"
+import * as React from "react";
+import { Label, Pie, PieChart } from "recharts";
 
 import {
   Card,
@@ -11,62 +10,51 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@eq-ex/ui/components/card"
+} from "@eq-ex/ui/components/card";
 import {
   ChartConfig,
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
-} from "@eq-ex/ui/components/chart"
-const chartData = [
-  { browser: "chrome", visitors: 275, fill: "var(--color-chrome)" },
-  { browser: "safari", visitors: 200, fill: "var(--color-safari)" },
-  { browser: "firefox", visitors: 287, fill: "var(--color-firefox)" },
-  { browser: "edge", visitors: 173, fill: "var(--color-edge)" },
-  { browser: "other", visitors: 190, fill: "var(--color-other)" },
-]
+} from "@eq-ex/ui/components/chart";
+
+export const description = "A donut chart with text";
 
 const chartConfig = {
-  visitors: {
-    label: "Visitors",
+  count: {
+    label: "Count",
   },
-  chrome: {
-    label: "Chrome",
-    color: "var(--chart-1)",
+  segment: {
+    label: "Segment",
   },
-  safari: {
-    label: "Safari",
-    color: "var(--chart-2)",
-  },
-  firefox: {
-    label: "Firefox",
-    color: "var(--chart-3)",
-  },
-  edge: {
-    label: "Edge",
-    color: "var(--chart-4)",
-  },
-  other: {
-    label: "Other",
-    color: "var(--chart-5)",
-  },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
-export function ChartPieDonut() {
+export function ChartPieDonut({
+  data,
+}: {
+  data: { segment: string; count: number; fill: string }[];
+}) {
   const totalVisitors = React.useMemo(() => {
-    return chartData.reduce((acc, curr) => acc + curr.visitors, 0)
-  }, [])
+    return data.reduce((acc, curr) => acc + curr.count, 0);
+  }, [data]);
+
+  const largestSegment = React.useMemo(() => {
+    if (!data.length) return null;
+    return data.reduce((prev, current) =>
+      prev.count > current.count ? prev : current
+    );
+  }, [data]);
 
   return (
-    <Card className="flex flex-col h-full">
+    <Card className="flex flex-col @container/card">
       <CardHeader className="items-center pb-0">
-        <CardTitle>Pie Chart - Donut with Text</CardTitle>
-        <CardDescription>January - June 2024</CardDescription>
+        <CardTitle>Customer Segments</CardTitle>
+        <CardDescription>Current customer base distribution</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
           config={chartConfig}
-          className="mx-auto aspect-square max-h-[300px]"
+          className="mx-auto aspect-square max-h-[250px]"
         >
           <PieChart>
             <ChartTooltip
@@ -74,9 +62,9 @@ export function ChartPieDonut() {
               content={<ChartTooltipContent hideLabel />}
             />
             <Pie
-              data={chartData}
-              dataKey="visitors"
-              nameKey="browser"
+              data={data}
+              dataKey="count"
+              nameKey="segment"
               innerRadius={60}
               strokeWidth={5}
             >
@@ -102,10 +90,10 @@ export function ChartPieDonut() {
                           y={(viewBox.cy || 0) + 24}
                           className="fill-muted-foreground"
                         >
-                          Visitors
+                          Customers
                         </tspan>
                       </text>
-                    )
+                    );
                   }
                 }}
               />
@@ -114,13 +102,15 @@ export function ChartPieDonut() {
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
-        <div className="flex items-center gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
+        {largestSegment && (
+          <div className="flex items-center gap-2 font-medium leading-none">
+            Largest segment: {largestSegment.segment} ({largestSegment.count})
+          </div>
+        )}
         <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
+          Showing total customers by segment
         </div>
       </CardFooter>
     </Card>
-  )
+  );
 }
